@@ -13,6 +13,7 @@ pyglet.options['debug_gl'] = False
 # dir_path is path to directory in which this file is located using seperator
 # required by pyglet.resource.path
 dir_path = '/'.join(os.path.dirname(__file__).split('\\'))
+print("dir_path is", dir_path) #DEBUG LINE
 pyglet.resource.path = [dir_path + '/resources']
 pyglet.resource.reindex()
 
@@ -39,4 +40,5 @@ def config_import(mod_vars: dict, settings: List[str]):
         except AttributeError:
             pass
 
-from pyglet_asteroids import game
+#from pyglet_asteroids import game
+from pyrrhoids import game

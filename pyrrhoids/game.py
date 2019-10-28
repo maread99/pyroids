@@ -24,7 +24,7 @@ Module includes:
       'HIGH_EXPOSURE_LIMIT', 'NUM_PICKUPS'
       Any of these variables will be overriden if it has have been defined 
       in any configuration file passed at the command line (see 
-      pyglet_asteroids.config.template.__doc__):
+      pyrrhoids.config.template.__doc__):
 
 The following Batches that collate drawable objects are defined at the module 
 level:
@@ -64,7 +64,7 @@ from pyglet.sprite import Sprite
 from pyglet.image import TextureRegion
 from pyglet.text import Label
 
-import pyglet_asteroids
+import pyrrhoids
 from .lib.pyglet_lib.sprite_ext import (PhysicalSprite, SpriteAdv, 
                                         AvoidRect, InRect, load_image)
 from .lib.pyglet_lib.drawing import AngledGrid, Rectangle, DrawingBase
@@ -153,7 +153,7 @@ settings = ['BLUE_CONTROLS', 'RED_CONTROLS',
             'SHIP_ROTATION_SPEED', 'BULLET_SPEED', 'CANNON_RELOAD_RATE', 
             'RAD_BORDER', 'NAT_EXPOSURE_LIMIT', 'HIGH_EXPOSURE_LIMIT',
             'NUM_PICKUPS']
-pyglet_asteroids.config_import(vars(), settings)
+pyrrhoids.config_import(vars(), settings)
 assert PICKUP_INTERVAL_MAX >= PICKUP_INTERVAL_MIN
 
 Ship.set_controls(controls=BLUE_CONTROLS)

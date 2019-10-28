@@ -1,0 +1,126 @@
+									
+									UNRESOLVED BUGS
+
+SHOOT ONESELF, can still sometimes SHOOT ONESELF with a bullet whilst moving!!! launch bullets a few more pixels further ahead of the nose!! // 06/10/19 increased additional margin from 1 to 3 pixels (bullet_margin property of ControlSystem) - done the job? // 08/10/19 NO! NOT RESOLVED! Not even sure if it's a bullet  that killing the ship inexplicitely, although this time definitely fired a bullet. Might be worth stick in a line of code to print a note when a bullet hits a ship, togetherw with a timestamp - to be able to confirm that this is actually the cause...if it is will then be a matter of working out why it's happening, starting to believe it's nothing to do with not being fired sufficently far from the tip of the nose...how to replicate the error? // 08/10/19 was able to replicate once by 'rotating into the bullet'... firing when stationary then moving forwards and rotating...but again, can't replicate with regularity... It's a weird one // 11/10 - happened again, shooting stationary and 
+then somehow being able to accelerate and rotate into the bullet. Was on a higher level when ship has notable speed...maybe related to having sufficient speed to rotate into the bullet? Although the bullet should also be going faster?! Didn't change the 
+the bullet margin which remains 3 pixels more than might be thought necessary. See if it is speed related, and if so work out what needs to happen to not collide with one's own bullet!!! 12/10/19 - I bet it's the increase in the rotation speed that's allowing a ship to rotate into a bullet that it's just fired!! // 15/10/19 - can replicate at when going faster, be that due to higher bullet discharge speed or higher rotation speed...i.e. INVESTIGATE the higher rotation speed (would suggest a mere increase 
+ to the margin should solve it) // 22/10/19 - change to circular image may have solved this... note any/all further occurences.
+
+TIMESTAMP NEXT OCCURENCE...haven't noticed since at least 04/10/19
+JUMP. if that occasional JUMP continues, which wasn't there before, could be to do with changing the key_press handler to return True when done, or even having changed the pyglet debug option to False!!?? (since changed this back to True)
+11/10 - got a jump. Possibly just the way it is an a PC resources issue...
+22/10 - massive amount of jumping, had a browser full to twitter feeds open and another with radio playing.
+23/10 - jumping heavily again with a browser full to twitter feeds open and a couple of investing.com pages, although nothing else
+
+									TODO
+
+27/10/19 - nn Warning Radiation high sound getting caught on exit // and other sounds!!! Issue with the VS interactive interpreter? OK when executes via the Python 3.7 interpreter installed?
+
+set up config files for novice, played_a_bit, player_too_much, expert and NB these 
+exist to the main documentation.
+
+CODE STRUCTURE
+The 'sprites' module is not limited to sprites...with the likes of Control System and RadiationMonitor classes in there. Might need a rename!! Or strip out the non-sprite classes? The latter option certainly a possible rabbit hole!! Make sure any stripping out will genuinely result in a code structure that sufficently clearer to warrant the changes.
+
+DOCUMENTATION
+To experiment with Sphinx and write up as applic, to inc reference from / to Comments and Docstrings section of Code Layout Notes box of Best Practice page
+Revise documentation for distribution, make a backup before starting revisions
+
+Explore DISTRIBUTION
+At least:
+	install as a local project, try both non-editable and editable versions - i.e try out installing a local project via pip...
+	explore using a console_script via entry_points to define a script to 
+	run the game, and indeed on Windows to create an executable which has this 
+	effect.
+	package it on GitHub and install to my machine
+	get in on the Pi
+	get all the docs as required, including to read the docs	
+	create an executable version, at least for Windows.
+	try to create an executable version for linux and get it running on the Pi
+
+consider documentation, licences, existing images, 
+and sounds etc... together with changing to Pyrrhoids (tanks shooting custord 
+pies) but being cautious to not go down a rabbit hole...stick to what I want 
+need to learn from the process and dont' lose time on anicilliaries.
+
+would need to make sure all documentation accurate and suitable for distrubtion.
+
+would need to make sure template config file matches the actual default values 
+as define on game and sprites
+
+how to incorp main doc, as in the doc that would appear at the command line if 
+were to wish to query the command line arguments? In that doc need to note that 
+takes one optional argument which is the name of any configuration file, offer 
+top line instructions and point towards pyglet_asteroids.config.template.__doc__
+
+redo the asteroid graphic
+
+Images that are not mine, i.e. which need to change or check licencing and credit as applicable:
+	firework.png   easy to change, from bullet
+	mine.png   can change with a bit of willing...	
+	explosion.png    hard to change, if can credit, credit
+    smoke.png    hard to change, if can credit, credit
+
+Sound that's not mine, i.e. which need to change or check licencing and credit as applicable:
+    # timer part of 'mr_minelaid.wav' and 'nn_mainlaid.wav'
+    # gun_shot_shortened.wav   gun_shot part
+	# thrusters.wav
+
+
+
+
+DO NOT NOT NOTE INCLUDE MUSIC - would require the FFMpeg dependency that I think I'll get 
+away without. And anyone can just play music alongside anyway.
+
+might it be necessary to define a new boundary treatment 'stop' and 
+    apply this to the Shield class? - are shields 'killing' on the other 
+    side of the screen?
+    apply to ships? would it preferable to simply stop them, i.e. not change the 
+    current coordinate, than to bounce them?
+
+the name!! Pyrrhoids? Can hardly go with Asteroids? If were going with Pyrrhoids, 
+could change from an asteroid to a Pie? Robots with pie faces? Lose the ship for 
+a tank? Would need to change the code from 'asteroid' to whatever, and 'ship' to 
+whatever...
+
+IF WERE TO DISTRIBUTE:
+tidy resources folder
+change images pulled from elsewhere:
+   ship
+   bullet and images derived from bullet
+   asteroid
+ check licenses of external sounds that are being used...
+
+########### WHEN FINISHED WHEN FINISHED WHEN FINSIHEDDONE  ########### 
+
+MOVE OUT ANY GENERAL LIBRARIES TO MY MAIN LIBRARY REPOSITORY
+
+
+
+
+'FIXED' BUGS
+2 PLAYER SHIPS COLLIDE IMMEDIATELY!! 11/10/19 - believe fixed by passing 
+an avoid parameter to the second Player.
+DELETE DELETE DELETE IF DOESN'T REOCCUR
+TIMESTAMP NEXT OCCURENCE...06/10/19 - on starting game, ships given positions 
+sufficiently close together that immediately collided! 07/10/19 - and again, 
+definitely a problem at the beginning
+TWO SHIPS positioned simultaneously on the same position....worst worse case 
+could make ships invincible for first couple of seconds...TIMESTAMP the 
+next time it happens. Don't believe that this can happen at the start of the 
+game, although might be possible for ships to resurrect together when they 
+die by hitting each other...although in theory one will have to resurrect 
+before the other (whichever is queued first), such that the one that 
+resurrects second should be able to 'see' and avoid the one who resurrected 
+first...? // 08/10/19 - and again, at the start of the game
+
+PICKUP SOUND TRAPPED 
+11/10/19 - believe fixed by executing --_stop_all_sound-- within 
+_decease_game_sprites when game ends.
+there's a SOUND bug, something getting TRAPPED ON EXIT - try and workout what 
+it is. There's a commented out line to game's clearscreen method which might 
+solve it. TIMESTAMP the next time it happens
+Nothing from 02/10 thorugh 10/10 although something hung 10/10, not sure what
+10/10 - EM supply drop audio trapped on exit!!!
+
+
