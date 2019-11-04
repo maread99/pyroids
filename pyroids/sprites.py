@@ -50,7 +50,7 @@ respectively.
 Also defines default values for the following Global Constants, all of which 
 will be overriden where these variables have been defined in any 
 configuration file passed at the command line (see
-pyrrhoids.config.template.__doc__):
+pyroids.config.template.__doc__):
 'SHIELD_DURATION', 'INITIAL_AMMO_STOCKS', 'COLLECTABLE_IN', 
 'COLLECTABLE_FOR', 'PICKUP_AMMO_STOCKS'
 """
@@ -61,7 +61,7 @@ from math import floor
 from typing import Optional, Union, Tuple, Type, List
 from collections import OrderedDict
 
-import pyrrhoids
+import pyroids
 import pyglet
 from pyglet.sprite import Sprite
 from pyglet.image import Animation, Texture
@@ -1483,7 +1483,7 @@ INITIAL_AMMO_STOCKS = {Cannon: 9,
                        ShieldGenerator: 2}
 
 settings = ['SHIELD_DURATION', 'INITIAL_AMMO_STOCKS']
-pyrrhoids.config_import(vars(), settings)
+pyroids.config_import(vars(), settings)
 
 class ControlSystem(object):
     """Houses / Manages:
@@ -1775,7 +1775,7 @@ PICKUP_AMMO_STOCKS = {HighVelocityCannon: (5, 9),
                       }
 
 settings = ['COLLECTABLE_IN', 'COLLECTABLE_FOR', 'PICKUP_AMMO_STOCKS']
-pyrrhoids.config_import(vars(), settings)
+pyroids.config_import(vars(), settings)
 
 class PickUp(PhysicalSprite):
     """Creates randomly positioned static sprite that represents an 

@@ -113,7 +113,7 @@ class StartLabels(ScreenLabels):
     Title reads 'Asteroids' with subtitle underneath 'Press 1 or 2 to 
     start with 1 or 2 players'"""
     def _add_labels(self):
-        self.add_title('ASTEROIDS')
+        self.add_title('PYROIDS')
         self.add_label('Press 1 or 2 to start with 1 or 2 players')
         self.add_enter_for_inst_label()
         self.add_escape_to_exit_label()

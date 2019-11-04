@@ -41,4 +41,4 @@ def config_import(mod_vars: dict, settings: List[str]):
             pass
 
 #from pyglet_asteroids import game
-from pyrrhoids import game
+from pyroids import game

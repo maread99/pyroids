@@ -1,2 +1,2 @@
-# pyrrhoids
+# pyroids
 asteroids-esque game
