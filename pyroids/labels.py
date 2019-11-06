@@ -581,7 +581,7 @@ class InfoRow(object):
                  num_lives: int, 
                  level_label: Label):
         """++batch++ takes batch to which all info row objects will be added.
-        ++control_sys++ takes an instance of .sprites.ControlSystem"""
+        ++control_sys++ takes an instance of .game_objects.ControlSystem"""
         self._win = window
         self._info_row_base = self._win.height - 30
         self._batch = batch

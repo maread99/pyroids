@@ -1,57 +1,33 @@
 #! /usr/bin/env python
 
-"""
-Asteroids-esque game.
-Module includes:
-    Setting pyglet clock to instance of ClockExt which provides for pausing 
-    scheduled events.
-    Player class to represent a player. Via classes of labels modules creates 
-      and/or positions various labels and sprites that collectively provide a 
-      row of player information along the top of the screen covering lives, 
-      ammunition stocks, radiation levels and score.
-    Game class subclasses pyglet.window.Window and provides the main game 
-      engine, to include main --refresh-- function which serves to update 
-      all sprite positions. Via classes of label module, creates labels for 
-      various screens.
-    Instantiation of main pyglet event execution.
-    Definition of default values for following Global Constants and Dynamic 
-      Variables:
-      'BLUE_CONTROLS', 'RED_CONTROLS',
-      'WIN_X', 'WIN_Y', 'LIVES', 'LAST_LEVEL', 'PICKUP_INTERVAL_MIN', 
-      'PICKUP_INTERVAL_MAX', 'NUM_ASTEROIDS', 'ASTEROID_SPEED', 
-      'NUM_PER_SPAWN', 'SHIP_SPEED', 'SHIP_ROTATION_SPEED', 'BULLET_SPEED',
-      'CANNON_RELOAD_RATE', 'RAD_BORDER', 'NAT_EXPOSURE_LIMIT', 
-      'HIGH_EXPOSURE_LIMIT', 'NUM_PICKUPS'
-      Any of these variables will be overriden if it has have been defined 
-      in any configuration file passed at the command line (see 
-      pyroids.config.template.__doc__):
+"""Application.
 
-The following Batches that collate drawable objects are defined at the module 
-level:
-  ----start_batch---- holds objects that comprise the start screen
-  ----game_batch---- hold objects drawn during the game. Two groups defined:
-    ----game_group---- interactive sprites
-    ----rad_group---- sprites and primative drawings that comprise the 
-      radiation field
-  ----info_batch---- sprites and labels that comprise the information row to 
-    the top of the screen that provides players with data on stocks, radiation 
-    level, lives and score
-  ----next_level_batch---- holds only next_level label
-  ----end_batch---- comprises labels for the game over screen
-  ----inst_batch---- comprises labels for the instructions screen
+Defines application engine and instantiates application instance.
 
-Development Notes. Rather than having Game and Player both look at the 
-globally defined batches and groups, I considered defining them as class 
-attributes of Game and then passing through those required by Player. Decided 
-could end up going around in circles and that it was reasonable to define 
-globally.
+Module Attributes
+The following module attributes are assigned default values that can be
+overriden by defining an attribute of the same name in a configuration 
+file (see pyroids.config.template.py for explanation of each attribute 
+and instructions on how to customise values):
+    'WIN_X', 'WIN_Y',     
+    'BLUE_CONTROLS', 'RED_CONTROLS',
+    'LIVES', 'LAST_LEVEL', 
+    'SHIP_SPEED', 'SHIP_ROTATION_SPEED', 'BULLET_SPEED', 'CANNON_RELOAD_RATE',
+    'RAD_BORDER', 'NAT_EXPOSURE_LIMIT', 'HIGH_EXPOSURE_LIMIT', 
+    'PICKUP_INTERVAL_MIN', 'PICKUP_INTERVAL_MAX', 'NUM_PICKUPS',
+    'NUM_ASTEROIDS', 'ASTEROID_SPEED', 'NUM_PER_SPAWN', 'AT_BOUNDARY'
+   
+Classes:
+Player  Player representation.
+Game  Application Engine encompassing Game Engine.
+RadiationField  Draws radiation field.
 """
 
 from .lib.pyglet_lib.clockext import ClockExt
 import pyglet
 
 CLOCK = ClockExt()
-pyglet.clock.set_default(CLOCK)
+pyglet.clock.set_default(CLOCK)  # set alt. clock with pause functionality
 
 import random, time, importlib, sys
 import itertools as it
@@ -68,8 +44,8 @@ import pyroids
 from .lib.pyglet_lib.sprite_ext import (PhysicalSprite, SpriteAdv, 
                                         AvoidRect, InRect, load_image)
 from .lib.pyglet_lib.drawing import AngledGrid, Rectangle, DrawingBase
-from .sprites import (Ship, ShipRed, ControlSystem, Asteroid, 
-                      Bullet, Mine, Starburst, PickUp, PickUpRed)
+from .game_objects import (Ship, ShipRed, ControlSystem, Asteroid, 
+                           Bullet, Mine, Starburst, PickUp, PickUpRed)
 from .labels import (StartLabels, NextLevelLabel, LevelLabel, EndLabels,
                      InstructionLabels, StockLabel, InfoRow)
 from .lib.iter_util import (increment_last, factor_last, 
@@ -117,7 +93,10 @@ PICKUP_INTERVAL_MIN = 15
 PICKUP_INTERVAL_MAX = 30
 AT_BOUNDARY = 'bounce'
 
-#DYNAMIC VARIABLES
+# LEVEL SETTINGS.
+# Each level setting defined as a function that returns an iterator.
+# Iterator's first interation returns setting value for level 1 and each 
+# subsequent interation returns setting value for each subsequent level.
 NUM_ASTEROIDS = lambda: it.count(1, 1)
 ASTEROID_SPEED = lambda: factor_last([200],
                                      factor=LEVEL_AUGMENTATION, 
@@ -144,7 +123,8 @@ NAT_EXPOSURE_LIMIT = lambda: it.repeat(68)
 HIGH_EXPOSURE_LIMIT = lambda: it.repeat(20)
 NUM_PICKUPS = lambda: repeat_last([1]*2 + [2]*2 + [3])
 
-#Override globals with any attributes set on any passed config file
+# Override globals with any corresponding setting defined on any 
+# declared configuration file.
 settings = ['BLUE_CONTROLS', 'RED_CONTROLS',
             'WIN_X', 'WIN_Y', 'LIVES', 'LAST_LEVEL', 
             'PICKUP_INTERVAL_MIN', 'PICKUP_INTERVAL_MAX', 'AT_BOUNDARY',
@@ -160,47 +140,67 @@ Ship.set_controls(controls=BLUE_CONTROLS)
 ShipRed.set_controls(controls=RED_CONTROLS)
 
 #BATCHES
-start_batch = pyglet.graphics.Batch()
-game_batch = pyglet.graphics.Batch()
-info_batch = pyglet.graphics.Batch()
-next_level_batch = pyglet.graphics.Batch()
-end_batch = pyglet.graphics.Batch()
-inst_batch = pyglet.graphics.Batch()
+#
+# Define batches to hold pyglet objects to be drawn in a specific 
+# circumstance.
+start_batch = pyglet.graphics.Batch()  # start page
+game_batch = pyglet.graphics.Batch()  # during game
+info_batch = pyglet.graphics.Batch()  # info row across top of screen
+next_level_batch = pyglet.graphics.Batch()  # next level page
+end_batch = pyglet.graphics.Batch()  # end page
+inst_batch = pyglet.graphics.Batch()  # instructions page
 
 #GROUPS
 class RadGroup(pyglet.graphics.OrderedGroup):
     def set_state(self):
         pyglet.gl.glLineWidth(1)
 
-rad_group = RadGroup(0)
-game_group = pyglet.graphics.OrderedGroup(1)
+rad_group = RadGroup(0)  # for drawings that comprise radiation field
+game_group = pyglet.graphics.OrderedGroup(1)  # all other game objects
+
+# DEVELOPMENT NOTE. 
+# Rather than having Game and Player both look at the globally defined 
+# batches and groups, considered defining them as class attributes of 
+# Game and then passing through those required by Player. Decided cleaner
+# to define at module level.
 
 class Player(object):
-    """Maintains player lives and score.
-    Contructor takes a Game instance (--game--)
-    Constructor creates a ControlSystem (--control_sys--) from which a ship 
-    is requested. When ship killed, whilst player has lives remaining then 
-    the player is resurrected with a new ship. All ships are requested from 
-    the --control_sys--.request_ship() which is passed current speed 
-    data requested from .game together with a callback to advise the player 
-    when the ship is killed. When no lives remaining the player object 
-    advises the game (--game--) that player dead.
+    """A player of a Game.
     
-    Game information provided to the player via InfoRow.
+    Comprises:
+        ControlSystem
+        InfoRow
+        Functionality to:
+            Request ship with attributes as currently defined by --game--.
+                When killed ship resurrects if lives remaining. If no 
+                lives remaining then --game-- advised that player dead.
+            Maintain lives and score
+            Schedule supply drops with each drop made between 
+                ----PICKUP_INTERVAL---- and ----PICKUP_INTERVAL*2----
+                seconds after the prior drop (or start of game) and only 
+                in event total drops during game will not exceed 
+                --max_pickups--
+            
+    Class Attributes
+    PickUpCls dictionary defining PickUp class for each player color
 
-    Constructor starts repeated calls to create resupply PickUp objects. 
-    The initial resupply is dropped after between, and inclusive of, 
-    ----PICKUP_INTERVAL---- and ----PICKUP_INTERVAL*2---- seconds. Each 
-    drop triggers a call for the next drop, again to occur after a further 
-    between ----PICKUP_INTERVAL---- and ----PICKUP_INTERVAL*2---- seconds.
+    Instance Attributes
+    --game-- Game instance in which player participating.
+    --control_sys-- ControlSystem.
+    --ship-- any current Ship.
+    --lives-- number of lives remaining.
 
-    Public methods:
-    --score-- returns current score and can be set to a new score
-    --add_to_score(increment)--
-    --withdraw_from_game()-- effectively stops further player interaction 
-    with the game, although existing information will remain (such as 
-    information labels)
-    --delete-- removes all traces of player from the game
+    Properties
+    --color-- Player color.
+    --score-- current score.
+    --max_pickups-- current limit to number of supply drops during a game.
+
+    Methods
+    --__init__()-- create ControlSystem and InfoRow, request initial Ship.
+    --add_to_score(increment)-- add +increment+ to score.
+    --increase_max_pickups(num)-- increase max pickups by +num+.
+    --withdraw_from_game()-- stop Player interaction with --game--.
+    --delete()-- delete Player.
     """
         
     PickUpCls = {'blue': PickUp,
@@ -209,18 +209,20 @@ class Player(object):
     def __init__(self, game: pyglet.window.Window, 
                  color: Union['blue', 'red'], 
                  avoid: Optional[List[AvoidRect]] = None):
-        """++game++ takes game instance of Game class (a subclass of 
-        pyglet.window.Window).
-        ++color++ passed as string indicating player colour, 'blue' or 'red'
-        Constructor gets ship and position randomly in the game window, 
-        inserts an InfoRow and starts scheduling pick up drops.
-        Initial ship will be positioned randomly albeit avoiding the areas 
-        defined in ++avoid++ by a list of AvoidRect objects.
+        """Initialises a player.
+
+        ++game++ Game (subclass of pyglet.window.Window) which player to
+          participate in.
+        ++color++ 'blue' or 'red'
+        
+        Creates a ControlSystem. Requests a ship positioned to avoid any 
+        rectangles defined in +avoid+. Creates an InfoRow to display 
+        player related information. Starts supply drop schedule.
         """
         self.game = game
-        self.color = color
+        self._color = color
         self.control_sys = ControlSystem(color=self.color)
-        self.ship: Ship # set via _request_ship
+        self.ship: Ship  # set via _request_ship
         self.request_ship(avoid=avoid)
         self._score = 0
         self.lives = LIVES
@@ -234,24 +236,25 @@ class Player(object):
         self._max_pickups = 0
         self._schedule_drop()
 
+    @property
+    def color(self):
+        return self._color
+
     def request_ship(self, avoid: Optional[List[AvoidRect]] = None,
                      **kwargs):
-        """Requests a ship from the control system which it randomly
-        rotates and randomly postions albeit to a position that lies 
-        outside of any AvoidRect's included to any list passed as +avoid+.
+        """Request ship from control system.
+
+        Ship given random rotation and random position, albeit avoiding 
+        any rectangular areas defined in +avoid+.
         """
         self.ship = self.control_sys.new_ship(initial_speed=0,
                                               at_boundary=AT_BOUNDARY,
                                               batch=game_batch, 
                                               group=game_group,
-                                              on_kill=self.ship_killed, 
+                                              on_kill=self._lose_life, 
                                               **kwargs)
         self.ship.position_randomly(avoid=avoid)
         self.ship.rotate_randomly()
-
-    def ship_killed(self):
-        """Call when ship killed"""
-        self._lose_life()
         
     @property
     def score(self):
@@ -262,7 +265,7 @@ class Player(object):
         self._score = value
         self._info_row.update_score_label(value)
         
-    def add_to_score(self, increment):
+    def add_to_score(self, increment: int):
         """Increases player score by +increment+"""
         self.score += increment
         
@@ -275,6 +278,7 @@ class Player(object):
         self._max_pickups = value
 
     def increase_max_pickups(self, num: int):
+        """Increases maximum number of pickups by +num+"""
         self.max_pickups += num
 
     def _drop_pickup(self, dt):
@@ -291,13 +295,12 @@ class Player(object):
     def _unschedule_calls(self):
         pyglet.clock.unschedule(self._drop_pickup)
 
-    def _resurrect(self, dt = None):
-        """Resurrects a player who lost a life although still have lives.
-        Resurrected by getting a new ship with a position that avoids all 
-        live sprites.
-        Calls method on --game-- to move player to players_alive
-        +dt+ parameter provides for calling via one-time clock scheduled 
-        event which passes actual elapsed time since call scheduled.
+    def _resurrect(self, dt: Optional[float] = None):
+        """Resurrect player.
+        
+        Requests new ship in position that avoids existing sprites.
+        
+        +dt+ captures 'elapsed time' if called via scheduled event.
         """
         avoid = []
         for sprite in PhysicalSprite.live_physical_sprites:
@@ -306,13 +309,11 @@ class Player(object):
                           rotation_cruise_speed=self.game.ship_rotation_speed)
                                
     def withdraw_from_game(self):
+        """Prevent further player interaction with game"""
         self.control_sys.die()
         self._unschedule_calls()
 
     def _lose_life(self):
-        """Reduces lives by one. If player has lives remaining then schedules 
-        a resurrection.
-        """
         self.lives -= 1
         self._info_row.remove_a_life()
         if self.lives:
@@ -321,37 +322,39 @@ class Player(object):
             self.withdraw_from_game()
             self.game.player_dead(self)
         
-    def delete_info_row(self):
+    def _delete_info_row(self):
         self._info_row.delete()
 
     def delete(self):
-        """Deletes object.
-        Internals - tidy up operations including deleting player labels 
-        and deceasing ship if it's still alive
-        """
+        """Delete player
+        
+        Removes all traces of player from --game--"""
         self.withdraw_from_game()
-        self.delete_info_row()
+        self._delete_info_row()
         if self.ship.live:
             self.ship.die()
         del self
 
 class RadiationField(object):
-    """Class provides for drawing a radiation field around the edge of the 
-    screen. Radiation field defined as two series of parallel lines angled at 
+    """Draws radiation field around edge of screen.
+    
+    Radiation field defined as two series of parallel lines angled at 
     45 degrees to the vertical, with one series running left-to-right and 
     the other right-to-left such that the lines of each series cross. 
-    Within this angled grid are regularly spaced 'radiation' symbols. Grid 
-    lines added to the game_batch as a VectorList whilst symbols are added as 
-    sprites. All defined in shades of grey.
+    Regularly spaced 'radiation' symbols placed within field. All defined 
+    in shades of grey.
 
-    The constructor only draws the parallel lines which are drawn to fully 
-    fill the window. The client is then requried to execute the --set_field-- 
-    method to define the actual radiation zone.
+    Constructor only draws parallel lines that fully fill the window.
+    Client responsible for subsequently calling --set_field()-- to 
+    define field.
 
-    --set_field(width)-- Set or reset the radiation field to comprise a 
-        border around the window of width ++width++
+    Class attributes
+    nuclear_img  radition symbol image as pyglet TextureRegion
+
+    Methods
+    --set_field(width)-- set/reset radiation field to width +width+
     """
-
+        
     nuclear_img = load_image('radiation.png', anchor='center')
 
     def __init__(self):
@@ -364,14 +367,15 @@ class RadiationField(object):
         self._nuclear_sprites = []
                 
     def _add_grid(self):
-        grid = AngledGrid(x_min=0, x_max=WIN_X, y_min=0, y_max=WIN_Y,
-                          vertical_spacing=50, angle=45, color=(80, 80, 80),
-                          batch=self.batch, group=self.group)
+        # Add grid lines to ---game_batch--- as a VectorList
+        AngledGrid(x_min=0, x_max=WIN_X, y_min=0, y_max=WIN_Y,
+                   vertical_spacing=50, angle=45, color=(80, 80, 80),
+                   batch=self.batch, group=self.group)
     
     def _set_blackout_rect(self):
         if self._rect is not None:
             self._rect.remove_from_batch()
-        # do not draw blackout rect if radiation field fills window
+        # Do not draw blackout rect if radiation field fills window
         if min(WIN_X, WIN_Y)/2 - self._field_width < 1:
             return
         self._rect = Rectangle(self._field_width, WIN_X - self._field_width,
@@ -381,6 +385,7 @@ class RadiationField(object):
                                )
         
     def _add_nuclear_sprite(self, x, y):
+        # Add radiation symbols to ---game_batch--- as sprites
         sprite = Sprite(self.nuclear_img, x, y, 
                       batch=self.batch, group=self.group)
         if sprite.width > self._field_width:
@@ -401,7 +406,7 @@ class RadiationField(object):
         half_width = self._field_width//2
         min_separation = self.nuclear_img.height*4
 
-        #create nuclear sprites on LHS
+        # Create nuclear sprites on LHS
         top_sprite = self._add_nuclear_sprite(half_width, WIN_Y-half_width-8)
         lhs_sprites = [top_sprite]
         bot_sprite = self._add_nuclear_sprite(half_width, half_width)
@@ -417,13 +422,13 @@ class RadiationField(object):
                 y -= vert_separation
         lhs_sprites.append(bot_sprite)
 
-        #'mirror' LHS to RHS
+        # 'Mirror' LHS to RHS
         rhs_sprites = []
         for lhs_sprite in lhs_sprites[:]:
             sprite = self._add_nuclear_sprite(WIN_X-half_width, lhs_sprite.y)
             rhs_sprites.append(sprite)
 
-        #create bottom sprites, between existing bot sprites on lhs and rhs
+        # Create bottom sprites, between existing bot sprites on lhs and rhs
         min_separation = round(self.nuclear_img.height*4.5)
         bottom_sprites = []
         horz_num = WIN_X//min_separation
@@ -436,14 +441,12 @@ class RadiationField(object):
                 bottom_sprites.append(sprite)
                 x += horz_separation
 
-        #'mirror' bot to top
+        # 'Mirror' bot to top
         for bottom_sprite in bottom_sprites[:]:
             self._add_nuclear_sprite(bottom_sprite.x, top_sprite.y)
 
     def set_field(self, width: float):
-        """Set or reset the radiation field to represent a border of width 
-        ++width++.
-        """
+        """Set/reset radiation field to border of width ++width++."""
         assert width <= min(WIN_Y, WIN_X)/2
         self._field_width = width
         self._set_blackout_rect()
@@ -451,179 +454,78 @@ class RadiationField(object):
 
             
 class Game(pyglet.window.Window):
-    """Subclasses pyglet.window.Window to create a game application class 
-    which is itself the window in which the game is played.
+    """Application and Game Engine.
 
-    The following application states are defined:
-        'start' comprises start screen inviting user to start a game. This 
-          screen cannot be returned  to later. Requires keyboard press to 
-          proceed, handled by --on_key_press--. User pressing '1' or '2' key 
-          results in game starting for 1 or 2 players respectively (and 
-          results in the state changing to 'game'.
-        'game' a live continuing game
-        'next_level' the period between game levels
-        'end' following the end of a game (once all players have lost all 
-          lives or if the user forces the end of the game with F10). User 
-          can play again via '1' or '2'
-          with the game over screen and the option to play again
-        'instructions' screen offering end user instructions to include 
-          key controls
+    Extends pyglet.window.Window such that application engine is itself 
+    the application window.
+
+    States
+
+    Defines following application states, manages state changes, draws 
+    to window as appropriate for current state.
+        'start' draws start page inviting user to start a game. User 
+            pressing '1' or '2' key starts game for 1 or 2 players and 
+            changes state to 'game'. User pressing ENTER changes state to 
+            'instructions'.
+        'game' draws a live game (see Game Engine section below). User 
+            pressing F12 pauses game and changes state to 'instructions'.
+        'next_level' draws next level label over live game
+        'instructions' draws instructions to include key controls.
+            If previous state 'start', user pressing any key returns to 
+                start state.
+            If previous state 'game', user pressing F12 returns to game 
+                state whilst pressing ESCAPE changes to end state.
+        'end' draws an end page customised for the circumstances under which 
+            game ended. User pressing '1' or '2' starts a new game and 
+            changes state to 'game' whilst pressing 'ESCAPE' exits
+            the application.
+            
+    Game Engine
+
+    Deletes players from any previous game.
+    Creates players for new game.
+    Sets level settings for current level.
+    Creates Asteroid sprites.
+    During 'game' state repeatedly:
+        Checks for any collisions between sprites
+        Resolves consequences of any collision
+        Updates players' scores
+        Updates position of all live sprites
+        Redraws screen
+    When all asteroids destroyed game briefly paused before advancing to 
+    next level.
+    Pauses game on F12 key press
+    Ends game on earlier of completion of last level or no player having 
+    any remaining lives.
+        
+    Properties
     
-    Internals
-    Labels associated with a batch are created via dedicated classes of the 
-    labels module: StartLabels, NextLevelLabel, LevelLabel, EndLabels.
-    
-    The current state is returned by --app_state-- and states are changed by 
-    setting --app_state--
-    --_state_batches-- associates each state with a tuple of one or more 
-    globally defined batches. NB A batch can be associated with one or more 
-    states. Drawing to the window provided for by overriding the inherited 
-    --on_draw-- event handler to draw, in order, the batches that are 
-    associated with the current state. 
-    
-    Application starts in 'start' state which offers the user a title 
-    screen with an invitation to play by pressing 1 or 2, or viewing 
-    instructions via Enter. User pressing 1 or 2 is handled by 
-    --on_key_press-- which starts game with call to --start_game--.
-    DYNAMIC VARIABLES - part of the game setup process involves setting up 
-    dynamic variables which can take a different value for each game level. 
-    Via a call to --_set_settings_map-- the --_settings_map-- dictionary 
-    is defined, each item of which defines a dynamic variable:
-          The key takes a setter function that has one argument which takes 
-        the new value that the dynamic variable is to be set to, the setter 
-        is responsible for implementing the conseqeunce of the change in the 
-        dynamic variable's value. All setter functions are defined on this 
-        class, for example --_set_number_asteroids-- and 
-        --_set_spawn_limit--. The value 
-          The value takes an iterator which returns the dynamic variable 
-        values, with the first call returning the value for level 1 and each 
-        subsequent call representing the value for each successive level. 
-        Each value is defined as the return from a function assigned to an 
-        associated global attribute, for example NUM_ASTEROIDS, SPAWN_LIMIT, 
-        each of which are (by default) assigned lambda functions that 
-        return iterators. NB the default functions assigned to these global 
-        attributes can be overriden via configurations files, thereby 
-        allowing clients to define the dynamic variables for every level.
-    Each time a new game is setup a fresh version of --_settings_map-- is 
-    created with new iterators (such that dynamic variables will again 
-    start from 0).
-    The start_game method also deletes any players from a previous game and 
-    sets up new players. 
-    The method concludes by executing --play_level--.
-    
-    --play_level-- is executed after the game setup and then again at the 
-    start of each new level. The method implements the dynamic variables for 
-    the current level and sets the application state to 'game'. Each dynamic 
-    variable is implemented by calling its setter function and passing it 
-    the next value returned by the associated iterator. Note that the setter 
-    functions are only concerned with implementing the consequence of the new 
-    value. This may or may not require the value to be stored to an instance 
-    attribute. For example instance attributes _ship_speed and 
-    ship_rotation_speed are set (by --_set_ship_speed-- and 
-    --_set_ship_rotation_speed-- respectively) as these values are required by 
-    the Player class to instantiate any ship resurrected during the level. 
-    However, the likes of --_set_bullet_speed--, --_set_cannon_reload_rate--, 
-    --_set_radiation_field--, --_set_pickups-- etc do not assign the value 
-    directly to an instance attribute but rather simply send it on to 
-    wherever it's required to implement the consequences of the change. For 
-    example the value passed to --_set_cannon_reload_rate-- is passed 
-    straight on to the control system. Even the number of asteroids is 
-    not stored, rather --_set_num_asteroids-- directly instantiates the 
-    required number (NB this is the reason that the --_settings_map-- is 
-    an OrderedDict - instantiating the asteroids via --_set_num_asteroids-- 
-    requires that --_asteroid_speed--, --_spawn_limit-- and 
-    --_num_per_spawn-- have already been set.
-    After setting new dynamic values --play_level-- sets the game off by 
-    starting --refresh-- (see following) and giving players control of the 
-    ships.
-
-    All game sprites have PhysicalSprite as a base. The PhysicalSprite 
-    class maintains a ---live_physical_sprites--- attribute that holds a 
-    list of all instantiated sprites that have not subsequently deceased. For 
-    the purposes of this class, that means it holds a list of all moving 
-    sprites in the window, and only those sprites. These sprites are made to 
-    'move' via regular calls to each sprite's refresh method to which the 
-    time since the last call is passed. It is each sprite's responsiblity to 
-    calcualte it's new position given the elapsed time. The 'call out' to 
-    all live spreads is made by the --refresh-- method which when scheduled 
-    is called 100 times a second.
-    Scheduled by --start_refresh-- and cancelled by --stop_refresh--. 
-    Scheduled at the start of a level (by --_pause_for_next_level-- via 
-    --play_level--) and unscheduled at the end of each level (by 
-    --_unpause_for_next_level-- via --next_level_page--) and the end of a 
-    game (directly by --end_game--)
-    Also, --refresh-- is effectively disabled and enabled by the 
-    --_user_pause-- and --_user_resume-- methods which pause and resume 
-    the clock responsible for scheduling calls to --refresh--.
-    
-    PAUSING. Two types of pause and resumption defined, in addition to 
-    pausing sprite refresh:
-    --_pause_for_next_level-- and --_unpause_for_next_level-- methods 
-    provide for pausing between levels. During this pause player ships 
-    are frozen although the pyglet clock is not paused such that any 
-    scheduled events will continue to execute. The between levels' pause 
-    also allows for sound to bleed over between levels.
-    --_user_pause-- and --_user_resume-- provide for pausing on such a
-    request by a player (via F12 which is picked up by --on_key_press--). 
-    The pyglet clock is paused during this period - effectively freezing 
-    any scheduled events during the pause to prevent their premature 
-    execution. Pushes the --paused_on_key_press-- handler (which returns 
-    True) to the top of the stack so that all key presses are handled by 
-    that method, which provides for user to return to game with F12 or 
-    exit with ESCAPE. Also stops and resumes all sound either side of the 
-    pause.
-
-    Levels. The --refresh-- method identifies when there are no more 
-    asteroids whilst at least one player remains alive. In this case the 
-    game is paused and the --next_level_page-- method is called. If the 
-    level just played was the ----LAST_LEVEL---- then end game is called 
-    with advices that the game was completed. Otherwise sets the state to 
-    'next_level', pauses the game and schedules a call to --next_level-- 
-    which gets rid of unrequired sprites (bullets, mines etc) before 
-    calling --play_level-- to play the next level.
-
-    End game. Handled by --end_game(escaped, completed)-- which sets the 
-    'end' state. Can be called in the following circumstances:
-        From the in-game pause screen, via the escape key
-        If all players lose all their lives (identified by --refresh--)
-        If player(s) completes last level
-    Sets the end labels to show information appropriate for the 
-    circumstances under which the game ended.
-    --end_game-- also 'closes down' the game, stopping --refresh-- and 
-    preventing further player interaction. It does not delete the players, 
-    thereby allowing for the player information (ammo stocks, score etc) 
-    to remain.
-    The end labels include instrutions to start a new game by pressing 
-    either 1 or 2.
-
-    In-game pause. When in 'game' or 'next_level' states can toggle 
-    pause/unpause with F12. When paused enters 'instructions' state and 
-    shows a version of the instructions screen.
-
-    Collisions. --refresh-- calls PhysicalSprite.eval_collisions to 
-      evaluate collisions between live sprites and resolve those 
-      collisions by calling the collided_with method of each 
-      of the objects that collided (with the collided_with method of 
-      every object being responsible to handle the collision consequence 
-      for itself only). Additionally:
-        Evaluates if the collision is between a bullet and an asteroid, 
-          in which case adds 1 to the score of the player whose ship 
-          fired the bullet
+    --app_state--  Current state
+    --all_players--  List of Players
+    --player_winning--  Player that is currently winning
+    --num_players--  Number of Players
+    --players_ships--  List of player's current Ships
+    --ship_speed--  Ship speed setting for current level
+    --ship_rotation_speed--  Ship rotation speed setting for current level
     """
 
     def __init__(self, *args, **kwargs):
-        """Sets up PhysicalSprite class attributes
-        Initialises labels and sets window to start screen.
-        See cls.__doc__ for further documentation.
-        """
+        """Set up Application.
+        
+        Create application window.
+        Define batches to be drawn for each state.
+        Create labels."""
         super().__init__(*args, width=WIN_X, height=WIN_Y, **kwargs)
         PhysicalSprite.setup(window=self, at_boundary='bounce')
         
-        self.players_alive = [] # appended to by --add_player--
-        self.players_dead = []
-        self._num_players: int # set by --start_game--
+        self.players_alive = []  # Appended to by --_add_player--
+        self.players_dead = []  # Appended to by --_move_player_to_dead--
+        self._num_players: int  # Set by --_start_game--
 
-        # set by dedicated set methods - as keys of --_settings_map--
+        # Initialise LEVEL SETTINGS.
+        # Value of each level setting reassigned for each new level.
+        # Each value set by a dedicated method (keys of --_settings_map--)
+        # called by --_setup_next_level()--.
         self._level: int = 0
         self._num_asteroids: int = 0
         self._asteroid_speed: int = 0
@@ -632,9 +534,12 @@ class Game(pyglet.window.Window):
         self._spawn_limit: int = 0
         self._num_per_spawn: int = 0
         
-        self._settings_map: dict # set / reset by --_set_settings_map()--
+        self._settings_map: dict  # Set / reset by --_set_settings_map()--
+        
         self._rad_field = RadiationField()
         
+        # Define batches to be drawn for each state.
+        # Batches drawn in order by --on_draw()--
         self._state_batches = {'start': (start_batch,),
                                'game': (game_batch, info_batch),
                                'next_level': (game_batch, info_batch,
@@ -645,9 +550,10 @@ class Game(pyglet.window.Window):
                                }
         
         self._app_state: str
-        self.app_state = 'start'        
+        self.app_state = 'start'
         self._pre_instructions_app_state: Optional[str] = None
 
+        # Create labels
         self.start_labels = StartLabels(self, start_batch)
         self.next_level_label = NextLevelLabel(self, next_level_batch)
         self.level_label = LevelLabel(self, info_batch)
@@ -666,6 +572,18 @@ class Game(pyglet.window.Window):
         self._app_state = state
 
     def _set_settings_map(self):
+        # Each item represents a level setting
+        #
+        # Key a setter function that takes one argument which receives 
+        #   the value the level setting is to be set to. Setter function 
+        #   responsible for implementing all conseqeunces of change in 
+        #   level setting value. NB All setter functions are class methods.
+        #
+        # Value an iterator that returns the level setting values, with 
+        #   first interation returning value for level 1 and each subsequent
+        #   call returning value for each successive level. NB iterator 
+        #   defined as the return of a function assigned to a corresponding 
+        #   global constant.
         map = OrdDict({self._set_level: it.count(1, 1),
                        self._set_ship_speed: SHIP_SPEED(),
                        self._set_ship_rotation_speed: SHIP_ROTATION_SPEED(),
@@ -682,10 +600,19 @@ class Game(pyglet.window.Window):
                        })
         self._settings_map = map
 
-
-    #window keypress handler
+    # Window keypress handler
+    #
+    # All key presses pass through this handler except when user has 
+    # paused game (in which case handled by --_paused_on_key_press-- which 
+    # is pushed to the stack temporarily above this method and prevents 
+    # propogation of event to this method).
+    #
+    # Key presses that control ships handled first by handlers on Ship class,
+    # event then propogates through this method benignly given that during 
+    # game state this handler only enacts a conseqeunce if key pressed is F12.
     def on_key_press(self, symbol, modifiers):
-        """Key press handler for the window.
+        """Application window key press handler. Overrides inherited method.
+
         Execution depends on application state:
           If 'game' or 'next level' then only acts on key press of F12 
         which pauses the game.
@@ -694,12 +621,6 @@ class Game(pyglet.window.Window):
           If 'start' or 'end' then key press of 1 or 2 (either top row or 
         number pad) or F1 or F2 will start game for 1 or 2 players whilst 
         key press of escape will exit the application.
-        Internals:
-        key presses from the pause screen are handled by 
-        --paused_on_key_press-- which is pushed to the stack temporarily 
-        above this method.
-        key presses that control ships are handled by the handlers on the 
-        Ship class
         """
         if self.app_state in ['game', 'next_level']:
             if symbol == pyglet.window.key.F12:
@@ -721,13 +642,13 @@ class Game(pyglet.window.Window):
                             pyglet.window.key.F2]:
                 players=2
             elif symbol == pyglet.window.key.ESCAPE:
-                self.end_app()
+                self._end_app()
                 return
             else:
                 return
-            self.start_game(players)
+            self._start_game(players)
             
-    #PLAYERS
+    # PLAYERS
     @property
     def all_players(self) -> List[Player]:
         return self.players_alive + self.players_dead
@@ -753,10 +674,10 @@ class Game(pyglet.window.Window):
         self.players_dead.append(player)
 
     def player_dead(self, player: Player):
-        """Call when player dead"""
+        """Advise game that +player+ has died"""
         self._move_player_to_dead(player)
 
-    def delete_all_players(self):
+    def _delete_all_players(self):
         for player in self.all_players:
             player.delete()
         self.players_alive = []
@@ -764,10 +685,8 @@ class Game(pyglet.window.Window):
 
     @property
     def players_ships(self) -> List[Ship]:
-        """Returns list of ship objects of players who currently 
-        have a live ship. NB Players who do not currently have a ship, 
-        due to player having died or being resurrected, will not be 
-        represented.
+        """Returns list of live Ship objects.
+        NB dead or currently resurrecting Players will not be represented.
         """
         ships = []
         for player in self.all_players:
@@ -779,23 +698,23 @@ class Game(pyglet.window.Window):
         for player in self.all_players:
             player.withdraw_from_game()
 
-    #ADD GAME OBJECTS
-    def add_player(self, color: Union['blue', 'red'],
+    # ADD GAME OBJECTS
+    def _add_player(self, color: Union['blue', 'red'],
                    avoid: Optional[List[AvoidRect]] = None) -> Player:
         player = Player(game=self, color=color, avoid=avoid)
         self.players_alive.append(player)
         return player
         
-    def set_players(self) -> Player:
-        self.delete_all_players()
-        player1 = self.add_player(color='blue')
+    def _set_players(self) -> Player:
+        self._delete_all_players()
+        player1 = self._add_player(color='blue')
         if self._num_players == 2:
             avoid = [AvoidRect(player1.ship, margin = 2 * player1.ship.width)]
-            self.add_player(color='red', avoid=avoid)
+            self._add_player(color='red', avoid=avoid)
 
     def _add_asteroid(self, avoid: Optional[List[AvoidRect]] = None):
-        """Adds asteroid with random rotation and ramdon position albeit 
-        avoiding any AvoidRect included in any list passed as ++avoid++.
+        """Adds asteroid with random rotation and ramdon position, albeit 
+        with position avoiding any area represented in +avoid+.
         """
         asteroid = Asteroid(batch=game_batch, group=game_group,
                             initial_speed=self._asteroid_speed,
@@ -812,12 +731,13 @@ class Game(pyglet.window.Window):
         for i in range(num_asteroids):
             self._add_asteroid(avoid=avoid)
 
-    #REFRESH METHOD CALLS
-    def asteroid_and_bullet(self, collision: tuple) -> Union[Bullet, bool]:
-        """Advises of any collision between an Asteroid and a Bullet.
-        Where +collision+ contains two PhysicalSprite objects, if one 
-        is a bullet and the other an asteroid then returns the bullet, 
-        otherwise returns False"""
+    # REFRESH METHOD related methods
+    def _asteroid_and_bullet(self, 
+                             collision: Tuple[PhysicalSprite, PhysicalSprite],
+                             ) -> Union[Bullet, bool]:
+        """If +collision+ between Asteroid and Bullet then return Bullet, 
+        otherwise return False.
+        """
         c = collision
         if isinstance(c[0], Asteroid) and isinstance(c[1], Bullet):
             return c[1]
@@ -826,116 +746,125 @@ class Game(pyglet.window.Window):
         else:
             return False
         
-    def identify_firer(self, bullet: Bullet) -> Optional[Player]:
-        """Returns Player responsible for +bullet+"""
+    def _identify_firer(self, bullet: Bullet) -> Optional[Player]:
+        """Return Player responsible for +bullet+"""
         for player in self.all_players:
             if player.control_sys is bullet.control_sys:
                 return player
 
-    def no_asteroids(self) -> bool:
-        """Returns boolean advising if there are asteroids any left"""
+    def _no_asteroids(self) -> bool:
+        """Advise if there are any asteroids left"""
         for sprite in PhysicalSprite.live_physical_sprites:
             if isinstance(sprite, Asteroid):
                 return False
         return True
 
-    def check_for_points(self, collision: tuple):
-        """Where +collision+ contains two PhysicalSprite objects, 
-        if one is a Bullet and one an Asteroid then will add one 
-        to the score of any player who fired the bullet, albeit 
-        only if the ship that fired the bullet has not been since 
+    def _check_for_points(self,
+                          collision: Tuple[PhysicalSprite, PhysicalSprite]):
+        """If +collision+ between Asteroid and Bullet then add one to score 
+        of Player responsible for Bullet.
+        Only adds to score if ship that fired bullet has not since been 
         destoryed.
         """
-        bullet = self.asteroid_and_bullet(collision)
+        bullet = self._asteroid_and_bullet(collision)
         if bullet:
-            firer = self.identify_firer(bullet)
+            firer = self._identify_firer(bullet)
             try:
                 firer.add_to_score(1)
             except AttributeError:
                 pass
 
-    #REFRESH
-    def refresh(self, dt):
-        """
-        Progresses to next level page if there are no asteroids left and 
-        there is still at least one player alive, otherwise:
-            Checks for collisions between any PhysicalSprite objects. For 
-                colliding objects:
-                If a Bullet and an Asteroid then identifies player who 
-                    fired bullet and adds one to their score.
-                Resolves collision via one of the objects' 
-                    'collided_with' method (each object being resonponsible 
-                    for implementing the consequence of the collision for 
-                    itself only).
-                Checks if any player lost a life in the collision. If no 
-                    player has any remaining lives then moves to end game.
-            Updates position of all PhysicalSprite objects
-        """
-        if self.no_asteroids() and self.players_alive:
-            return self.next_level_page()
+    # REFRESH. Game UPDATE
+    # All non-stationary game sprites have PhysicalSprite as a base. The
+    # PhysicalSprite class maintains a ---live_physical_sprites--- 
+    # attribute that holds a list of all physical sprite instances 
+    # that have not subsequently deceased. --_refresh()-- obliges these 
+    # live sprites to move by calling each sprite's own refresh method to 
+    # which the time since the last call is passed. It is each sprite's 
+    # responsiblity to set it's new position given the elapsed time.
+    #
+    # --_refresh()-- is scheduled, via --_start_refresh--, to be called 
+    # 100 times a second.
+    #
+    # --_refresh()-- is unsheduled by --_stop_refresh()--. 
+    #
+    # --_refresh()-- is scheduled at the start of each level and unscheduled 
+    # at the end of each level and the end of a game.
+    #
+    # --_refresh()-- is also effectively disabled and enabled by 
+    # --_user_pause()-- and --_user_resume()-- which pause and resume the 
+    # clock responsible for scheduling calls to --_refresh()--.
 
+    def _refresh(self, dt: float):
+        """Update game for passing of +dt+ seconds.
+
+        Checks for collisions between any PhysicalSprite objects. For 
+        colliding objects:
+            If a Bullet and an Asteroid then identifies player who 
+                fired bullet and adds one to player's score.
+            Enacts consequence of collision for each object
+        If all players dead then moves to end game.
+        If no asteroids left then moves to next level
+        Otherwise updates position of all PhysicalSprite objects
+        """
         collisions = PhysicalSprite.eval_collisions()
         live_physical_sprites = PhysicalSprite.live_physical_sprites
         for c in collisions:
             if c[0] in live_physical_sprites and c[1] in live_physical_sprites:
-                self.check_for_points(c)
+                self._check_for_points(c)
                 c[0].collided_with(c[1])
                 c[1].collided_with(c[0])
 
         if not self.players_alive:
-            return pyglet.clock.schedule_once(self.end_game, 1)
+            return pyglet.clock.schedule_once(self._end_game, 1)
+        elif self._no_asteroids():
+            return self._next_level_page()
+        else:
+            for sprite in live_physical_sprites:
+                sprite.refresh(dt)
 
-        for sprite in live_physical_sprites:
-            sprite.refresh(dt)
-
-    #SCREEN AND SOUND CONTROL
+    # PAGE AND SOUND CONTROL
     def _decease_game_sprites(self, exceptions: Optional[List[Sprite]] = None,
                               kill_sound=False):
-        """Deceases all sprites in window save for any +exceptions+ where 
-        excpetions past as specific Sprite instances or a subclass of 
-        Sprite, in which all sprites of that subclass will be excluded
-        If +kill_sound+ then will stop sound of PhysicalSprites that 
+        """Decease all sprites in window save for any +exceptions+.
+       
+        +excpetions+ list of either specific Sprite instance to exclude 
+        or subclass of Sprite in which case all sprites of any subclass 
+        will be excluded.
+        +kill_sound+ True to stop sound of PhysicalSprites that would 
         otherwise die loudly.
         """
         if kill_sound:
             self._stop_all_sound()
         SpriteAdv.decease_selective(exceptions=exceptions)
 
-    def start_refresh(self):
-        pyglet.clock.schedule_interval(self.refresh, 1/100.0)
+    def _start_refresh(self):
+        pyglet.clock.schedule_interval(self._refresh, 1/100.0)
 
-    def stop_refresh(self):
-        pyglet.clock.unschedule(self.refresh)
+    def _stop_refresh(self):
+        pyglet.clock.unschedule(self._refresh)
 
-    def freeze_ships(self):
+    def _freeze_ships(self):
         for ship in self.players_ships:
             ship.freeze()
     
-    def unfreeze_ships(self):
+    def _unfreeze_ships(self):
         for ship in self.players_ships:
             ship.unfreeze()
 
     def _pause_for_next_level(self):
-        """Internals - to pause game between levels. Clock is not paused, 
-        hence scheduled calls (i.e. call to play next level) are not 
-        prevented"""
-        self.stop_refresh()
-        self.freeze_ships()
+        """Pause game for purpose of implementing gap between levels"""
+        # Clock NOT paused, thereby allowing execution of scheduled calls 
+        # including --_next_level()-- scheduled by --_next_level_page()--
+        #
+        # Sound not stopped, rather bleeds into inter-level pause.
+        self._stop_refresh()
+        self._freeze_ships()
 
     def _unpause_for_next_level(self):
-        """Internals - to resume game for the purpose of starting a new 
-        level"""
-        self.start_refresh()
-        self.unfreeze_ships()
-
-    def _show_instructions_screen(self, paused: bool = False):
-        self._pre_instructions_app_state = self.app_state
-        self.instructions_labels.set_labels(paused)
-        self.app_state = 'instructions'
-
-    def _return_from_instructions_screen(self):
-        self.app_state = self._pre_instructions_app_state
-        self._pre_instructions_app_state = None
+        """Resume game for purpose of starting a new level"""
+        self._start_refresh()
+        self._unfreeze_ships()
 
     def _show_instructions_screen(self, paused: bool = False):
         self._pre_instructions_app_state = self.app_state
@@ -953,6 +882,10 @@ class Game(pyglet.window.Window):
         return who_won
 
     def _set_end_state(self, escaped=False, completed=False):
+        """Set 'end' state and set end labels for circumstance 
+        dictated by number of players and whether game +escaped+, 
+        +completed+ or neither
+        """
         self.app_state = 'end'
         if escaped:
                 self.end_labels.set_labels(winner=False, completed=False)
@@ -974,46 +907,68 @@ class Game(pyglet.window.Window):
         for ship in self.players_ships:
             ship.control_sys.radiation_monitor.resume_sound()
 
-    def paused_on_key_press(self, symbol, modifiers):
+    def _paused_on_key_press(self, symbol, modifiers):
+        """Key press handler for when game paused"""
         if symbol == pyglet.window.key.ESCAPE:
             self._user_resume()
-            self.end_game(escaped=True)
+            self._end_game(escaped=True)
         elif symbol == pyglet.window.key.F12:
             self._user_resume()
+        # return True to prevent event propagating through stack, thereby 
+        # limiting user interaction to that provided for by this handler.
         return True
 
     def _user_pause(self):
-        """Provides for pausing application in-game when pause requested 
-        by user. Pauses in such a way that subsequent user interaction 
-        with program is limited (until --_user_resume-- is called) to 
-        that provided for by the key press handler --paused_on_key_press--.
+        """Pause a live game at the user's request.
+        Subsequent user interaction handled by --_paused_on_key_press()--.
         """
         self._stop_all_sound()
-        self.freeze_ships()
-        CLOCK.pause()
-        self.push_handlers(on_key_press=self.paused_on_key_press)
+        self._freeze_ships()
+        CLOCK.pause()  # pause scheduled calls, preventing premature execution
+        self.push_handlers(on_key_press=self._paused_on_key_press)
         self._show_instructions_screen(paused=True)
         
     def _user_resume(self):
-        """Resumes game following --_user_pause--"""
+        """Resume game previously paused at the users request"""
         self._return_from_instructions_screen()
-        self.pop_handlers()
+        self.pop_handlers()  # remove pause keypress handler from stack
         CLOCK.resume()
-        self.unfreeze_ships()
+        self._unfreeze_ships()
         self._resume_all_sound()
         
-    def end_app(self):
-        """Ends program"""
+    def _end_app(self):
         self._stop_all_sound()
         self.close()
         self.delete()
     
-    #PLAY GAME / LEVELS
+    # SETTER METHODS for Level Settings (and related methods).
+    #
+    # Setter functions are only concerned with implementing the 
+    # consequence of the new value. This may or may not require the 
+    # value to be stored and made available, via a property or otherwise.
+    # For example, --_set_ship_speed-- and --_set_ship_rotation_speed-- 
+    # directly change any live Ships speeds although also assign the 
+    # the new values to instance attributes. These values are then 
+    # exposed via properties which allow the Player class access to 
+    # the speed values when requesting new ships.
+    #
+    # Most setter methods, such as --_set_bullet_speed--, do not assign 
+    # the value to an instance attribute but rather rather send it 
+    # directly to wherever it's required to implement the consequences 
+    # of the change.
+    
     def _set_level(self, value):
         self._level = value
         self.level_label.update(value)
 
     def _set_num_asteroids(self, value):
+        # NB Number of Asteroids is not stored, rather setter directly 
+        # instantiates the required number of asteroids. This requires 
+        # that the level settings for --_asteroid_speed--, 
+        # --_spawn_limit-- and --_num_per_spawn-- have already been set.
+        # This is ensured by the order of the keys in --_settings_map-- 
+        # (an OrderedDict) which --_setup_next_level-- iterates through 
+        # to enact new level settings.
         self._add_asteroids(value)
                 
     def _set_asteroid_speed(self, value):
@@ -1055,10 +1010,10 @@ class Game(pyglet.window.Window):
         for player in self.players_alive:
             player.increase_max_pickups(num_pickups_for_level)
 
-    def _get_field_width(self, border) -> int:
-        """Where border is a float representing the total percentage of 
-        the window height (or width if higher than wider) that should 
-        comprise the radiation field, returns the border width.
+    def _get_field_width(self, border: float) -> int:
+        """Return radiation field border width given +border+.
+        +border+ total percentage (as float) of window height (or width 
+        if higher than wider) to comprise radiation field.
         """
         if border < 0:
             border = 0
@@ -1078,99 +1033,89 @@ class Game(pyglet.window.Window):
         for ship in self.players_ships:
             monitor = ship.control_sys.radiation_monitor.reset(cleaner_air)
             
-    def _set_natural_exposure_limit(self, value):
+    def _set_natural_exposure_limit(self, value: int):
         for ship in self.players_ships:
             monitor = ship.control_sys.radiation_monitor
             monitor.set_natural_exposure_limit(value)
 
-    def _set_high_exposure_limit(self, value):
+    def _set_high_exposure_limit(self, value: int):
         for ship in self.players_ships:
             monitor = ship.control_sys.radiation_monitor
             monitor.set_high_exposure_limit(value)
 
-    def _setup_next_level(self):
-        for setting, iterator in self._settings_map.items():
-            setting(next(iterator))
 
-    def play_level(self):
+    def _setup_next_level(self):
+        """Assign level settings for next level"""
+        for setter_method, iterator in self._settings_map.items():
+            setter_method(next(iterator))
+
+
+    def _play_level(self, first_level=False):
+        """Setup next level and set 'game' state"""
         self._setup_next_level()
-        self._unpause_for_next_level()
+        if first_level:
+            self._start_refresh()
+        else:
+            self._unpause_for_next_level()
         self.app_state = 'game'
 
     def _setup_mine_cls(self):
         visible_secs = None if self._num_players == 1 else 2
         Mine._setup_mines(visible_secs=visible_secs)
 
-    def start_game(self, num_players: int = 1):
-        """sets / resets game and proceeds to play first level"""
+    def _start_game(self, num_players: int = 1):
+        """set/reset game and proceeds to play first level"""
         self._num_players = num_players
         self._setup_mine_cls()
-        self._set_settings_map()
-        self.set_players()
-        self._pause_for_next_level()
+        self._set_settings_map()  # Creates new iterators for level settings
+        self._set_players()
         self.set_mouse_visible(False)
-        self.play_level()
+        self._play_level(first_level=True)
 
-    def next_level(self, dt: Optional[float] = None):
-        """Sets parameters for next level and makes call to play level"""
+    def _next_level(self, dt: Optional[float] = None):
+        """Play next level after clearing screen of all sprites that should 
+        not bleed over."""
         self._decease_game_sprites(exceptions=self.players_ships + 
                                    [PickUp, PickUpRed])
-        self.play_level()
+        self._play_level()
 
-    def next_level_page(self):
-        """Sets screen for next level, pauses game and schedules call to 
-        play next level in one second.
-        Ends game if the current level was the last level"""
+    def _next_level_page(self):
+        """Set next level state, pause and schedule call to play next level.
+        Ends game if current level was the last level"""
         if self._level == LAST_LEVEL:
-            return self.end_game(completed=True)
+            return self._end_game(completed=True)
         self.app_state = 'next_level'        
         self._pause_for_next_level()
-        pyglet.clock.schedule_once(self.next_level, 1)
+        pyglet.clock.schedule_once(self._next_level, 1)
 
-    def end_game(self, dt=None, escaped=False, completed=False):
-        """Sets screen for end of game and stops game by ending calls 
-        to --refresh-- loop and changing game state to not in game.
-        +escaped+ should be passed as True if game ended by player 
-        'escaping' rather than ending naturally
-        +completed+ should be passed as True if game ended by way of 
-        player(s) completing the last level as opposed to losing all 
-        lives.
+    def _unschedule_calls(self):
+        pyglet.clock.unschedule(self._refresh)
+        pyglet.clock.unschedule(self._next_level)
+        pyglet.clock.unschedule(self._end_game)
+
+    def _end_game(self, dt=None, escaped=False, completed=False):
+        """Set end game state and stop player interaction with game.
+        
+        +escaped+ True if game ended prematurely by user 'escaping'
+        +completed+ True if game ended by way of player(s) completing 
+        last level (as opposed to losing all lives).
         """
-        if escaped:
-            pyglet.clock.unschedule(self.next_level)
         self._set_end_state(escaped, completed)
         self._withdraw_players()
         self._decease_game_sprites(kill_sound=True)
-        self.stop_refresh()
+        self._unschedule_calls()
         self.set_mouse_visible(True)
         self._num_players = None
-        
-    #DRAW WINDOW
+
+    # Event loop to draw to window. Frequency determined by pyglet.
     def on_draw(self):
-        """Principal event loop for drawing to the window. Frequency 
-        determined by underlying pyglet module
-        Draws batches corresponding with the curent app state
+        """Draws batch corresponding with the curent state.
+
+        Overrides inhertied event handler.
         """
         self.clear()
         for batch in self._state_batches[self.app_state]:
             batch.draw()
         
-
-#Sets up instance of appliation and initiates pyglet's main event loop
-game_window = Game()
-
-#INVESTIGATION CODE - available to debug in game by pressing F3
-#def invest_report():
-#    """For investigating and debugging.
-#    Executes when press F3 in-game"""
-#    print("Invest report:")
-#    print("Player ship:", player_ship)
-#    print("Physical Sprites:", PhysicalSprite.live_physical_sprites)
-
-#def on_key_press(symbol, modifiers):
-#    """ """
-#    if symbol == pyglet.window.key.F3:
-#        invest_report()
-#game_window.push_handlers(on_key_press)
-
-pyglet.app.run()
+game_window = Game()  # Create appliation instance
+pyglet.app.run()  # Initiate main event loop

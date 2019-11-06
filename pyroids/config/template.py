@@ -1,52 +1,56 @@
 #! /usr/bin/env python
 
-"""Configuration file template for pyglet_asteroids application.
+"""Configuration file template for pyroids application.
 
-pyglet_asteroids can be customised by using a copy of this template to 
-define a configuration file and passing the configuration file's name at the 
-command line as the first argument, for example:
-..\asteroids_script.py my_config_filename
+The pyroids application can be customised by using a copy of this template 
+file to define a configuration file and then passing the configuration file's 
+name at the command line as the first argument, for example:
+python play_pyroids my_config_filename.py
 
-Configuration files must be saved to the pyglet_asteroids.config directory.
+NB a configuration file is a .py file which will be imported when the 
+application is instantiated.
 
-The template notes all customisable global constants and dynamic variables 
-as commented out lines of code that if uncommented would assign the 
-application's default values. The value of any of these variables can be 
-customised by simply uncommenting the line and assigning the required value 
-as opposed to the default value.
+Configuration files must be saved to the ..\pyroids\config directory.
 
-The application distinguishes between Global Constants and Dynamic 
-Variables. A Global Constant is assigned a single value which is used for 
-the entirety of the application's life, whereas a Dynamic Variable 
-is assigned a function that returns an interator which in turn returns 
-values specific to a game level.
+The template notes all customisable global constants and level settings
+as commented out lines of code that if uncommented would simply result 
+in the default value being assigned. The value of any variable can be 
+customised by simply uncommenting the line and replacing the default 
+value with the desired value. All variables that remain commented will 
+take a default value as assigned by the application.
 
-Dynamic Variables are assigned a *function that returns an iterable 
+The application distinguishes between Global Constants and Level 
+Settings. A Global Constant is assigned a single value which is used for 
+the entirety of the application instance's life. A Level Setting is 
+assigned a function that returns an interator which in turn returns 
+values where each value is specific to a game level.
+
+A level setting should be assigned a *function that returns an iterable 
 providing for a number of iterations no fewer than the global constant 
-LAST_LEVEL. The first value returned for each dynamic variable represents 
-that variable's value for level 1. Each subsequent iteration represents 
-that variable's value for each subsequent level, such that the value 
-returned by a variable's nth iteration will be its setting for level n.
+LAST_LEVEL. The first value returned by a level setting should be that 
+setting's value for level 1. Each subsequent iteration should return the 
+setting's value for each subsequent level, such that the value 
+returned by the nth iteration will be the setting's value for level n.
 
-Before the Dynamic Varible section the itertools module is imported and a 
-a number of helper functions are defined that can be employed to define 
-suitable customised iterators (these are used to define the default 
-iterators).
+Before the Level Settings section this module imports intertools and 
+defines a number of helper functions that can be employed to create
+suitable customised iterators (these helper functions are also used to 
+define the default iterators).
 
-*NB A Dynamic Variable is assigned a function that returns an iterator as 
-opposed to being directly assigned an iterator. The default values use 
+*NB A Level Setting is assigned a function that returns an iterator (as 
+opposed to being directly assigned an iterator). The default settings use 
 lambda to create the function although any function, including a 
-generator, can be assigned so long as it's return value will in turn 
+generator, can be assigned so long as its return value will in turn 
 return values when passed to next() no fewer than LAST_LEVEL times.
 """
 ###WILL NEED TO REVISE at least the start of the ABOVE SEGUN HOW WILL ACTUALLY 
-###WORK UNDER DISTRIBUTION
+###WORK UNDER DISTRIBUTION - via a script? What's the name?
 
 import pyglet
 from collections import OrderedDict
 
-from ..sprites import (Cannon, HighVelocityCannon, FireworkLauncher,
-                       SLD_Launcher, MineLayer, ShieldGenerator)
+from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
+                            SLD_Launcher, MineLayer, ShieldGenerator)
 
 ##                              **GLOBAL CONSTANTS**
 
@@ -187,7 +191,7 @@ def factor_last(seq: Iterable, factor: Union[float, int],
 LEVEL_AUGMENTATION = 1.05
 
 
-##                              **DYNAMIC VARIABLES**
+##                              **LEVEL SETTINGS**
 
 ## Number of asteroids, by default increases by 1 each level.
 #NUM_ASTEROIDS = lambda: it.count(1, 1)
