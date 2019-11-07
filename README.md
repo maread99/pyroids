@@ -75,15 +75,20 @@ alt_controls.py
 
 Code Documentation
 
-Following symbols employed to identify nature of variables:
-+parameter_name+  parameter of the documented function or method
-++parameter_name++  parameter of the class constructor method
--variable_name-  locally defined variable
---attribute_name--  class attribute
----global_constant_name--- global constant
-
 Function/Method documention:
 	does not list optional and keyword arguments, for which signature 
 	  should be inspected.
 	does not state argument types or return values, for which signature 
 	  annotation should be inspected.
+
+Following symbols employed to identify nature of variables:
++parameter_name+  parameter of the documented function or method
+++parameter_name++  parameter of the class constructor method
+-variable_name-  variable local to function or method
+--attribute_name--  instance attribute
+--method_name()--  instance method
+	--method_name(args, kwargs)--  only args / kwargs referred to in the 
+		documentation that immediately follows are included in parenthesis.
+		Signature should be inspected for full parameters.
+---classmethod_name()---  class method or static method
+----global_constant_name---- global constant

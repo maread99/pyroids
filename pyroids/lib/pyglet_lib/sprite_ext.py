@@ -1,30 +1,38 @@
 #! /usr/bin/env python
 
-"""Modules offes:
-    Helper functions to manipulate and load pyglet objects:
-        centre_image()
-        centre_animiation()
-        load_image()
-        load_animiation()
-        anim()
-        load_static_sound()
-        num_from_symbol()
-        distance()
-        vector_anchor_to_rotated_point()
+"""Series of extensions to Sprite class together with helper functions.
 
-    Helper Classes:
-        AvoidRect defines a rectangular area around ++sprite++
-    
-    Classes that extend pyglet classes to provide additional functionality:
-        AdvSprite(Sprite) adds functionality to provide for scaling 
-        obj against another obj
-        
-        OneShotAnimatedSprite(AdvSprite) one animation and gone
+CLASSES
+The following hierarchy of classes each extend the class before to provide 
+for an additional layer of functionality with a specific purpose.
 
-        PhysicalSprite(AdvSprite) adds limited 2D physics to move and rotate 
-        sprites
-        
+AdvSprite(Sprite) - Enhance end-of-life, scheduling, one-voice sound, 
+    flashing and scaling
+
+OneShotAnimatedSprite(AdvSprite) - Objects decease automatically when 
+    animation ends
+
+PhysicalSprite(AdvSprite) - 2D movement and collision detection within 
+    defined window area.
+
+    ##STILL TO COMPLETE CLASSES SECTION        
         InteractiveSprite(PhysicalSprite) adds keyboard events user-interface 
+
+Helper FUNCTIONS:
+Various functions to create pyglet objects from files in the pyglet resource 
+directory and to manipulate the created objects.
+
+centre_image()  Set image anchor points to image center.
+centre_animiation()  Center all Animation frames.
+load_image()  Load image from resource directory.
+load_animiation()  Load Animation from resource directory.
+anim()  Create Animation object from image of subimages.
+distance()  Evalute distance between two sprites.
+vector_anchor_to_rotated_point()  Evalute vector to rotated point.
+
+Helper CLASSES:
+InRect()  Check if a point lies in a defined rectangle
+AvoidRect(InRect)  Define an area to avoid as a rectangle around a sprite 
 """
 
 import random, math, time
@@ -43,9 +51,7 @@ from .audio_ext import StaticSourceMixin
 from .. import physics
 
 def centre_image(image: Union[TextureRegion, Sequence[TextureRegion]]):
-    """Sets +image+ anchor points to centre of image
-    +image+ can be passed as single image object or sequence of image 
-    objects"""
+    """Set +image+ anchor points to centre of image"""
     if not isinstance(image, collections.abc.Sequence):
         image = [image]
     for img in image:
@@ -53,53 +59,64 @@ def centre_image(image: Union[TextureRegion, Sequence[TextureRegion]]):
         img.anchor_y = img.height // 2
 
 def centre_animation(animation: Animation):
-    """Centres all +animation+ frames"""
+    """Centre all +animation+ frames"""
     for frame in animation.frames:
             centre_image(frame.image)
 
-def load_image(filename: str, anchor='origin') -> TextureRegion:
-    """loads image with +filename+ from resource and returns Image object.
-    +anchor+ sets anchor points to reflect 'origin' or 'center' of image"""
+def load_image(filename: str, anchor: Union['origin', 'center'] = 'origin'
+               ) -> TextureRegion:
+    """Load image with +filename+ from resource.
+    
+    +anchor+ Set anchor points to image 'origin' or 'center'"""
     assert anchor in ['origin', 'center']
     img = pyglet.resource.image(filename)
     if anchor == 'center':
         centre_image(img)
     return img
 
-def load_image_sequence(filename: str, num_images: int, anchor='origin',
-                        placeholder='?') -> List[pyglet.image.Texture]:
-
-    """Returns a list comprising +num_images+ Textures with those 
-    textures loaded from files with names dervied from +filename+ 
-    and sequentially enumerated in position of +filename+ that is 
-    represented with a +placeholder+ character. First image enumerated 
-    0. For example:
-    filename='my_img_seq_?.png', num_images=3, placeholder='?' would 
-    return a sequence of images loaded from the following files:
-        'my_img_seq_0.png'
-        'my_img_seq_1.png'
-        'my_img_seq_2.png'
-    +anchor+ passed on to load_image().
+def load_image_sequence(filename: str, num_images: int, placeholder='?',
+                        anchor: Union['origin', 'center'] = 'origin'
+                        ) -> List[pyglet.image.Texture]:
+    """Load sequence of images from resource.
+    
+    +num_images+ Number of images in sequence.
+    +anchor+ Set anchor points to image 'origin' or 'center'.
+    +filename+ Name of image filename where +filename+ includes a 
+    +placeholder+ character that represents position where filenames 
+        are sequentially enumerated. First filename enumerated 0.
+    
+    Example usage:
+    load_image_sequence(filename='my_img_seq_?.png', num_images=3,
+                        placeholder='?')
+    -> List[pyglet.image.Texture] where images loaded from following files 
+    in resource directory:
+        my_img_seq_0.png
+        my_img_seq_1.png
+        my_img_seq_2.png
     """
     return [ load_image(filename.replace(placeholder, str(i)), anchor=anchor) 
             for i in range(0, num_images) ]
 
-def load_animation(filename: str, anchor='origin') -> Animation:
-    """loads animation with +filename+ from resource and returns 
-    Animation object. +filename+ could be, for example, a .gif file.
-    +anchor+ sets anchor points of animation's images to reflect 
-    'origin' or 'center' of image"""
+def load_animation(filename: str, anchor: Union['origin', 'center'] = 'origin'
+                   ) -> Animation:
+    """Loads animation from resource.
+    
+    +filename+ Name of animation file. Acceptable filetypes inlcude .gif.
+    +anchor+ Anchor each animation image to image 'origin' or 'center'.
+    """
     assert anchor in ['origin', 'center']
     animation = pyglet.resource.animation(filename)
     if anchor == 'center':
         centre_animation(animation)
     return animation
 
-def anim(filename, rows, cols, frame_duration=0.1, loop=True) -> Animation:
-    """Where +filename+ is an image file in resource directory which itself 
-    describes subimages distributed over +rows+ and +columns+, returns an 
-    Animation object comprising those subimages with each frame showing for 
-    +frame_duration+ in seconds.
+def anim(filename, rows: int, cols: int , 
+         frame_duration: float = 0.1, loop=True) -> Animation:
+    """Create Animation object from image of regularly arranged subimages.
+    
+    +filename+ Name of file in resource directory of image of subimages 
+        regularly arranged over +rows+ rows and +cols+ columns.
+    +frame_duration+ Seconds each frame of animation should be displayed.
     """
     img = pyglet.resource.image(filename)
     image_grid = pyglet.image.ImageGrid(img, rows, cols)
@@ -107,44 +124,21 @@ def anim(filename, rows, cols, frame_duration=0.1, loop=True) -> Animation:
     centre_animation(animation)
     return animation
 
-def load_static_sound(filename: str) -> StaticSource:
-    """Loads a static sound for sound file with +filename+ in resouce 
-    directory and returns StaticSound object.
-    In order to have immediate playback available direct from 
-    StaticSound.play() without delay, creates the player (which otherwise 
-    takes sufficient time that on the first occasions .play() is executed 
-    a game will freeze momentarily) now.
-    NB player created by playing the created StaticSound, albeit with the 
-    track immediately skipped. Additionally turns the volume off in the 
-    meantime to avoid a 'crackle' when the game starts and the very start of 
-    the audio plays"""
-    sound = pyglet.resource.media(filename, streaming=False)
-    player = sound.play()
-    vol = player.volume
-    player.volume = 0
-    player.next_source()
-    player.volume = vol
-    return sound
-
-def num_from_symbol(symbol) -> int:
-    """Where +symbol+ is an integer which represents a numercial keyboard key 
-    (either of the top number row or number pad) and is represented by a 
-    constant defined in pyglet.window.key (for example NUM_3, _7 etc) will 
-    return an integer representing symbol"""
-    symbol_string = pyglet.window.key.symbol_string(symbol)
-    num = int(symbol_string[-1])
-    return num
-
 def distance(sprite1: Sprite, sprite2: Sprite) -> int:
-    """Returns distance between +sprite1+ and +sprite2+ in pixels"""
+    """Return distance between +sprite1+ and +sprite2+ in pixels"""
     return physics.distance(sprite1.position, sprite2.position)
 
-def vector_anchor_to_rotated_point(x, y, rotation) -> Tuple[int, int]:
-    """Where +x+ and +y+ describe a point relative to an image's anchor 
+def vector_anchor_to_rotated_point(x: int, y: int, 
+                                   rotation: Union[int, float]
+                                   ) -> Tuple[int, int]:
+    """Return vector to rotated point.
+    
+    Where +x+ and +y+ describe a point relative to an image's anchor 
     when rotated 0 degrees, returns the vector, as (x, y) from the anchor 
     to the same point if the image were rotated by +rotation+ degrees.
-    +rotation+ passed in degrees, clockwise positive, 0 pointing 'left', 
-    i.e. as returned by a sprite's -rotation- attribute.
+    
+    +rotation+  Degrees of rotation, clockwise positive, 0 pointing 'right', 
+        i.e. as for a sprite's 'rotation' attribute.
     """
     dist = physics.distance((0,0), (x, y))
     angle = math.asin(y/x)
@@ -155,27 +149,38 @@ def vector_anchor_to_rotated_point(x, y, rotation) -> Tuple[int, int]:
     return (x_, y_)
 
 class InRect(object):
-    """Defines a rectangle from parameters passed to the constructor and 
-    offers method --inside-- which takes a set of coordinates and returns 
-    a boolean indicating whether they fall within the rectangle.
+    """Check if a point lies within a defined rectangle.
+
+    Class only accommodates rectangles that with sides that are parallel 
+    to the x and y axes. 
     
-    Each parameter passed to the construtor is stored in an attribute of 
-    the same name:
+    Constructor defines rectangle. 
+    
+    METHODS
+    --inside(position)--  Returns boolean advising if +position+ in rectangle.
+
+    ATTRIBUTES
+    --width-- rectangle width
+    --height-- rectangle width
+
+    Additionally, each parameter passed to the construtor is stored in 
+    an attribute of the same name:
     --x_from--
     --x_to--
     --y_from--
     --y_to--
-         Other attributes:
-    --width-- rectangle width
-    --height-- rectangle width
-    
-    Methods:
-    --inside(Tuple: [int, int])--
     """
     
     def __init__(self, x_from: int, x_to: int, y_from: int, y_to: int):
-        """For x coordinate increaingly positive moving right.
-        For y coordinate increaingly positive moving upward.
+        """Define rectangle.
+                
+        +x_from+  x coordinate of recectangle's left side
+        +x_to+  x coordinate of recectangle's right side
+        i.e. x coordinate increasingly positive as move right.
+
+        +y_from+  y coordinate of recectangle's bottom side
+        +y_to+  y coordinate of recectangle's top side
+        i.e. y coordinate increasingly positive as move up.
         """
         self.x_from = x_from
         self.x_to = x_to
@@ -185,8 +190,9 @@ class InRect(object):
         self.height = y_to - y_from
 
     def inside(self, position: Tuple[int, int]) -> bool:
-        """Where +position+ is a 2-Tuple indiciating a position (x, y), 
-        reutrns boolean advising if position lies within the rectangle"""
+        """Return boolean advising if +position+ lies in rectangle.
+        +position+  (x, y)
+        """
         x = position[0]
         y = position[1]
         if self.x_from <= x <= self.x_to and self.y_from <= y <= self.y_to:
@@ -195,21 +201,21 @@ class InRect(object):
             return False
 
 class AvoidRect(InRect):
-    """Intended use is to define an area which is to be avoided when 
-    positioning a ++sprite++.
-    
-    Extends InRect to define a rectangle that encompasses ++Sprite++ plus 
-    any ++margin++. Inherited --inside-- method takes x, y co-ordinates 
-    and returns a boolean indicating whether the co-ordinate falls within 
-    the rectangle.
+    """Define rectangular area around a sprite.
 
-    Additional Attributes
-        --sprint-- takes ++sprite++
-        --margin-- takes ++margin++
+    Intended use is to avoid AvoidRects when positioning other sprites in 
+    order that the sprites do not overlap / immediately collide.
+    
+    Extends InRect to define a rectangle that encompasses a ++sprite++ and 
+    any ++margin++.
+
+    ATTRIBUTES (in addition to those inherited):
+    --sprint--  ++sprite++
+    --margin--  ++margin++
     """
     
     def __init__(self, sprite: Sprite, margin: Optional[int] = None):
-        """See cls.__doc__"""
+        """Define rectangle to encompass ++sprite++ plus ++margin++"""
         self.sprite = Sprite
         self.margin = margin
         
@@ -235,73 +241,89 @@ class AvoidRect(InRect):
 
         super().__init__(x_from, x_to, y_from, y_to)
 
-
 class SpriteAdv(Sprite, StaticSourceMixin):
-    """Extends functionality of standard Sprite class to provide for 
-    deceasing sprites (see Life and End-of-Life below), keeping a 
-    register of live sprites, accompanying sound and extended 
-    scheduling.
+    """Extends Sprite class functionality.
+
+    Offers:
+        additional end-of-life functionality (see End-Of-Life section)
+        additional scheduling events functionality (see Scheduling section)
+        register of live sprites
+        sound via inherited StaticSourceMixin (see documentation for 
+            StaticSourceMixin)
+        sprite flashing
+        sprite scaling
+        
+    END-OF-LIFE
+    Class makes end-of-life distinction between 'killed' and 'deceased'.
+    Deceased - Death. The --die()-- method deceases the object. Any callable
+        passed as ++on_die++ will be executed as part of the implementation.
+    Killed - Premature Death. The --kill()-- method will kill the object 
+        prematurely.  Any callable passed as ++on_kill++ will be executed as 
+        part of the implementation. Implementation concludes by deceasing 
+        the object.
+    For arcade games the above distinction might be implemented such that 
+    an object is killed if its life ends as a consequence of an in game 
+    action (for example, on being shot) or is otherwise simply deceased 
+    when no longer required.
     
-    Image:
-    __init__ assumes image as held in class attribute ---img--- if not 
-    otherwise passed as a kwargs ++img++.
+    SCHEDULING
+    --schedule_once()-- and --schedule_all()-- methods are provided to 
+    schedule future calls. So long as all furture calls are scheduled 
+    through these methods, scheduled calls can be collectively 
+    or individually unscheduled via --unschedule_all()-- and 
+    --unschedule()-- respectively.
 
-    Sound provided for by StaticSourceMixin. See StaticSourceMixin.__doc__.
-    
-    Life and End-of-Life
-    Live sprites are included to the class attbribute list ---live_sprites---
-    and they are removed when deceased.
-    --live-- property offers a boolean indicating if a sprite is in 
-    ---live_sprites---.
-    DIE. The instance method .die() is defined to provide for end-of-life 
-    operations when the sprite dies naturally. At this level effectively 
-    extends and renames the inherited --delete()-- method to additionally 
-    unschedule any future calls to instance methods, remove the sprite 
-    from ---live_sprites--- and execute any callable passed as ++_on_die++.
-    Subclasses should NOT OVERRIDE the .die() method but rarther extend to 
-    provide for any additional end-of-life operations.
-    KILL. The instance method .kill() is defined to provide for end-of-life 
-    tidy up operations when the sprite dies prematurely. At this level only 
-    executes any callable passed as ++_on_kill++ and then calls --die()--.
-    Subclasses should NOT override this method but rather extend to provide 
-    for any additional premature end-of-life tidy-up operations.
-    NB for games, the above might resolve as kill representing an object's 
-    life ending in-game whilst die, on its own, represnting an object's life 
-    ending out-of-game.
+    Class ATTRIBUTES:
+    ---live_sprites---  List of all instantiated sprites not subsequently 
+        deceased
+    ---snd---  (inherited)  Sprite's main sound (see StaticSourceMixin 
+        documentation)
+    ---img---  Sprite's image (see Subclass Interface section)
 
-    Scheduling
-    --schedule_once-- and --schedule_all-- provide an interface to 
-    pyglet scheduling which allows for all scheduled events to be 
-    subsequently collectively (--unschedule_all--), or individually 
-    (--unschedule--).
-
-    CLASS METHODS:
-    --stop_all_sound-- will pause the 
-
-    --cull_all-- will kill all live sprites (via sprites' .kill method)
-    --decease_all-- will decease all live sprites (via sprites' .die method)
-    --cull_selective(exceptions)-- will kill all live sprites except for 
-    +exceptions+
-    --decease_selective(exceptions)-- will decease all live sprites except 
-    for +exceptions+
+    Class METHODS (in addition to those inherited):
+    ---stop_all_sound()---  Pause sound of from live sprites
+    ---resume_all_sound()---  Resume sound from from all live sprites
+    ---cull_all---  Kill all live sprites
+    ---decease_all---  Decease all live sprites
+    ---cull_selective(exceptions)---  Kill all live sprites save +exceptions+
+    ---decease_selective(exceptions)---  Deceease all live sprites save 
+        +exceptions+
     
     PROPERTIES
     --live-- returns boolean indicating if object is a live sprite.
 
-    METHODS (in additional to those inherited):
-        --scale_to(obj)-- to scale object to size of +obj+
-        --flash_start-- to make the sprite flash
-        --flash_stop-- to stop the sprite flashing
-        --toggle_visibility--
-        --schedule_once-- to schedule with pyglet a future call to an instance 
-        method
-        --schedule_interval-- to schedule with pyglet regular future calls to 
-        an instance method
-        --unschedule-- to unschedule a future call(s) to an instance method
-        --unschedule_all-- to unschedule all call(s) to instance methods 
-        previously scheduled via either --schedule_once-- or 
-        --schedule_interval--.
-        --die-- see Life and End-of-Life section above.
+    Instance METHODS (in addition to those inherited):
+    --scale_to(obj)-- Scale object to size of +obj+
+    --flash_start()-- Make sprite flash
+    --flash_stop()--  Stop sprite flashing
+    --toggle_visibility()--  Toggle visibility
+    --schedule_once(func)--  Schedule a future call to +func+
+    --schedule_interval(func)-- Schedule regular future calls to +func+
+    --unschedule(func)--  Unschedule future call(s) to func
+    --unschedule_all()--  Unschedule all future calls
+    --kill()--  Kill object
+    --die()--  Decease object
+    
+    SUBCLASS INTERFACE
+    
+    Sound
+    Also see Subclass Interface section of StaticSourceMixin documentation
+
+    Image
+    Subclass should define class attribute ---img--- and assign it a 
+    pyglet Texture or Animation object which will be used as the sprite's 
+    default image. Helper functions ----anim()---- and ----load_image---- can 
+    be used to directly create Animation and Texture objects from image files 
+    in the resources directory, for example:
+        img = anim('explosion.png', 2, 8)  # Animation
+        img = load_image('ship_blue.png', anchor='center')  # Texture
+    
+    This default image can be overriden by passing a pyglet image as ++img++.
+
+    End-of-Lfe
+    Subclasses should NOT OVERRIDE the --die()-- or --kill()-- methods. 
+    Rather these methods should be extended to provide for any additional 
+    end-of-life operations that may be required.
     """
     
     img: Union[Texture, Animation]
@@ -311,23 +333,24 @@ class SpriteAdv(Sprite, StaticSourceMixin):
 
     @classmethod
     def stop_all_sound(cls):
+        """Pause sound from all live sprites."""
         for sprite in cls.live_sprites:
             sprite.stop_sound()
 
     @classmethod
     def resume_all_sound(cls):
+        """For all live sprites, resume any sound that was paused"""
         for sprite in cls.live_sprites:
             sprite.resume_sound()
 
     @classmethod
     def _end_lives_all(cls, kill=False):
-        """Ends the life of all live sprites, without exception.
+        """End life of all live sprites without exception.
+        
+        +kill+  True to kill all sprites, False to merely decease them.
+
         Raises AssertionError in event a live sprite evades death.
-        If +kill+ True then will kill all sprites, otherwise just 
-        deceases them.
-        Internals - if +kill+ True then will kill each live sprite 
-        via the sprite's .kill method, otherwise decesaes each 
-        via the sprite's .die method"""
+        """
         for sprite in cls.live_sprites[:]:
             if kill:
                 sprite.kill()
@@ -339,16 +362,14 @@ class SpriteAdv(Sprite, StaticSourceMixin):
     @classmethod
     def _end_lives_selective(cls, exceptions: Optional[List[Sprite]] = None,
                              kill=False):
-        """Ends the life of all live sprites except those inlcuded to any 
-        +exceptions+ passed as any combination of sprite objects or 
-        subclasses of Sprite, in the later case all instances of those 
-        subclasses will be spared.
-        If +kill+ True then sprites will be killed, otherwise merely 
-        deceased.
-        Internals - executes either the .kill (if +kill+ True_ or .die 
-        method of each live sprite not spared by +exceptions+. Concludes 
-        by asserting that any remaining live sprites are explicitely spared 
-        by +exceptions+
+        """End life of all live sprites save +exceptions+.
+        
+        +exceptions+  List of any combination of Sprite objects or 
+            subclasses of Sprite. All instances of any included subclasses 
+            will be spared.
+        +kill+ True to kill sprites, False to merely decease them.
+        
+        Raises AssertionError if a non-excluded live sprite evades death.
         """
         if not exceptions:
             return cls._end_lives_all(kill=kill)
@@ -373,62 +394,63 @@ class SpriteAdv(Sprite, StaticSourceMixin):
 
     @classmethod
     def cull_all(cls):
-        """Kills all live sprites without exception.
-        Internals - executes the .kill method of each live sprite.
-        """
+        """Kill all live sprites without exception"""
         cls._end_all_lives(kill=True)
 
     @classmethod
     def decease_all(cls):
-        """Deceases all live sprites without exception.
-        Internals - executes the .die method of each live sprite."""
+        """Decease all live sprites without exception"""
         cls._end_all_lives(kill=False)
 
     @classmethod
     def cull_selective(cls, exceptions: Optional[List[Sprite]] = None):
-        """Kills all live sprites except those inlcuded to any 
-        +exceptions+ passed as any combination of sprite objects or 
-        subclasses of Sprite, in the later case all instance of those 
-        subclasses will be spared.
-        Internals - sprites killed via their .kill method
+        """Kill all live sprites save for +exceptions+
+
+        +exceptions+  List of any combination of Sprite objects or 
+            subclasses of Sprite. All instances of any included subclasses 
+            will be spared.
         """
         cls._end_lives_selective(exceptions=exceptions, kill=True)
 
     @classmethod
     def decease_selective(cls, exceptions: Optional[List[Sprite]] = None):
-        """Deceases all live sprites except those inlcuded to any 
-        +exceptions+ passed as any combination of sprite objects or 
-        subclasses of Sprite, in the later case all instance of those 
-        subclasses will be spared.
-        Internals - sprites deceased via their .die method
+        """Decease all live sprites save for +exceptions+
+
+        +exceptions+  List of any combination of Sprite objects or 
+            subclasses of Sprite. All instances of any included subclasses 
+            will be spared.
         """
         cls._end_lives_selective(exceptions=exceptions, kill=False)
 
     def __init__(self, sound=True, sound_loop=False, 
                  on_kill: Optional[Callable] = None,
                  on_die: Optional[Callable] = None, **kwargs):
-        """Extends inherited constructor to:
-            Pass 'img' as ---img--- if not otherwise recieved as ++img++.
-            play --sound-- at end of instantiation if ++sound++ True, will 
-            loop if ++sound_loop++
+        """Extends inherited constructor.
+        
+        ++img++  If not received, passes 'img' as ---img---
+        ++sound++  If True will play ---snd--- at end of instantiation 
+            which will loop if ++sound_loop++ True
+        ++on_kill++  Callable called if sprite killed
+        ++on_die++  Callable called if sprite deceased
         """
         kwargs.setdefault('img', self.img)
         self._on_kill = on_kill if on_kill is not None else lambda: None
         self._on_die = on_die if on_die is not None else lambda: None
         super().__init__(**kwargs)
-        self.live_sprites.append(self)
+        
+        self.live_sprites.append(self)  # add instance to class attribute
+        
         self._scheduled_funcs = []
 
         StaticSourceMixin.__init__(self, sound, sound_loop)
         
     @property
     def live(self) -> bool:
-        """return Boolean indicating if object is a live sprite"""
+        """Return Boolean indicating if object is a live sprite"""
         return self in self.live_sprites
 
     def toggle_visibility(self, dt: Optional[float] = None):
-        """Internals - +dt+ provides for calling the function as a pyglet 
-        scheduled event"""
+        #  +dt+ provides for calling via pyglet scheduled event
         self.visible = not self.visible
 
     def flash_stop(self, visible=True):
@@ -436,16 +458,16 @@ class SpriteAdv(Sprite, StaticSourceMixin):
         self.visible = visible
 
     def flash_start(self, frequency: Union[float, int] = 3):
-        """Starts sprite flashing at +frequence+ per second. Flashing can 
-        be stopped by call to --flash_stop()--
-        Internals - first stops any existing flashing to provide for 
-        consecutive calls to method to change frequency.
+        """Start sprite flashing at +frequency+ time per second.
+        
+        Can be called on a flashing sprite to change frequency.
+        Stop flashing with --flash_stop()--
         """
         self.flash_stop()
         self.schedule_interval(self.toggle_visibility, 1/(frequency*2))
 
     def scale_to(self, obj: Union[Sprite, Texture]):
-        """Scales object to same size as +obj+"""
+        """Scale object to same size as +obj+"""
         x_ratio = obj.width / self.width
         self.scale_x = x_ratio
         y_ratio = obj.height / self.height
@@ -456,59 +478,63 @@ class SpriteAdv(Sprite, StaticSourceMixin):
         self._scheduled_funcs.append(func)
         
     def schedule_once(self, func: Callable, time: Union[int, float]):
-        """Schedules a call to +func+ in +time+ seconds
-        NB +func+ should accommodate first parameter received (after self) 
-        as the time elapsed since call scheduled - will be passed on by the 
-        pyglet implementation as the actual elapsed time.
+        """Schedule call to +func+ in +time+ seconds.
+
+        +func+ must accommodate first parameter received after self
+            as the time elapsed since call was scheduled - name parameter 
+            +dt+ by convention. Elapsed time will be passed to function 
+            by pyglet.
         """
         pyglet.clock.schedule_once(func, time)
         self._add_to_schedule(func)
 
     def schedule_interval(self, func: Callable, freq: Union[int, float]):
-        """Schedules a call to +func+ every +freq+ seconds. NB +func+ should 
-        accommodate first parameter received (after self) as the time elapsed 
-        since call scheduled - will be passed on by the pyglet implementation 
-        as the actual elapsed time.
+        """Schedule call to +func+ every +freq+ seconds.
+       
+        +func+ must accommodate first parameter received after self
+            as the time elapsed since call was scheduled - name parameter 
+            +dt+ by convention. Elapsed time will be passed to function 
+            by pyglet.
         """
         pyglet.clock.schedule_interval(func, freq)
         self._add_to_schedule(func)
 
     def _remove_from_schedule(self, func):
-        """Internals - ignores calls to unschedule events that have not 
-        been previously scheduled, in which repsect mirrors pyglet's 
-        clock.unschedule behaviour
-        """
+        # mirrors behaviour of pyglet.clock.unschedule by ignoring requests 
+        # to unschedule events that have not been previously scheduled
         try:
             self._scheduled_funcs.remove(func)
         except ValueError:
             pass
 
     def unschedule(self, func):
-        """Unschedule future call to +func+ where call previously scheduled 
-        with either schedule_once or schedule_interval"""
+        """Unschedule future call to +func+.
+       
+        +func+ can have been previously scheduled via either schedule_once 
+            or schedule_interval. No error raised or advices offered if 
+            +func+ not previously scheduled.
+        """
         pyglet.clock.unschedule(func)
         self._remove_from_schedule(func)
 
     def unschedule_all(self):
-        """Unschedules all future calls to instance methods that were 
-        scheduled via either --schedule_once-- or --schedule_interval--
+        """Unschedule all future calls.
+
+        No error raised or advices offer if there are no scheduled functions.
         """
         for func in self._scheduled_funcs[:]:
             self.unschedule(func)
 
     # END-OF-LIFE
     def kill(self):
-        """Kills object prematurely.
-        Internals - at SpriteAdv level simply calls die(). Subclasses 
-        should extend to execute premature end-of-life tidy up operations
-        """
+        """Kill object prematurely."""
         self._on_kill()
         self.die()
         
     def die(self, stop_sound=True):
-        """Extends and renames inherited --delete()-- method to carry out 
-        additional end-of-life operations, specifically to unschedule any 
-        future calls to any instance method"""
+        """Decease object at end-of-life."""
+        # Extends inherited --delete()-- method to include additional 
+        # end-of-life operations
         self.unschedule_all()
         if stop_sound:
             self.stop_sound()
@@ -517,111 +543,132 @@ class SpriteAdv(Sprite, StaticSourceMixin):
         self._on_die()
 
 class OneShotAnimatedSprite(SpriteAdv):
-    """Extends SpriteAdv to provide one shot animation
+    """Extends SpriteAdv to offer a one shot animation.
     
-    Simply uses the --on_animation_end-- event handler to deceease itself 
-    when the animation ends"""
+    Objects decease automatically when animation ends.
+    """
         
     def on_animation_end(self):
         """Event handler"""
         self.die()
 
 class PhysicalSprite(SpriteAdv):
-    """Extends SpriteAdv to include a functionality that allows sprite to 
-    move in accordance with basic 2D physics.
+    """Extends SpriteAdv for 2D movement and collision detection.
+   
+    The PhysicalSprite class:
+        defines the window area within which physical sprites can move.
+        can evalutate collisions between live physical sprites instances.
+        
+    A physcial sprite:
+        has a speed and a rotation speed.
+        has a cruise speed and rotation curise speed that can be set and 
+            in turn which the sprite's speed and rotation speed can be set to.
+        can update its position for a given elapased time.
+        can resolve colliding with a window boundary (see Boundary 
+            Response section).
+        can resolve the consequence for itself of colliding with another 
+            sprite in the window area (requires implementation by subclass - 
+            see Subclass Interface).
+    
+    BOUNDARY RESPONSE
+    A physical sprite's s reponse to colliding with a window boundary can 
+        be defined as one of the following options:
+        'wrap' - reappearing at other side of the window
+        'bounce' - bouncing bounce back into the window
+        'die' - deceasing sprite
+        'kill' - killing sprite
+    The default option can be set at a class level via 
+    ---setup(+at_boundary+)--- (See Subclass Interface section). In turn 
+    the class default option can be overriden by any particular instance 
+    via --__init__(+at_boundary+)--.
 
-    NB Sprite images (be they defined as ---img--- or passed as ++img++)
-    should have anchor points set to centre of image. NB The following 
-    methods of the pyglet_lib module all provide for centering images, 
-    either to centre image to be passed as ++img++ or to directly load a 
-    centre image to be assigned to ---img---, e.g. 
-    ---img--- = load_image('filename.png', 'centre'):
-        load_image()
-        load_animation()
-        anim()
-    
-    INTERNAL PHYSICS
-    --refresh(dt)-- should be CALLED BY CLIENT to move (via --_move(dt)--) 
-    and rotate (via --_rotate(dt)--) sprite to a new position / orientation 
-    given its current velocities and rotation and +dt+, the time 
-    elapsed in seconds since the object was last moved. NB +dt+ has to be 
-    passed by the client, i.e. as the +dt+ passed on by a pyglet scheduled 
-    event.
-    
-    The following internal instance attributes store the values that 
-    represent the current speeds and velocities:
-        --_speed--
-        --_rotation_speed--  (positive clockwise, negative anticlockwise)
-        --_vel_x--
-        --_vel_y--
-    The --_refresh_velocities-- method updates --_vel_x-- and --_vel_y-- given 
-    the current speed (--_speed--) and rotation (--rotation-- inherited from 
-    Sprite).
+    Class ATTRIBUTES (in addition to those inherited):
+    ---live_physical_sprites--- List of all instantiated PhysicalSprite 
+        instances that have not subsequently deceased.
 
-    SETUP
-    Before instantiating any instance, the client MUST set up the class via 
-    cls.--setup-- method which allows the class to determine the bounds that 
-    limit PhysicalSprite instances. NB if the class has not been previously 
-    setup then calls to instantiate instances will give rise to an Assertion 
-    Error.
-    
-    BOUNDARY treatment
-    Class provides for the following boundary treatments:
-        'wrap' such that sprite disappears from one side and reappears on the 
-        other 
-        'bounce' to bounce back into the window area
-        'die' to decease object (via the object's --die-- method)
-        'kill' to kill object (via the object's --kill-- method)
-    By default sprites 'wrap' on reaching a boundary. Default boundary 
-    treatment can be set at a class level by passing +at_boundary+ to the 
-    ---setup--- method as either 'wrap', 'bounce' or 'die'. This default can 
-    then be overriden at an instance level by passing ++at_boundary++ to the 
-    constructor.
-    
-    Class Attributes include:
-    ---live_physical_sprites--- includes a list of all live PhysicalSprites, 
-    defined as all instantiated PhysicalSprite objects which have not 
-    subsequently died (via execution of their --die-- method).
+    The following attributes are available for inspection although it is not 
+    intended that the value are reassigned:
+    ---X_MIN---  Left boundary
+    ---X_MAX---  Right boundary
+    ---Y_MIN---  Bottom boundary
+    ---Y_MAX---  Top boundary
+    ---WIDTH---  Width of window area in which sprite can move
+    ---HEIGHT---  Height of window area in which sprite can move
+    ---AT_BOUNDARY---  Default response if sprite collides with boundary
 
-    Class METHODS:
-    --setup-- see SETUP section of above documentation.
-    --eval_collisions-- returns a list of tuples indicating which live 
-    physical sprites have collided (based on approximate proximity 
-    calculation).
+    Class METHODS (in addition to those inherited):
+    ---setup---  Setup class. Must be executed ahead of instantiating an 
+        instance. See Setup Interface section.
+    ---eval_collisions--- Evaluate collisions between live sprites.
     
-    Instance METHODS
-    The following methods are defined to set the sprite speed and rotation:
-        --speed_set(self, speed)-- set speed in pixels/sec
-        --cruise_speed-- set speed to pre-defined cruise speed
-        --speed_zero-- set speed to 0
-        --rotation_speed_set-- set rotation speed in pixels/sec
-        --rotate(degrees)-- rotates sprite by +degrees+. Negative values 
-        rotate anti-clockwise
-        --cruise_rotation-- set rotation speed to pre-defined rotation cruise 
-        speed. Clockwise by default, pass +clockwise+ = False to rotate 
-        anti-clockwise
-        --rotation_zero-- set rotation speed to 0
-        --rotate_randomly-- rotate sprite to random direction
-        --stop-- stops obj, both translationally and rotationally
+    PROPERTIES (in addition to those inherited):
+    --speed--  sprite's current speed.
 
-    Other methods:
-        --collided_with(other_obj: Sprite)-- not implemented. Should be 
-        implemented by subclasses that wish to handle collisions with 
-        other sprites. Method should only enact consequences for this 
-        object, NOT the other object (which the client should advise 
-        independently of the collision if necessary)
+    Inherited PROPERTY of note:
+    --rotation--  sprite's current orientation
+
+    Instance METHODS (in addition to those inherited):
+    --refresh(dt)--  Move and rotate sprite given elapsed time +dt+.
+    --position_randomly(+avoid+)-- Move sprite to random position within 
+        available window area excluding area defined by +avoid+.
+
+    To set the sprite speeds and rotation:
+        --speed_set()--  Set current speed.
+        --cruise_speed_set()--  Set cruise speed.
+        --cruise_speed()--  Set speed to cruise speed.
+        --speed_zero()--  Set speed to 0.
+        
+        --rotation_speed_set()--  Set rotation speed.
+        --rotation_cruise_speed_set()--  Set rotation cruise speed.
+        --cruise_rotation()--  Set rotation speed to rotation cruise speed.
+        --rotation_zero()--  Set rotation speed to 0.
+        
+        --rotate()-- Rotate sprite.
+        --rotate_randomly()--  Rotate sprite to random direction
+        --turnaround()--  Rotate sprite 180 degrees.
+        
+        --stop()--  Stops sprite translationally and rotationally.
+            
+    --collided_with()--  Not implemented. See Subclass Interface section.
+
+    SUBCLASS INTERFACE
+    
+    Setup
+    Before instantiating any instance, the subclass must set up the class 
+    via the class method ---setup()---. This setup method defines the 
+    window bounds and response to sprite colliding with boundaries.
+    
+    Sprite Image
+    The sprite image, either assigned to ---img--- or passed as ++img++, 
+    must be anchored at the image center in order for the class to 
+    evaluate collisions. The following helper functions provide for 
+    creating centered pyglet image objects that can be assigned to ---img--- 
+    or directly passed as ++img++:
+        ----load_image()----
+        ----load_animation()----
+        ----anim()----
+
+    Collision Resolution
+    --collided_with(other_obj)-- is defined on this class although not 
+    implemented. If subclass is to resolve collisions then this method 
+    should be implemented to enact consequence for the physical sprite of 
+    colliding with another live sprite (the +other_obj+). Method should 
+    only enact consequences for this physical sprite, NOT +other_obj+, 
+    (which the client, should it wish, should advise independently of 
+    the collision).
     """
         
     live_physical_sprites: list
-    window: pyglet.window.BaseWindow
+    _window: pyglet.window.BaseWindow
     X_MIN: int
     X_MAX: int
     Y_MIN: int
     Y_MAX: int
     WIDTH: int
     HEIGHT: int
-    AT_BOUNDARY: str # 'bounce' or 'wrap'
-    setup_complete = False
+    AT_BOUNDARY: str
+    
+    _setup_complete = False
 
     @staticmethod
     def chk_atboundary_opt(at_boundary):
@@ -632,13 +679,17 @@ class PhysicalSprite(SpriteAdv):
               at_boundary='wrap',
               y_top_border=0, y_bottom_border=0,
               x_left_border=0, x_right_border=0):
-        """Defines class attributes that deterime the bounds of any and 
-        all instances and the default treatment to apply when a sprite 
-        reaches a boundary.
-        +window+ should be passed as the pyglet window instance within 
-        which the sprites are to be displayed"""
+        """Class setup. Define bounds and default treatment on reaching.
+        
+        +at_boundary+  Default response to sprite colliding with boundary, 
+            either 'wrap', 'bounce', 'die' or 'kill'.
+        +window+  Game window to which sprite will be drawn
+        
+        Bounds determined as +window+ extent less width of any corresponding
+        border argument passed.
+        """
         cls.live_physical_sprites = []
-        cls.window = window
+        cls._window = window
         cls.chk_atboundary_opt(at_boundary)
         cls.AT_BOUNDARY = at_boundary
         cls.X_MIN = 0 + x_left_border
@@ -647,15 +698,24 @@ class PhysicalSprite(SpriteAdv):
         cls.Y_MAX = window.height - y_top_border
         cls.WIDTH = cls.X_MAX - cls.X_MIN
         cls.HEIGHT = cls.Y_MAX - cls.Y_MIN
-        cls.setup_complete = True
+        cls._setup_complete = True
 
     @classmethod
     def eval_collisions(cls) -> List[Tuple[Sprite, Sprite]]:
-        """Returns a list of tuples indicating which live sprites have 
-        collided. Based on approximate proximity where considered as 
-        collided any two objects whose distance from one another is less 
-        than half their combined width. Accordingly, relies on constructor 
-        anchoring passed images to the image centre"""
+        """Evaluate which live sprites have collided, if any.
+
+        Returns list of 2-tuples where each tuple signifies a collision 
+        between the 2 sprites it contains.
+        
+        Collisions evaluated based on approximate proximity. Two sprites
+        separated by a distance of less than half their combined 
+        width are considered to have collided. Perfect for circular 
+        images, increasingly inaccurate the further the image deviates 
+        from a circle.
+
+        NB Basis for proximity evaluation ASSUJMES sprite image anchored 
+        at image's center.
+        """
         collisions = []
         for obj, other_obj in combinations(copy(cls.live_physical_sprites), 2):
             min_separation = (obj.width + other_obj.width)//2
@@ -667,72 +727,227 @@ class PhysicalSprite(SpriteAdv):
                  cruise_speed=200, rotation_cruise_speed=200, 
                  initial_rotation=0, at_boundary: Optional[str] = None, 
                  **kwargs):
-        """NB before any instance can be instantiated class must be setup 
-        via class method ---setup---
-        Defines initial parameters as passed kwargs.
-        ++at_boundary++ will override, for this sprite, any otherwise default 
-        +at_boundary+ parameter previously passed to ---setup---. Can take 
-        'wrap', 'bounce' or 'die'.
+        """Extends inherited constructor to define subclass specific settings.
+        
+        Before any instance can be instantiated class must be setup 
+        via class method ---setup()---. Otherwise will raise AssertionError.
+                
+        ++at_boundary++ will override, for this instance, any default 
+            value passed to ---setup()---. Takes either 'wrap', 'bounce', 
+            'die' or 'kill'.
         """
-        assert self.setup_complete, ('PhysicalSprite class must be setup'
+        assert self._setup_complete, ('PhysicalSprite class must be setup'
                                      ' before instantiating instances')
         super().__init__(**kwargs)
         self.live_physical_sprites.append(self)
         self._at_boundary = at_boundary if at_boundary is not None\
             else self.AT_BOUNDARY
         self.chk_atboundary_opt(self._at_boundary)
-        self._speed: int # set by --speed_set--
+        self._speed: int  # Stores current speed. Set by...
         self.speed_set(initial_speed)
-        self._speed_cruise: int # set by --cruise_speed_set--
+        self._speed_cruise: int # Set by...
         self.cruise_speed_set(cruise_speed)
-        self._rotation_speed: int # set by --rotation_speed_set--
+        self._rotation_speed: int  # Stores current rotation speed. Set by...
         self.rotation_speed_set(initial_rotation_speed)
-        self._rotation_speed_cruise: int #set by --rotation_cruise_speed_set--
+        self._rotation_speed_cruise: int  # Set by...
         self.rotation_cruise_speed_set(rotation_cruise_speed)
         self.rotate(initial_rotation)
-        self._vel_x = 0.0
-        self._vel_y = 0.0
+        
+        # --_refresh_velocities-- updates --_vel_x-- and --_vel_y-- given 
+        # current speed and rotation
+        self._vel_x = 0.0  # Stores current x velocity
+        self._vel_y = 0.0  # Stores current y velocity
 
+    # SPEED
     @property
     def speed(self) -> int:
         return self._speed
 
+    def speed_set(self, speed: int):
+        """Set current speed to +speed+, in pixels per second."""
+        self._speed = speed
+        self._refresh_velocities()
+
+    def cruise_speed_set(self, cruise_speed: int):
+        """Set cruise speed to +cruise_speed+."""
+        self._speed_cruise = cruise_speed
+
+    def cruise_speed(self):
+        """Set speed to cruise speed."""
+        self.speed_set(self._speed_cruise)
+
+    def speed_zero(self):
+        """Sets speed to 0."""
+        self.speed_set(0)
+
+    # ROTATION
+    def rotation_speed_set(self, rotation_speed: int):
+        """Set rotation speed to +rotation_speed+, in pixels per second.
+        
+        Positive values rotate clockwise, negative values anticlockwise.
+        """
+        self._rotation_speed = rotation_speed
+
+    def rotate(self, degrees: int):
+        """Rotate sprite by +degrees+ degrees.
+        
+        Negative values rotate anti-clockwise.
+        """
+        self.rotation += degrees
+        self._refresh_velocities()
+
+    def rotation_cruise_speed_set(self, rotation_cruise_speed: int):
+        """Set rotation cruise speed to +rotation_cruise_speed+."""
+        self._rotation_speed_cruise = rotation_cruise_speed
+        
+    def cruise_rotation(self, clockwise=True):
+        """Set rotation speed to rotation cruise speed.
+        
+        +clockwise+ False to rotate anti-clockwise.
+        """
+        rot_speed = self._rotation_speed_cruise
+        rot_speed = rot_speed if clockwise else -rot_speed
+        self.rotation_speed_set(rot_speed)
+
+    def rotation_zero(self):
+        """Set rotation speed to 0."""
+        self.rotation_speed_set(0)
+
+    def rotate_randomly(self):
+        """Rotate sprite to random direction."""
+        self.rotate(random.randint(0, 360))
+        
+    def turnaround(self):
+        """Rotate sprite by 180 degrees."""
+        self.rotate(180)
+
+    def _bounce_randomly(self):
+        """Rotate sprite between 110 and 250 degrees."""
+        d = random.randint(110, 250)
+        if 180 <= self.rotation <= 359:
+            self.rotate(-d)
+        else:
+            self.rotate(d)
+
+    def _rotation_radians(self) -> float:
+        """Return current rotation in radians."""
+        return -math.radians(self.rotation)
+
+    def _rotate(self, dt: Union[float, int]):
+        """Rotate sprite to reflect elapsed time.
+        
+        +dt+ Seconds elapsed since object last rotated.
+        """
+        self.rotate(self._rotation_speed*dt)
+
+    # SPEED and ROTATION
+    def stop(self):
+        """Stop sprite both translationally and rotationally."""
+        self.speed_zero()
+        self.rotation_zero()
+
+    def _refresh_velocities(self):
+        """Update velocities for current speed and rotation."""
+        rotation = self._rotation_radians()
+        self._vel_x = self._speed * math.cos(rotation)
+        self._vel_y = self._speed * math.sin(rotation)
+
+    # BOUNDARY RESPONSE
+    def _wrapped_x(self, x: int) -> int:
+        """Where +x+ respresents an x coordinate either to the left or right 
+        of the available window, return the x coordinate that represents the 
+        wrapped position of +x+ on the 'other side' of the window.
+        """
+        if x < self.X_MIN:
+            return x + self.WIDTH
+        else:
+            assert x > self.X_MAX
+            return x - self.WIDTH
+
+    def _wrapped_y(self, y: int) -> int:
+        """Where +y+ respresents an x coordinate either to the left or right 
+        of the available window, return the y coordinate that represents the 
+        wrapped position of +y+ on the 'other side' of the window.
+        """
+        if y < self.Y_MIN:
+            return y + self.HEIGHT
+        else:
+            assert y > self.Y_MAX
+            return y - self.HEIGHT
+
+    def _x_inbounds(self, x: int) -> bool:
+        """Return boolean indicating if +x+ within bounds."""
+        return self.X_MIN < x < self.X_MAX
+
+    def _y_inbounds(self, y) -> bool:
+        """Return boolean indicating if +y+ within bounds."""
+        return self.Y_MIN < y < self.Y_MAX
+
+    def _adjust_x_for_bounds(self, x: int) -> int:
+        """Where +x+ is the evaluated next x-cordinate although lies out 
+        of bounds, return new x value adjusted for boundary response.
+        """
+        if self._at_boundary == 'wrap':
+            return self._wrapped_x(x)
+        elif self._at_boundary == 'bounce':
+            self._bounce_randomly()
+            return self.x
+        else:
+            raise Exception("no out-of-bounds treatment defined")
+
+    def _adjust_y_for_bounds(self, y: int) -> int:
+        """Where +y+ is the evaluated next y-cordinate although lies out 
+        of bounds, return new y value adjusted for boundary response.
+        """
+        if self._at_boundary == 'wrap':
+            return self._wrapped_y(y)
+        elif self._at_boundary == 'bounce':
+            self._bounce_randomly()
+            return self.y
+        else:
+            raise Exception("no out-of-bounds treatment defined")
+
+    # POSITION
     def _default_exclude_border(self):
-        """Default exclude_border is 5 if --at_boundary-- is 'bounce' (to 
-        prevent continual bouncing if placed on the border), otherwise 0"""
+        # 5 if --_at_boundary-- is bounce to prevent repeated bouncing 
+        # if sprite placed on border.
         exclude_border = 5 if self._at_boundary == 'bounce' else 0
         return exclude_border
 
     def _random_x(self, exclude_border: Optional[int] = None) -> int:
-        """Returns a random x coordinate within the available window area 
-        excluding +exclude_border+ pixels from the border"""
+        """Return random x coordinate within available window area 
+        excluding +exclude_border+ pixels from the border.
+        """
         if exclude_border is None:
             exclude_border = self._default_exclude_border()
         return random.randint(self.X_MIN + exclude_border, 
                               self.X_MAX - exclude_border)
 
     def _random_y(self, exclude_border: Optional[int] = None) -> int:
-        """Returns a random x coordinate within the available window area 
-        excluding +exclude_border+ pixels from the border"""
+        """Return random x coordinate within the available window area 
+        excluding +exclude_border+ pixels from the border.
+        """
         if exclude_border is None:
             exclude_border = self._default_exclude_border()
         return random.randint(self.Y_MIN + exclude_border, 
                               self.Y_MAX - exclude_border)
 
-    def _random_xy(self) -> Tuple:
-        """Returns a tuple (x, y) which is a random coordinate within the 
-        available window area"""
+    def _random_xy(self) -> Tuple[int, int]:
+        """Return random position within available window area."""
         x = self._random_x()
         y = self._random_y()
         return (x, y)
 
     def _position_randomly(self):
-        """Moves sprite to a random position within the window"""
+        """Move sprite to random position within available window area."""
         self.update(x=self._random_x(), y=self._random_y())
 
     def position_randomly(self, avoid: Optional[List[AvoidRect]] = None):
-        """Moves sprite to a random position within the window albeit 
-        avoiding any AvoidRect's passed in a list to ++avoid++"""
+        """Move sprite to random position within available window area.
+        
+        +avoid+ List of AvoidRect defining rectangular areas to exclude 
+            from available window area.
+        """
         if not avoid:
             return self._position_randomly()
             
@@ -744,143 +959,11 @@ class PhysicalSprite(SpriteAdv):
 
         self.update(x=xy[0], y=xy[1])
 
-    def _wrapped_x(self, x) -> int:
-        """where +x+ respresents an x coordinate either to the left or right 
-        of the available window, returns an x coordinate that represents the 
-        wrapped position of +x+ on the 'other side' of the window"""
-        if x < self.X_MIN:
-            return x + self.WIDTH
-        else:
-            assert x > self.X_MAX
-            return x - self.WIDTH
+    def _eval_new_position(self, dt: Union[float, int]) -> Tuple[int, int]:
+        """Return obj's new position given elapsed time and ignoring bounds.
 
-    def _wrapped_y(self, y) -> int:
-        """where +y+ respresents an y coordinate either above or below the 
-        available window, returns an y coordinate that represents the 
-        wrapped position of +y+ on the 'other side' of the window"""
-        if y < self.Y_MIN:
-            return y + self.HEIGHT
-        else:
-            assert y > self.Y_MAX
-            return y - self.HEIGHT
-
-    def turnaround(self):
-        """Rotates sprite by 180 degrees"""
-        self.rotate(180)
-
-    def _bounce_randomly(self):
-        """Rotates sprite between 110 and 250 degrees from its current 
-        rotation"""
-        d = random.randint(110, 250)
-        if 180 <= self.rotation <= 359:
-            self.rotate(-d)
-        else:
-            self.rotate(d)
-    
-    def _x_inbounds(self, x) -> bool:
-        """Returns boolean indicating if +x+ within window bounds"""
-        return self.X_MIN < x < self.X_MAX
-
-    def _y_inbounds(self, y) -> bool:
-        """Returns boolean indicating if +y+ within window bounds"""
-        return self.Y_MIN < y < self.Y_MAX
-
-    def _adjust_x_for_bounds(self, x) -> int:
-        """Where +x+ is the evaluated next x-cordinate although lies out 
-        of bounds, returns new x value adjusted as appropriate for action 
-        to take at boundary as specified by --_at_boundary--"""
-        if self._at_boundary == 'wrap':
-            return self._wrapped_x(x)
-        elif self._at_boundary == 'bounce':
-            self._bounce_randomly()
-            return self.x
-        else:
-            raise Exception("no out-of-bounds treatment defined")
-
-    def _adjust_y_for_bounds(self, y) -> int:
-        """Where +y+ is the evaluated next y-cordinate although lies out 
-        of bounds, returns new y value adjusted as appropriate for action 
-        to take at boundary as specified by --_at_boundary--"""
-        if self._at_boundary == 'wrap':
-            return self._wrapped_y(y)
-        elif self._at_boundary == 'bounce':
-            self._bounce_randomly()
-            return self.y
-        else:
-            raise Exception("no out-of-bounds treatment defined")
-
-
-    def _refresh_velocities(self):
-        """Updates internal --_vel_x-- and --_vel_y-- for current speed 
-        and rotation"""
-        rotation = self._rotation_radians()
-        self._vel_x = self._speed * math.cos(rotation)
-        self._vel_y = self._speed * math.sin(rotation)
-
-
-    def speed_set(self, speed: int):
-        """Sets current speed to +speed+, in pixels per second"""
-        self._speed = speed
-        self._refresh_velocities()
-
-    def cruise_speed_set(self, cruise_speed: int):
-        self._speed_cruise = cruise_speed
-
-    def cruise_speed(self):
-        """Sets speed to cruise speed"""
-        self.speed_set(self._speed_cruise)
-
-    def speed_zero(self):
-        """Sets speed to 0"""
-        self.speed_set(0)
-
-
-    def rotation_speed_set(self, rotation_speed: int):
-        """Sets rotation speed to +rotation_speed+, in pixels per second"""
-        self._rotation_speed = rotation_speed
-
-    def rotate(self, degrees: int):
-        """Rotates sprite by +degrees+. Negative values rotate 
-        anti-clockwise"""
-        self.rotation += degrees
-        self._refresh_velocities()
-
-    def rotation_cruise_speed_set(self, rotation_cruise_speed):
-        self._rotation_speed_cruise = rotation_cruise_speed
-        
-    def cruise_rotation(self, clockwise=True):
-        """Set rotation speed to rotation cruise speed. Will 
-        rotate clockwise by default, +clockwise+ = False to rotate 
-        anti-clockwise"""
-        rot_speed = self._rotation_speed_cruise
-        rot_speed = rot_speed if clockwise else -rot_speed
-        self.rotation_speed_set(rot_speed)
-
-    def rotation_zero(self):
-        """Set rotation speed to 0 """
-        self.rotation_speed_set(0)
-
-    def rotate_randomly(self):
-        """Rotate sprite to random direction"""
-        self.rotate(random.randint(0, 360))
-        
-    def _rotation_radians(self) -> float:
-        """Current rotation in radians"""
-        return -math.radians(self.rotation)
-
-    def stop(self):
-        """Stops obj, both translationally and rotationally"""
-        self.speed_zero()
-        self.rotation_zero()
-
-    def _rotate(self, dt):
-        """Rotates sprite to reflect elapsed time +dt+, in seconds since 
-        object last moved"""
-        self.rotate(self._rotation_speed*dt)
-
-    def _eval_new_position(self, dt) -> Tuple[int, int]:
-        """Returns what would be obj's new position based on current 
-        velocities. +dt+ time elapsed since obj last moved."""
+        +dt+ Seconds elapsed since sprite last moved.
+        """
         dx = self._vel_x * dt
         dy = self._vel_y * dt
         x = self.x + dx
@@ -888,13 +971,14 @@ class PhysicalSprite(SpriteAdv):
         return (x, y)
 
     def _move_to(self, x, y):
-        """Moves obj to (+x+, +y+)"""
+        """Move obj to position (+x+, +y+)."""
         self.update(x=x, y=y)
 
-    def _move(self, dt):
-        """'Moves' object to new position given +dt+, the time elapsed since 
-        the object was last moved. Moved based on current velocities and 
-        predefined at_boundary treatment"""
+    def _move(self, dt: Union[float, int]):
+        """Move object to new position given elapsed time.
+        
+        +dt+ Seconds elapsed since sprite last moved.
+        """
         x, y = self._eval_new_position(dt)
         x_inbounds = self._x_inbounds(x)
         y_inbounds = self._y_inbounds(y)
@@ -911,16 +995,19 @@ class PhysicalSprite(SpriteAdv):
                 y = self._adjust_y_for_bounds(y)
             return self._move_to(x, y)
 
+
     def collided_with(self, other_obj: Sprite):
-        """Subclasses should incorporate if wish to handle collisions 
-        with other Sprites. Method should enact consequence for self of 
-        collision with +other_obj+
-        """
+        """Not implemented. Implement on subclass"""
+        # Subclasses should incorporate if wish to handle collisions 
+        # with other Sprites. Method should enact consequence for self of 
+        # collision with +other_obj+.
         pass
 
-    def refresh(self, dt):
-        """Moves and rotates sprite to new position / orientation given +dt+, 
-        the time elapsed in seconds since the object was last moved"""
+    def refresh(self, dt: Union[float, int]):
+        """Move and rotate sprite given elapsed time.
+        
+        +dt+ Seconds elapsed since object last moved.
+        """
         self._rotate(dt)
         self._move(dt)
 
@@ -1119,7 +1206,12 @@ class PhysicalSpriteInteractive(PhysicalSprite):
         pyglet_lib_clockext.ClockExt.
     --unfreeze-- reconnects key event handlers such that end user regains 
         control of the object.
-        """
+
+
+    SUBCLASS INTERFACE
+
+
+    """
 
     NUMPAD_KEYS = (pyglet.window.key.NUM_0,
                    pyglet.window.key.NUM_1,
@@ -1156,7 +1248,7 @@ class PhysicalSpriteInteractive(PhysicalSprite):
         Internals. NB executed only once, call by the constructor when the 
         first instance of PhyscialSpriteInteractive is instantiated"""
         cls._pyglet_key_handler = pyglet.window.key.KeyStateHandler()
-        cls.window.push_handlers(cls._pyglet_key_handler)
+        cls._window.push_handlers(cls._pyglet_key_handler)
         cls._interactive_setup = True
 
     def __init__(self, **kwargs):
@@ -1180,13 +1272,13 @@ class PhysicalSpriteInteractive(PhysicalSprite):
         """Connects --on_key_press-- and --on_key_release-- event handlers 
         in order that they handle these key events. See cls.__doc__."""
         if not self._connected:
-            self.window.push_handlers(self)
+            self._window.push_handlers(self)
         self._connected = True
 
     def disconnect_handlers(self):
         """Disconnects --on_key_press-- and --on_key_release-- event handlers 
         such that they will stop handle these key events. See cls.__doc__."""
-        self.window.remove_handlers(self)
+        self._window.remove_handlers(self)
         self._connected = False
 
     @staticmethod
@@ -1397,3 +1489,6 @@ class PhysicalSpriteInteractive(PhysicalSprite):
     def die(self, *args, **kwargs):
         self.disconnect_handlers()
         super().die(*args, **kwargs)
+
+#### HERERE - REVISING documentation of ABOVE class, 
+#   Update module doc when finished revising this class

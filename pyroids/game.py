@@ -4,7 +4,7 @@
 
 Defines application engine and instantiates application instance.
 
-Module Attributes
+Global ATTRIBUTES
 The following module attributes are assigned default values that can be
 overriden by defining an attribute of the same name in a configuration 
 file (see pyroids.config.template.py for explanation of each attribute 
@@ -17,10 +17,10 @@ and instructions on how to customise values):
     'PICKUP_INTERVAL_MIN', 'PICKUP_INTERVAL_MAX', 'NUM_PICKUPS',
     'NUM_ASTEROIDS', 'ASTEROID_SPEED', 'NUM_PER_SPAWN', 'AT_BOUNDARY'
    
-Classes:
-Player  Player representation.
-Game  Application Engine encompassing Game Engine.
-RadiationField  Draws radiation field.
+CLASSES:
+Player()  Player representation.
+Game()  Application Engine encompassing Game Engine.
+RadiationField()  Draws radiation field.
 """
 
 from .lib.pyglet_lib.clockext import ClockExt
@@ -181,21 +181,21 @@ class Player(object):
                 in event total drops during game will not exceed 
                 --max_pickups--
             
-    Class Attributes
-    PickUpCls dictionary defining PickUp class for each player color
+    Class ATTRIBUTES
+    ---PickUpCls--- dictionary defining PickUp class for each player color
 
-    Instance Attributes
+    Instance ATTRIBUTES
     --game-- Game instance in which player participating.
     --control_sys-- ControlSystem.
     --ship-- any current Ship.
     --lives-- number of lives remaining.
 
-    Properties
+    PROPERTIES
     --color-- Player color.
     --score-- current score.
     --max_pickups-- current limit to number of supply drops during a game.
 
-    Methods
+    METHODS
     --__init__()-- create ControlSystem and InfoRow, request initial Ship.
     --add_to_score(increment)-- add +increment+ to score.
     --increase_max_pickups(num)-- increase max pickups by +num+.
@@ -212,7 +212,7 @@ class Player(object):
         """Initialises a player.
 
         ++game++ Game (subclass of pyglet.window.Window) which player to
-          participate in.
+            participate in.
         ++color++ 'blue' or 'red'
         
         Creates a ControlSystem. Requests a ship positioned to avoid any 
@@ -348,11 +348,11 @@ class RadiationField(object):
     Client responsible for subsequently calling --set_field()-- to 
     define field.
 
-    Class attributes
-    nuclear_img  radition symbol image as pyglet TextureRegion
+    Class ATTRIBUTES
+    ---nuclear_img---  radition symbol image as pyglet TextureRegion.
 
-    Methods
-    --set_field(width)-- set/reset radiation field to width +width+
+    METHODS
+    --set_field(width)-- set/reset radiation field to width +width+.
     """
         
     nuclear_img = load_image('radiation.png', anchor='center')
@@ -459,8 +459,7 @@ class Game(pyglet.window.Window):
     Extends pyglet.window.Window such that application engine is itself 
     the application window.
 
-    States
-
+    STATES
     Defines following application states, manages state changes, draws 
     to window as appropriate for current state.
         'start' draws start page inviting user to start a game. User 
@@ -480,8 +479,7 @@ class Game(pyglet.window.Window):
             changes state to 'game' whilst pressing 'ESCAPE' exits
             the application.
             
-    Game Engine
-
+    GAME ENGINE
     Deletes players from any previous game.
     Creates players for new game.
     Sets level settings for current level.
@@ -498,8 +496,7 @@ class Game(pyglet.window.Window):
     Ends game on earlier of completion of last level or no player having 
     any remaining lives.
         
-    Properties
-    
+    PROPERTIES
     --app_state--  Current state
     --all_players--  List of Players
     --player_winning--  Player that is currently winning
@@ -614,11 +611,11 @@ class Game(pyglet.window.Window):
         """Application window key press handler. Overrides inherited method.
 
         Execution depends on application state:
-          If 'game' or 'next level' then only acts on key press of F12 
+            If 'game' or 'next level' then only acts on key press of F12 
         which pauses the game.
-          If 'instructions' then any key press will return the application 
+            If 'instructions' then any key press will return the application 
         to its state prior to entering the 'instructions' state.
-          If 'start' or 'end' then key press of 1 or 2 (either top row or 
+            If 'start' or 'end' then key press of 1 or 2 (either top row or 
         number pad) or F1 or F2 will start game for 1 or 2 players whilst 
         key press of escape will exit the application.
         """
@@ -829,10 +826,10 @@ class Game(pyglet.window.Window):
         """Decease all sprites in window save for any +exceptions+.
        
         +excpetions+ list of either specific Sprite instance to exclude 
-        or subclass of Sprite in which case all sprites of any subclass 
-        will be excluded.
+            or subclass of Sprite in which case all sprites of any subclass 
+            will be excluded.
         +kill_sound+ True to stop sound of PhysicalSprites that would 
-        otherwise die loudly.
+            otherwise die loudly.
         """
         if kill_sound:
             self._stop_all_sound()
@@ -1013,7 +1010,7 @@ class Game(pyglet.window.Window):
     def _get_field_width(self, border: float) -> int:
         """Return radiation field border width given +border+.
         +border+ total percentage (as float) of window height (or width 
-        if higher than wider) to comprise radiation field.
+            if higher than wider) to comprise radiation field.
         """
         if border < 0:
             border = 0
@@ -1074,14 +1071,16 @@ class Game(pyglet.window.Window):
 
     def _next_level(self, dt: Optional[float] = None):
         """Play next level after clearing screen of all sprites that should 
-        not bleed over."""
+        not bleed over.
+        """
         self._decease_game_sprites(exceptions=self.players_ships + 
                                    [PickUp, PickUpRed])
         self._play_level()
 
     def _next_level_page(self):
         """Set next level state, pause and schedule call to play next level.
-        Ends game if current level was the last level"""
+        Ends game if current level was the last level.
+        """
         if self._level == LAST_LEVEL:
             return self._end_game(completed=True)
         self.app_state = 'next_level'        
@@ -1096,9 +1095,9 @@ class Game(pyglet.window.Window):
     def _end_game(self, dt=None, escaped=False, completed=False):
         """Set end game state and stop player interaction with game.
         
-        +escaped+ True if game ended prematurely by user 'escaping'
+        +escaped+ True if game ended prematurely by user 'escaping'.
         +completed+ True if game ended by way of player(s) completing 
-        last level (as opposed to losing all lives).
+            last level (as opposed to losing all lives).
         """
         self._set_end_state(escaped, completed)
         self._withdraw_players()

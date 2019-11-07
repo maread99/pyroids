@@ -72,10 +72,9 @@ from .lib.pyglet_lib.sprite_ext import (PhysicalSprite,
                                         PhysicalSpriteInteractive,
                                         OneShotAnimatedSprite, 
                                         load_image, load_image_sequence,
-                                        anim, load_static_sound,
-                                        vector_anchor_to_rotated_point, 
-                                        num_from_symbol, InRect)
-from .lib.pyglet_lib.audio_ext import StaticSourceMixin
+                                        anim, vector_anchor_to_rotated_point, 
+                                        InRect)
+from .lib.pyglet_lib.audio_ext import StaticSourceMixin, load_static_sound
 
 class Explosion(OneShotAnimatedSprite):
     """One off animated stationary color explosion with accompanying 

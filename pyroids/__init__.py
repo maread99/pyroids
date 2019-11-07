@@ -51,9 +51,9 @@ def config_import(mod_vars: dict, settings: List[str]):
     configuration file.
 
     +settings+ list of attribute names that each define a default setting 
-      on a module
+        on a module.
     +mod_vars+ the module's variables dictionary as returned by vars() 
-      when called from the module.
+        when called from the module.
     """
     if len(sys.argv) is not 2:
         return
