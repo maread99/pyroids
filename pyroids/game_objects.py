@@ -1021,7 +1021,7 @@ class Weapon(object):
         """Fires an instance of ammunition.
         Internals - see cls.__doc__"""
         kwargs = self._ammo_kwargs(**kwargs)
-        self.AmmoCls(**kwargs)
+        return self.AmmoCls(**kwargs)
 
     def fire(self, **kwargs):
         """Handles request to fire a single item of stock.
@@ -1032,8 +1032,8 @@ class Weapon(object):
         if not self._stock:
             return self._no_stock()
         else:
-            self._fire(**kwargs)
             self.subtract_from_stock(1)
+            return self._fire(**kwargs)
 
     def die(self):
         """Implement on subclass to perform any tidy-up operations, for 
@@ -1231,6 +1231,8 @@ class ShieldGenerator(Weapon):
     one time (internals - provided for by class attribute 
     ---fire_when_shield_up--- being False by default.
     
+    ## add lower_shield()
+
     Internals:
     Shield duration in seconds determined as:
         +duration+ passed to --fire--, or if not passed...
@@ -1247,6 +1249,7 @@ class ShieldGenerator(Weapon):
         """++duration++ defines shield duration in seconds.
         Internals - defines default values as noted to cls.__doc__"""
         self._dflt_duration = duration
+        self._last_shield_raised = None
         super().__init__(*args, **kwargs)
                 
     def _ammo_kwargs(self, **kwargs) -> dict:
@@ -1262,7 +1265,13 @@ class ShieldGenerator(Weapon):
         If not passed then default values will be assigned as noted to 
         Shield.__doc__
         """
-        super().fire(**kwargs)
+        self._last_shield_raised = super().fire(**kwargs)
+
+    def lower_shield(self):
+        """ """
+        #WRITE UP
+        if self.control_sys.shield_up:
+            self._last_shield_raised.shield_down()
 
 
 class RadiationGauge(Sprite):
@@ -1626,14 +1635,30 @@ class ControlSystem(object):
             weapon.set_stock(self._initial_stock[Weapon])
 
     def new_ship(self, **kwargs) -> Ship:
+        #if 'on_kill' in kwargs:
+        #    def on_kill():
+        #        self._ship_killed()
+        #        copy(kwargs['on_kill'])()
+        #    kwargs['on_kill'] = on_kill
+        #else:
+        #    kwargs['on_kill'] = self._ship_killed
         self.ship = self.ShipCls[self.color](control_sys=self, **kwargs)
         self._set_initial_stocks()
         self.radiation_monitor.reset()
         return self.ship
 
+    # shouldn't this be internal and sent to the Ship class (by --new_ship-- 
+    # method) as on_kill or on_die parameter? Almost certainly - currenlty 
+    # the Ship class calls this from it's own kill method!! HOWEVER, 
+    # game already sends through an on_kill method (with kwarg on_kill), 
+    # i.e. will need to chain this one on to anything that's sent through..
+    # as can see to new_ship, was working on it but it's not working and in 
+    # any event there has to be a better way to chain methods!! poss via a 
+    # standard library module...functools even maybe...
     def ship_killed(self):
-        """Called when ship killed"""
+        """Call if ship killed."""
         self.radiation_monitor.halt()
+        self._weapons[ShieldGenerator].lower_shield()
 
     @property
     def weapons(self) -> List[Weapon]:

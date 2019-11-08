@@ -7,16 +7,15 @@ The following hierarchy of classes each extend the class before to provide
 for an additional layer of functionality with a specific purpose.
 
 AdvSprite(Sprite) - Enhance end-of-life, scheduling, one-voice sound, 
-    flashing and scaling
+    flashing and scaling.
 
 OneShotAnimatedSprite(AdvSprite) - Objects decease automatically when 
-    animation ends
+    animation ends.
 
 PhysicalSprite(AdvSprite) - 2D movement and collision detection within 
     defined window area.
 
-    ##STILL TO COMPLETE CLASSES SECTION        
-        InteractiveSprite(PhysicalSprite) adds keyboard events user-interface 
+InteractiveSprite(PhysicalSprite) - user control via keyboard keys.
 
 Helper FUNCTIONS:
 Various functions to create pyglet objects from files in the pyglet resource 
@@ -39,7 +38,7 @@ import random, math, time
 import collections.abc
 from itertools import combinations
 from copy import copy
-from typing import Optional, Tuple, List, Union, Sequence, Callable
+from typing import Optional, Tuple, List, Union, Sequence, Callable, Dict
 from functools import wraps
 
 import pyglet
@@ -609,7 +608,7 @@ class PhysicalSprite(SpriteAdv):
 
     Instance METHODS (in addition to those inherited):
     --refresh(dt)--  Move and rotate sprite given elapsed time +dt+.
-    --position_randomly(+avoid+)-- Move sprite to random position within 
+    --position_randomly(+avoid+)--  Move sprite to random position within 
         available window area excluding area defined by +avoid+.
 
     To set the sprite speeds and rotation:
@@ -1017,203 +1016,58 @@ class PhysicalSprite(SpriteAdv):
 
 
 class PhysicalSpriteInteractive(PhysicalSprite):
-    """Extends PhysicalSprite with funcationality that provides for users to 
-    interact with objects via key presses.
+    """Extends base to provide user control via keyboard keys.
     
-    INTERNALS
-    --_keymod_handlers-- holds a dictionary with:
-        KEYS as a 'keymod', where a keymod is a string that represents one of:
-            a single keyboard key (ex. '97')
-            a keyboard key in combination with one or more modifiers 
-              (ex. '97 18')
-            any of a set of number keys ('numrow', 'numpad' or 'num')
-            any of a set of number keys in combination with one or more 
-              modifiers (ex. 'num 18', 'numpad 17')
+    User control defined via key press, key release and key hold handlers 
+    which can be triggered on user interaction with:
+        a single key
+        a single key plus one or more modifiers
+        any numerical key
+        any numercial key of the number pad
+        any numercial key of the top row
 
-              Where it represents a single key the keymod string is the number 
-            that represents the key as specified in the pyglet.window.key 
-            module. NB The pyglet.window.key module defines a set of 
-            intelligibly named constants that return the corresponding key 
-            value. For example, the constant pyglet.window.key.A represents 
-            the 'a' key and has value 97 which is unique to the 'a' key. So, 
-            the keymod for 'a' is '97'.
-              Where it represents a key in combination with modifiers the 
-            keymod string has two parts separate by a space, ' '. The first 
-            part is as for a single key. The second part is the number that 
-            represents the modifier or combination of modifiers as specified 
-            in the pyglet.window.key module. For example, the number 
-            representing the modifiers MOD_CTRL|MOD_NUMLOCK is 18, such that 
-            the keymod for 'a' + 'ctrl' + 'numlock' would be '97 18'.
-            Incidently, the number representing a combination of modifiers is 
-            the sum of the intengers representing each of the modifiers 
-            (MOD_CTRL is represented by 2 and MOD_NUMLOCK by 16, such that 
-            in combination they are represented by 18).
-              Where it represents any number the key the keymod is simply 
-            'num'. That set can be limited to only the number keys of the
-            keypad with 'numpad' or only those along the top row with 
-            'numrow'.
-              Where it represents a number key in combination with one or 
-            more modifiers the keymod comprises two parts separated 
-             by a space, ' '. The first part is 'num' or 'numpad' or 
-             'numrow'. The second part is the number that represents the 
-             modifier or combination of modifiers as specified in the 
-             pyglet.window.key module. For example the keymod for the 
-             numberpad key 6 in combination with MOD_CTRL|MOD_NUMLOCK would 
-             be 'numpad 18'
-        VALUES take a 3-item dictionary that determine the handlers to be 
-        executed in three different 'key events' described by the dictionary 
-        keys: 'on_press', 'on_release', 'while_pressed'. Values take the 
-        handler (i.e. callable) to be executed when the user interacts 
-        with the keys described by the keymod in such a way to trigger the key 
-        event (i.e. releases, presses or holds). All handlers should 
-        accommodate +key+ and +modifiers+ parameters which will be passed on 
-        by the handle caller.
-
-    In short, when a key or combination of keys represented in the keys of --_keymod_handlers-- is pressed, held or released then the associated 
-    handler is executed.
+    NB For key hold events class only provides for handling of holding down 
+    independently handled single keyboard keys, i.e. does NOT accommodate 
+    holding down modifier(s) keys or triggering collective handlers defined 
+    for a set of numerical keyboard keys.
     
-      The --_keymod_handlers-- dictionary should be populated by the subclass 
-    implementing the --setup_keymod_handlers-- method which should in turn be 
-    defined to make calls to the --add_keymod_handler-- method which 
-    simplifies adding an item. The --add_keymod_handler--'s +key+ and optional 
-    +modifiers+ parameters take the integer representations of the main key 
-    and any modifiers, whilst the associated handlers are passed as 
-    +on_press+, +on_release+ and +while_pressed+ (each of which should 
-    accommodate +key+ and +modifiers+ parameters that will be passed on by 
-    the handle caller). Any event for which a handler isn't passed is handled 
-    by an empty lambda function. The subclass can choose to handle key events 
-    involving any number key (0 - 9) with the same set of handlers (i.e. with 
-    the same press, release and hold handlers).
-        +key+ as 'num' will result in all number keys being handled by the 
-        passed handlers
-        +key+ as 'numrow' will result in all the number keys along the top 
-        row being handled by the passed handlers (but not the number pad keys)
-        +key+ as 'numpad' will result in all the number pad keys being 
-        handled by the passed handlers (but not the number keys along the top 
-        row)
-        NB NB whilst 'numrow' and 'numpad' keymods can both be set up for the 
-        same subclass, trying to setup either of these together with a 'num' 
-        keymod will result in an AssertionError.
-    Alongside the 'num' +key+ +modifiers+ can also be optionally passed. For 
-    example, one item with the key 'num' would handle all key events 
-    involving a numerical key, whilst a separate item with key 'num 18' would 
-    handle all key events involving a numerical key in combination with 
-    MOD_CTRL|MOD_NUMLOCK.
-    
-      Internally, handling all numerical key presses with the same handler is 
-    provided for by the constructor calling --_set_handle_number_bools()-- 
-    which defines a set of instance attributes, each a boolean, that 
-    collectively indicate how number keys should be handled. These booleans 
-    are then referred to by the internals which call the handlers with the 
-    consequenc taht if the keys of --_keymod_handlers-- include any of 'num', 
-    'numrow' or 'numpad' then a key event involving a numerical key that 
-    corresponds with one of these defined keymods will be handled by the 
-    appropriate 'group' handler rather than looking for a handler specific to 
-    the number key.
-        
-    The actual execution of the handlers is undertaken by two different 
-    handling routes made available by pyglet, although execultion ends up 
-    at --_execute_any_key_handler--.
-        Key presses and releases are handled directly by the --on_key_press-- 
-        and --on_key_release-- methods defined on this class. To provide for 
-        this behaviour the constructor, via --connect_handlers-- pushes self 
-        to the ++window++'s handlers  (in pyglet it's the window object which 
-        receives key events). The --on_key_press-- and --on_key_release-- 
-        methods pass the received +symbol+ and +modifier+ directly to 
-        --_execute_any_key_handler-- together with the circumstance, defined 
-        as 'on_press' and 'on_release' respectively. NB the inherited .die 
-        method is extended to remove self from the window's handlers when the 
-        object deceases. It does this via --disconnect_handlers--. 
-        Collectively the --connect_handlers-- and --disconnect_handlers-- 
-        ensure that only one version of 'self' is ever pushed to the window, 
-        thereby preventing multiple version of the same handler permeating 
-        the stack (which can occur, with unexpected consequences, if external 
-        code were to push/remove the object to/from the window without going 
-        through these methods.
-        
-        Keeping a key pressed (i.e. key hold) is handled by a pyglet 
-        KeyStateHandler object. On the first occasion that a 
-        PhysicalSpriteInteractive instance is instantiated the KeyStateHandler 
-        object is created, assigned to a class attribute and and pushed to 
-        the +++window+++. This class extends the inherited --refresh-- method 
-        so that --_key_hold_handlers-- is executed every time the sprite is 
-        refreshed. --_key_hold_handlers-- uses the KeyStateHandler object to 
-        see if any key represented in --_keymod_handlers-- is currently being 
-        pressed. If so, it passes execution to --_execute_any_key_handler-- 
-        with the circumstance 'while_pressed'.
-        NB NB --_key_hold_handlers-- does not consider modifiers, rather it 
-        only looks in --_keymod_handlers-- for keymods that represent 
-        a single key. That is to say that THIS CLASS DOES NOT PROVIDE FOR 
-        HANDLING A KEY EVENT INVOLVING THE 'HOLDING DOWN' OF A KEY +
-        MODIFIERS (although, as noted in the prior paragraphs, does provide 
-        for handling the pressing and releasing of keys + modifiers).
-              
-        Worth noting that while --on_key_press-- and --on_key_release-- work 
-        by asking if the received event symbol and modifiers is represented 
-        in --_keymod_handlers--, --_key_hold_handlers-- declares the single 
-        key keymods in --_keymod_handlers-- and asks the KeyStateHandler if 
-        any of those keys are currently pressed.
-
-    --_execute_any_key_handler-- is therefore where handler execution ends 
-    up in all cases. The method receives the +symbol+ and +modifers+, as 
-    initially made available by the pyglet event, together with the 
-    +circumstance+ advised by the event capturer (--on_key_press--, 
-    --on_key_release-- or --_key_hold_handlers--). From the symbol and 
-    modifiers it evaluates whether a handler exists for the keys pressed.
-    It gets the keymod by calling --_get_keymod--. --_get_keymod-- converts 
-    the symbol and modifiers into a keymod, with consideration as to 
-    whether numbers are being handled together, in which case the 'key' 
-    part of the keymod is returned as either 'num', 'numpad' or 'numrow', 
-    depending on the keys of --_keymod_handlers--.
-    --_execute_any_key_handler-- then looks for handlers for the returned 
-    keymod. Looks for a key in --_keymod_handlers-- in the following order:
-        1) looks for the keymod as is, i.e. looks for a handler that 
-          represents the combined +key+ / +modifiers+ key event (which 
-          includes the likes of, for example, 'num 18').
-        If a key representing the key + modifiers combination isn't found 
-        then looks for a key that represents the key part only, on the basis 
-        that any number of modifiers could be inadvertantly or pressed 
-        (capslock or numlock for example) and what we're interested in, 
-        at least if this combination of modifieres isn't handled, is the 
-        main key being pressed:
-        2a) looks for 'num' if the symbol represents a number key 
-          (in --NUM_KEYS--) and 'num' is known to be a defined keymod
-        2b) looks for 'numpad' if symbol represents a number key of the 
-          number pad (in --NUMPAD_KEYS--) and 'numpad' is known to be a 
-          defined keymod
-        2c) looks for 'numrow' if symbol represents a number key of the 
-          top row of numbers (in --NUMROW_KEYS--) and 'numrow' is known to be 
-          a defined keymod
-        3) looks for a keymod which represents the symbol alone
-    In the event that no handler is found for the received key event then 
-    --_execute_any_key_handler-- returns False.
-    In the event that a keymod is found then then executes the corresponding 
-    circumstance-specific (e.g. 'on_press') handler.
-
-    Worth noting keymods are strings, whilst symbol and modifiers are 
-    received from and passed to pyglet functions as integers.
-
-    Public METHODS
-    --add_keymod_handler-- should be used to define keyboard events and 
-    corresponding handlers
-    --setup_keymod_handlers-- should be defined on subclass to define 
-    keyboard events and corresponding handlers via calls to 
-    --add_keymod_handler--
-    --freeze-- Stops object translationally and rotationally and disconnects 
-        key event handlers such that end user loses control. NB Does not 
-        prevent or pause any scheduled calls, to include any flashing. NB 
-        to pause scheduled calls use interfrace provided by 
-        pyglet_lib_clockext.ClockExt.
-    --unfreeze-- reconnects key event handlers such that end user regains 
-        control of the object.
-
+    Instance METHODS (in addition to those inherited):
+    --add_keymod_handler()-- Define keyboard event and corresponding handlers.
+        See Subclass Interface section.
+    --freeze()--  Stop object and prevent further user interaction.
+    --unfreeze()--  Return control to user.
 
     SUBCLASS INTERFACE
 
-
+    Event definition and handlers
+    Subclasses should implement the --setup_keymod_handlers-- method to, 
+    via calls to --add_keymod_handler--, define keyboard events and 
+    specify corresponding handlers. The handlers will commonly be defined 
+    as instance methods of the subclass. See --add_keymod_handler-- for 
+    documentation on specifying keyboard events.
     """
 
-    NUMPAD_KEYS = (pyglet.window.key.NUM_0,
+    # HANDLER IMPLEMENTATION
+    # All handler execution goes through --_execute_any_key_handler-- 
+    # although two different routes are employed to get there...
+    #
+    # key press and key release events are handled by instance methods 
+    # --on_key_press-- and --on_key_release-- (which in turn call 
+    # --_execute_any_key_handler--). ---_setup_interactive--- pushes self 
+    # to the ++window++ which has the effect that pyglet recognises the
+    # instance methods as handlers and pushes them to top of handler stack.
+    # The --_connect_handlers and --_disconnect_handlers-- methods ensure 
+    # only one version of self is ever on the stack.
+
+    # key hold events are identified via a pyglet KeyStateHandler object 
+    # which is instantiated and pushed to ++window++ when the class 
+    # instantiates its first instance. Every time the sprite is redrawn (via 
+    # --refresh()--, the KeyStateHandler object is interrogated to see if 
+    # any of the handled keyboard keys is currently pressed. If so, executes 
+    # the appropriate handler via --_execute_any_key_handler--.
+    
+
+    _NUMPAD_KEYS = (pyglet.window.key.NUM_0,
                    pyglet.window.key.NUM_1,
                    pyglet.window.key.NUM_2,
                    pyglet.window.key.NUM_3,
@@ -1224,7 +1078,7 @@ class PhysicalSpriteInteractive(PhysicalSprite):
                    pyglet.window.key.NUM_8,
                    pyglet.window.key.NUM_9)
 
-    NUMROW_KEYS = (pyglet.window.key._0,
+    _NUMROW_KEYS = (pyglet.window.key._0,
                    pyglet.window.key._1,
                    pyglet.window.key._2,
                    pyglet.window.key._3,
@@ -1235,98 +1089,159 @@ class PhysicalSpriteInteractive(PhysicalSprite):
                    pyglet.window.key._8,
                    pyglet.window.key._9)
 
-    NUM_KEYS = NUMPAD_KEYS + NUMROW_KEYS
+    _NUM_KEYS = _NUMPAD_KEYS + _NUMROW_KEYS
 
     _pyglet_key_handler: pyglet.window.key.KeyStateHandler
     _interactive_setup = False
 
     @classmethod
     def _setup_interactive(cls):
-        """Sets up class attribute ---_pgylet_key_handler-- to hold a 
-        KeyStateHandler which is pushed to the ---window--- to provide for 
-        handling 'key held' events. See cls.__doc__.
-        Internals. NB executed only once, call by the constructor when the 
-        first instance of PhyscialSpriteInteractive is instantiated"""
+        """Setup pyglet key state handler."""
+        # Executed only once (on instantiating first instance).
         cls._pyglet_key_handler = pyglet.window.key.KeyStateHandler()
         cls._window.push_handlers(cls._pyglet_key_handler)
         cls._interactive_setup = True
 
+    @staticmethod
+    def _as_passed_or_empty_lambda(as_passed: Optional[Callable]) -> Callable:
+        if callable(as_passed):
+            return as_passed
+        else:
+            return lambda key, modifier: None
+
+    @staticmethod
+    def _eval_keymod(key: Union[int, 'num', 'numrow', 'numpad'],
+                     modifiers: Union[int, str] = '') -> str:
+        """Evaluate and return internal keymod string that represents 
+        +key+ and +modifiers+"""
+        if modifiers == '':
+            return str(key)
+        else:
+            return str(key) + ' ' + str(modifiers)
+
+    @staticmethod
+    def _keypart(keymod: 'str') -> str:
+        """Return first part of the internal keymod string +keymod+.
+        
+        Examples:
+        >>> PhyscialInteractiveSprite._keypart(97) -> '97'
+        >>> PhyscialInteractiveSprite._keypart(97 18) -> '97'
+        """
+        return keymod.split(' ')[0]
+
     def __init__(self, **kwargs):
-        """Takes parameters as PhysicalSprite"""
+        """Pass all arguments as kwargs."""
         super().__init__(**kwargs)
         if not self._interactive_setup:
             self._setup_interactive()
 
-        self._keymod_handlers = {}
+        self._keymod_handlers = {}  # Populated by --setup_keymod_handlers--
         self.setup_keymod_handlers()
-        self._handle_numbers_together: bool # set by...
-        self._num: bool # set by...
-        self._numpad: bool # set by...
-        self._numrow: bool # set by...
-        self._set_handle_number_bools()
-        self._connected = False # set by --connect_handlers-- to True
-        self.connect_handlers()
-        self._frozen = False # set by --freeze-- and --unfreeze--
 
-    def connect_handlers(self):
-        """Connects --on_key_press-- and --on_key_release-- event handlers 
-        in order that they handle these key events. See cls.__doc__."""
+        # Set by --_set_keyonly_handlers-- to replicate --_keymod_handlers-- 
+        # although only including items that define keyboard events involving 
+        # a single keyboard key. Employed by --_key_hold_handlers--.
+        self._keyonly_handlers: Dict[int, dict]
+        self._set_keyonly_handlers()
+        
+        # Set by --_set_handle_number_bools--
+        self._handle_numbers_together: bool 
+        self._num: bool
+        self._numpad: bool
+        self._numrow: bool
+        self._set_handle_number_bools()
+        
+        self._connected = False  # Set to True by --_connect_handlers--
+        self._connect_handlers()
+        
+        self._frozen = False  # Set by --freeze-- and --unfreeze--
+
+    def _connect_handlers(self):
+        """Push to stack event handlers defined as instance methods."""
         if not self._connected:
             self._window.push_handlers(self)
         self._connected = True
 
-    def disconnect_handlers(self):
-        """Disconnects --on_key_press-- and --on_key_release-- event handlers 
-        such that they will stop handle these key events. See cls.__doc__."""
+    def _disconnect_handlers(self):
+        """Remove from stack event handlers defined as instance methods."""
         self._window.remove_handlers(self)
         self._connected = False
-
-    @staticmethod
-    def _as_passed_or_empty_lambda(as_passed: Optional[Callable]) -> Callable:
-        """Returns +as_passed+ if passed as function, otherwise if 
-        +as_passed+ passed as None then returns empty lambda function"""
-        if as_passed is None:
-            return lambda key, modifier: None
-        else:
-            return as_passed
-
+    
     def add_keymod_handler(self, key: Union[int, 'num'],  
                            modifiers: Optional[int] = '',
                            on_press: Optional[Callable] = None,
                            on_release: Optional[Callable] = None,
                            while_pressed: Optional[Callable] = None):
-        """Adds a keymod handler to --_keymod_handlers-- where:
-        +key+ takes an integer that represents a specific keyboard key 
-        as specified in pyglet.window.key. The pyglet.window.key module 
-        defines a set of more intelligible constants which can be passed as 
-        +key+. For example pass pyglet.window.key.A to represent the key A. 
-        The actual value passed (i.e. the value of the constant A on module 
-        pyglet.window.key) is 97
-            Alternatively to use the same set of handlers to handle all 
-            key events involving numerical keys:
-              pass +key+ as 'num' to handle all numerical keys together
-              pass +key+ as 'numpad' to handle together all number keys of 
-                the number key pad
-              pass +key+ as 'numrow' to handle togeher all number keys along 
-                the top keyboard row
-            NB Do not pass 'num' and either of 'numpad' or 'numrow'
-        +modifiers+ optionally takes an intenger that represents a modifier 
-        key or combination of modifier keys.
-        Where the key and any modifiers represented by +key+ and +modifiers+ 
-        are collectively considered the 'key event':
-        +on_press+ should be passed as a function to be executed when the
-        key(s) of the key event is/are pressed, or None if no execution is 
-        to be undertaken in this circumstance.
-        +on_release+ should be passed as a function to be executed when the
-        key(s) of the key event is/are released, or None if no execution is 
-        to be undertaken in this circumstance
-        +while_pressed+ should be passed as a function to be executed on 
-        every call to --refresh-- when the key(s) of the key event is/are 
-        pressed, or None if no execution is to be undertaken in this 
-        circumstance
-        NB NB all handler functions should accommodate +key+ and +modifiers+ 
-        parameters
+        """Add a handler to handle pressing and/or releasing and/or 
+        holding a a defined keyboard key or keys.
+        
+        +on_press+ Callable to be executed when the defined keyboard key 
+            or keys is/are pressed.
+        +on_release+ Callable to be executed when the defined keyboard key 
+            or keys is/are released.
+        +while_pressed+ Callable to be executed every time the window 
+            refreshes whilst the defined keyboard key is held down. NB Can 
+            only handle holding down a single keyboard key. AssertionError 
+            raised if both +while_pressed+ and +modifiers+ passed or 
+            +key+ passed as 'num', 'numpad' or 'numrow' (see further below).
+        Any of +on_press+, +on_release+ and +while_pressed+ can be passed 
+            as None, or not passed, if that particular event is not to 
+            be handled for the defined keyboard key or keys.
+        ALL of any callables passed to +on_press+, +on_release+ and 
+            +while_pressed+ MUST accommodate 'key' and 'modifiers' as their 
+            first two parameters (after any self parameter). Whenever the 
+            handlers are called these parameters will receive the key and 
+            modifier(s) values of the actual event (as the integers that 
+            pyglet uses to represent keyboard keys - see furher below).
+        
+        The keyboard key or keys to be handled is defined by the +key+ and 
+        +modifiers+ arguments.
+
+        To handle a specific keyboard key plus, optionally, modifier(s):
+            +key+ Integer that pyglet uses to represent the specific keyboard 
+                key. The pyglet.window.key module defines a set of 
+                intelligibly named constants, for example 'A', 'LEFT', 'F3', 
+                each of which is assigned a corresponding integer. For
+                example, to specify the key 'A' pass key=pyglet.window.key.A
+                which results in the key parameter receiving the integer 97.
+            +modifiers+ Only if a modifier is to be specified, pass as 
+                integer that pyglet uses to represent a specific modifier key 
+                or combination of modifier keys. NB the integer for a 
+                combination of modifier keys is the sum of the integers that
+                represent each of the modifier keys being combined. For 
+                example:
+                >>> pyglet.window.key.MOD_CTRL
+                2
+                >>> pyglet.window.key.MOD_SHIFT
+                1
+                So, to define modifiers as CTRL + SHIFT pass modifiers=3.
+        
+                pyglet.window.key documentation:
+                https://pyglet.readthedocs.io/en/latest/modules/window_key.html#module-pyglet.window.key
+                
+        To handle any numerical key:
+            +key+ 'num'.
+            
+        To handle any numerical key of the number pad:
+            +key+ 'numpad'.
+            
+        To handle any numerical key of the number row:
+            +key+ 'numrow'.
+
+        When handling numerical keys collectively:
+            In all cases can, if required, include modifier(s) by passing 
+                +modifiers+ in same way as described above.
+            It is NOT possible to add a keymod handler with +key+ 'num' and 
+                another with +key+ as either 'numpad' or 'numrow' (which 
+                would otherwise create ambiguity as to which handler should 
+                be employed).
         """
+        if while_pressed is not None:
+            assert modifiers == '' and\
+                not (isinstance(key, str) and key[:3] == 'num'),\
+                "while_pressed handler cannot accommodate modifiers or"\
+                " collective handling of numerical keys"
+                    
         on_press = self._as_passed_or_empty_lambda(on_press)
         on_release = self._as_passed_or_empty_lambda(on_release)
         while_pressed = self._as_passed_or_empty_lambda(while_pressed)
@@ -1337,34 +1252,30 @@ class PhysicalSpriteInteractive(PhysicalSprite):
                                          'while_pressed': while_pressed}
 
     def setup_keymod_handlers(self):
-        """Method should be implemented by subclass to define user 
-        interaction with object via key presses.
-        Method should populate --_keymod_handlers-- via calls to 
-        --add_keymod_handler--, one call for each key press which is to be 
-        handled.
+        """Not implemented by this class.
+        
+        Method should be implemented by subclass in accordance with 
+        'Subclass Interface' section of this class' documentation.
         """
         pass
 
-    def _keypart(self, keymod: 'str'):
-        """Returns the first part of the keymod, for exmample:
-        where +keymod+ is '97 18' returns '97'
-        where +keymod+ is '97' returns '97'
-        """
-        return keymod.split(' ')[0]
-
-    def _eval_keymod(self, key: Union[int, 'num', 'numrow', 'numpad'],
-                     modifiers: Union[int, str] = '') -> str:
-        """Returns the internal keymod string that represents the passed 
-        +key+ and +modifiers+ (see cls.__doc__)"""
-        if modifiers == '':
-            return str(key)
-        else:
-            return str(key) + ' ' + str(modifiers)
+    def _set_keyonly_handlers(self):
+        self._keyonly_handlers = {}
+        for keymod, handlers in self._keymod_handlers.items():
+            try:
+                key = int(keymod)
+            except ValueError:
+                continue
+            else:
+                self._keyonly_handlers[key] = handlers
 
     def _set_handle_number_bools(self):
-        """Sets booleans indiciating how number keys are being handled.
-        Evaluates how to handle numbers keys by interrogation of the keymods 
-        used as keys of --_keymod_handlers--. (see cls.__doc__)"""
+        """Set instance attributes indiciating how numeric keyboard keys 
+        are handled.
+        
+        Raise assertion error if trying to handle indpendently number 
+        keys and either number pad keys or number row keys.
+        """
         self._handle_numbers_together = False
         self._numpad = False
         self._numrow = False
@@ -1382,113 +1293,118 @@ class PhysicalSpriteInteractive(PhysicalSprite):
                 self._num = True
             assert not (self._num and (self._numpad or self._numrow)),\
                 "Cannot have both 'num' and either 'numpad' or 'numrow'"\
-                "as keymods"
+                "as keymods."
 
     def _get_keymod(self, key: int, modifiers: Union[int, str] = '') -> str:
-        """Returns the internal keymod string that represents the passed 
-        +key+ and +modifiers+ (see cls.__doc__)"""
+        """Return the internal keymod string that would map to any handlers 
+        setup to handle a keyboard event defined by +key+ and +modifiers+.
+
+        +key+ Integer used by pyglet to represent a specific keyboard key.
+        +modifiers+ Integer used by pyglet to represent a specific keyboard 
+            modifier key or combination of modifier keys.
+
+        NB The method makes no claim as to whether any handlers do exist for 
+        the keyboard event defined by +key+ and +modifiers+, but only that 
+        if such handlers were to exist then the returned internal keymod 
+        string would map to them.
+        """
         if self._handle_numbers_together:
             ext = ' ' + str(modifiers) if modifiers else ''
-            if self._num and key in self.NUM_KEYS:
+            if self._num and key in self._NUM_KEYS:
                 return 'num' + ext
-            elif self._numpad and key in self.NUMPAD_KEYS:
+            elif self._numpad and key in self._NUMPAD_KEYS:
                 return 'numpad' + ext
-            elif self._numrow and key in self.NUMROW_KEYS:
+            elif self._numrow and key in self._NUMROW_KEYS:
                 return 'numrow' + ext
         return self._eval_keymod(key, modifiers)
 
     def _keymod_handled(self, key: int, 
                        modifiers: Union[int, str] = '') -> Union[str, bool]:
-        """Returns, in order of priority:
-            1) keymod which represents a defined handler for the combined 
-              +key+ / +modifiers+ key event (includes of the like, for 
-              example, 'num 18')
-            2a) 'num' if +key+ is a number (in --NUM_KEYS--) and 'num' is a 
-              defined handler
-            2b) 'numpad' if +key+ is a number key of the number pad (in 
-              --NUMPAD_KEYS--) and 'numpad' is a defined handler
-            2c) 'numrow' if +key+ is a number key of the top row of number 
-              keys (in --NUMROW_KEYS--) and 'numrow' is a defined handler
-            3) keymod which represents a defined handler for the +key+ key 
-              event
-            4) False if there is no defined handler for the passed parameters
-        See cls.__doc__ for documentation of keymod.
+        """Return internal keymod string that maps to handlers setup to 
+        handle the actual keyboard event defined by +key+ and +modifiers+ 
+        (be that event key press, key release or key held) or False if no 
+        such handlers exist.
+
+        +key+ Integer used by pyglet to represent a specific keyboard key.
+        +modifiers+ Integer used by pyglet to represent a specific keyboard 
+            modifier key or combination of modifier keys.
         """
         keymod = self._get_keymod(key, modifiers)
+        
+        # handler exists for +key+ +modifiers+ combo
         if keymod in self._keymod_handlers:
-            return keymod
+            return keymod # examples: '97 18', 'num 18'
+        
+        # Handler exists for +key+ which represents a numerical keyboard 
+        # key handled by a collective handler. +modifiers+ are ignored, 
+        # thereby ensuring handlers work as intended regardless of whether
+        # numlock, capslock etc are on or off.
         elif keymod[0:3] == 'num':
-            return self._keypart(keymod)
+            return self._keypart(keymod)  # 'num', 'numpad', or 'numrow'
+        
+        # Handler exists for +key+ (which does not represent a numerical 
+        # key handled collectively). +modifiers are again ignored.
         elif str(key) in self._keymod_handlers:
-            return str(key)
+            return str(key)  # example: '97'
+        
+        # No handler exists for defined keyboard event
         else:
             return False
 
     def _execute_any_key_handler(self, key: int, circumstance: str,
                                  modifiers: Union[int, str] = ''):
-        """If a circumstance-specific handler exists for any key event 
-        discernable from passed +key+ and any +modifiers+ then executes 
-        that handler.
+        """Execute any handler setup to handle the actual keyboard event 
+        defined by +key+, +modifiers+ and +circumstance+.
+
+        +key+ Integer used by pyglet to represent a specific keyboard key.
+        +modifiers+ Integer used by pyglet to represent a specific keyboard 
+            modifier key or combination of modifier keys.
+        +circumstance+ 'on_press', 'on_release' or 'while_pressed'.
         """
         keymod = self._keymod_handled(key, modifiers)
         if not keymod:
             return
         self._keymod_handlers[keymod][circumstance](key, modifiers)
-        #In event there is a handlers exists returns True in order to 
-        #prevent handler from futher propagating through the stack.
-        #return True
+        return True  # Prevents event propaging through stack if handled.
 
     def on_key_press(self, symbol: int, modifiers: int):
-        """Event handler for key presses"""
+        """Key press handler."""
         self._execute_any_key_handler(symbol, 'on_press', modifiers)
-        #return
-            
+                    
     def on_key_release(self, symbol: int, modifiers: int):
-        """Event handler for key releases"""
+        """Key release handler."""
         self._execute_any_key_handler(symbol, 'on_release', modifiers)
 
     def _key_hold_handlers(self):
-        """For any keymod that represents a key event involving only a single 
-        key (i.e. no modifiers) will check if key current pressed and if so 
-        executes associated handler for 'while_pressed' circumstance"""
-        for keymod in self._keymod_handlers:
-            try:
-                key = int(keymod)
-            except ValueError:
-                continue
-            else:
-                if self._pyglet_key_handler[key]:
+        """Execute any 'while_pressed' handler that exists for any keyboard
+        key that is currently pressed.
+        """
+        for key in self._keyonly_handlers:
+            if self._pyglet_key_handler[key]:
                     self._execute_any_key_handler(key, 'while_pressed')
 
 
     def freeze(self):
-        """Stops object translationally and rotationally and disconnects 
-        key event handlers such that end user loses control.
-        """
+        """Stop object and prevent further user interaction."""
         self.stop()
-        self.disconnect_handlers()
+        self._disconnect_handlers()
         self._frozen = True
     
     def unfreeze(self):
-        """reconnects key event handlers such that end user regains 
-        control of the object.
-        """
-        self.connect_handlers()
+        """Return control to user."""
+        self._connect_handlers()
         self._frozen = False
         
-    def refresh(self, dt):
-        """extends inherited method to:
-            execute any registered 'key hold' handler that corresponds 
-              to any pressed key
-            skip execution if --_frozen--"""
+    def refresh(self, dt: float):
+        """Move sprite for elapsed time +dt+.
+        
+        Only moves if not frozen.
+        """
         if self._frozen:
             return
         self._key_hold_handlers()
         super().refresh(dt)
 
     def die(self, *args, **kwargs):
-        self.disconnect_handlers()
+        self._disconnect_handlers()
         super().die(*args, **kwargs)
-
-#### HERERE - REVISING documentation of ABOVE class, 
-#   Update module doc when finished revising this class

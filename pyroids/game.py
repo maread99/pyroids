@@ -597,16 +597,14 @@ class Game(pyglet.window.Window):
                        })
         self._settings_map = map
 
-    # Window keypress handler
+    # Window keypress handler.
     #
     # All key presses pass through this handler except when user has 
     # paused game (in which case handled by --_paused_on_key_press-- which 
     # is pushed to the stack temporarily above this method and prevents 
     # propogation of event to this method).
     #
-    # Key presses that control ships handled first by handlers on Ship class,
-    # event then propogates through this method benignly given that during 
-    # game state this handler only enacts a conseqeunce if key pressed is F12.
+    # Key presses that control ships handled by handlers on Ship class.
     def on_key_press(self, symbol, modifiers):
         """Application window key press handler. Overrides inherited method.
 
