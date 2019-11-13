@@ -54,29 +54,32 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 
 ##                              **GLOBAL CONSTANTS**
 
-## application window width in pixels
+## application window width in pixels.
 #WIN_X = 1800
 
-## application window height in pixels
+## application window height in pixels.
 #WIN_Y = 800 
 
-## lives per game. Limit is 5 for 'lives left' to 'fit in' with WIN_X = 1200
+## lives per game. Limit is 5 for 'lives left' to 'fit in' with WIN_X = 1200.
 #LIVES = 5
 
-## number of levels
+## number of levels.
 #LAST_LEVEL = 20
 
-## Minimum seconds between supply drops
+## Minimum seconds between supply drops.
 #PICKUP_INTERVAL_MIN = 15
 
-## Max seconds between supply drops
+## Max seconds between supply drops.
 #PICKUP_INTERVAL_MAX = 30
 
 ## Should bullets and pyroids 'bounce' or 'wrap' at the boundary?
 #AT_BOUNDARY = 'bounce'
 
-## Shield duration, in seconds
-#SHIELD_DURATION = 7
+## Shield duration, in seconds.
+#SHIELD_DURATION = 8
+
+## Speed of high velocity bullet as multiple of standard bullet speed.
+#HIGH_VELOCITY_BULLET_FACTOR = 3
 
 ## Initial rounds of ammunition for each weapon. Maximum 9, Minimum 0.
 ## Uncomment ALL lines if changing any value.

@@ -1017,16 +1017,16 @@ class Game(pyglet.window.Window):
         field_width = int((min(WIN_X, WIN_Y)*border)//2)
         return field_width
 
-    def _get_cleaner_air_field(self, field_width) -> InRect:
+    def _get_cleaner_space_field(self, field_width) -> InRect:
         return InRect(x_from = field_width, x_to = WIN_X - field_width,
                       y_from = field_width, y_to= WIN_Y - field_width)
 
     def _set_radiation_field(self, border):
         field_width = self._get_field_width(border)
         self._rad_field.set_field(width=field_width)
-        cleaner_air = self._get_cleaner_air_field(field_width)
+        cleaner_space = self._get_cleaner_space_field(field_width)
         for ship in self.players_ships:
-            monitor = ship.control_sys.radiation_monitor.reset(cleaner_air)
+            monitor = ship.control_sys.radiation_monitor.reset(cleaner_space)
             
     def _set_natural_exposure_limit(self, value: int):
         for ship in self.players_ships:
@@ -1056,7 +1056,7 @@ class Game(pyglet.window.Window):
 
     def _setup_mine_cls(self):
         visible_secs = None if self._num_players == 1 else 2
-        Mine._setup_mines(visible_secs=visible_secs)
+        Mine.setup_mines(visible_secs=visible_secs)
 
     def _start_game(self, num_players: int = 1):
         """set/reset game and proceeds to play first level"""

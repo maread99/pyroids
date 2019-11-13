@@ -12,8 +12,12 @@ TODO
 		README as .rst)
 
 
+#TODO include where to report bugs
+
 Play me
 #TODO instructions to play game
+
+
 
 #INCOPR FOLLOWING AS APPLIC...Use included configuration file as example:
 Takes optional single argument as filename of a configuration file in 
@@ -42,6 +46,7 @@ include:
 	Frequency and number of supply drops
 	Min and Max ammunition stocks in each supply drop, per weapon
 	Cannon reload rate
+	High Velocity Bullet speed
 	Shield duration
 	Number of Levels
 	Number of Lives

@@ -208,7 +208,7 @@ class AvoidRect(InRect):
     Extends InRect to define a rectangle that encompasses a ++sprite++ and 
     any ++margin++.
 
-    ATTRIBUTES (in addition to those inherited):
+    ATTRIBUTES
     --sprint--  ++sprite++
     --margin--  ++margin++
     """
@@ -279,7 +279,7 @@ class SpriteAdv(Sprite, StaticSourceMixin):
         documentation)
     ---img---  Sprite's image (see Subclass Interface section)
 
-    Class METHODS (in addition to those inherited):
+    Class METHODS
     ---stop_all_sound()---  Pause sound of from live sprites
     ---resume_all_sound()---  Resume sound from from all live sprites
     ---cull_all---  Kill all live sprites
@@ -291,7 +291,7 @@ class SpriteAdv(Sprite, StaticSourceMixin):
     PROPERTIES
     --live-- returns boolean indicating if object is a live sprite.
 
-    Instance METHODS (in addition to those inherited):
+    Instance METHODS
     --scale_to(obj)-- Scale object to size of +obj+
     --flash_start()-- Make sprite flash
     --flash_stop()--  Stop sprite flashing
@@ -421,22 +421,26 @@ class SpriteAdv(Sprite, StaticSourceMixin):
         """
         cls._end_lives_selective(exceptions=exceptions, kill=False)
 
-    def __init__(self, sound=True, sound_loop=False, 
+    def __init__(self, scale_to: Union[Sprite, Texture] = None, 
+                 sound=True, sound_loop=False, 
                  on_kill: Optional[Callable] = None,
                  on_die: Optional[Callable] = None, **kwargs):
         """Extends inherited constructor.
-        
-        ++img++  If not received, passes 'img' as ---img---
+        ++scale_to++  Scale sprite to dimensions of ++scale_to++.
+        ++img++  If not received, passes 'img' as ---img---.
         ++sound++  If True will play ---snd--- at end of instantiation 
-            which will loop if ++sound_loop++ True
-        ++on_kill++  Callable called if sprite killed
-        ++on_die++  Callable called if sprite deceased
+            which will loop if ++sound_loop++ True.
+        ++on_kill++  Callable called if sprite killed.
+        ++on_die++  Callable called if sprite deceased.
         """
         kwargs.setdefault('img', self.img)
         self._on_kill = on_kill if on_kill is not None else lambda: None
         self._on_die = on_die if on_die is not None else lambda: None
         super().__init__(**kwargs)
         
+        if scale_to is not None:
+            self.scale_to(scale_to)
+
         self.live_sprites.append(self)  # add instance to class attribute
         
         self._scheduled_funcs = []
@@ -581,7 +585,7 @@ class PhysicalSprite(SpriteAdv):
     the class default option can be overriden by any particular instance 
     via --__init__(+at_boundary+)--.
 
-    Class ATTRIBUTES (in addition to those inherited):
+    Class ATTRIBUTES
     ---live_physical_sprites--- List of all instantiated PhysicalSprite 
         instances that have not subsequently deceased.
 
@@ -595,18 +599,18 @@ class PhysicalSprite(SpriteAdv):
     ---HEIGHT---  Height of window area in which sprite can move
     ---AT_BOUNDARY---  Default response if sprite collides with boundary
 
-    Class METHODS (in addition to those inherited):
+    Class METHODS
     ---setup---  Setup class. Must be executed ahead of instantiating an 
         instance. See Setup Interface section.
     ---eval_collisions--- Evaluate collisions between live sprites.
     
-    PROPERTIES (in addition to those inherited):
+    PROPERTIES
     --speed--  sprite's current speed.
 
     Inherited PROPERTY of note:
     --rotation--  sprite's current orientation
 
-    Instance METHODS (in addition to those inherited):
+    Instance METHODS
     --refresh(dt)--  Move and rotate sprite given elapsed time +dt+.
     --position_randomly(+avoid+)--  Move sprite to random position within 
         available window area excluding area defined by +avoid+.
@@ -1031,7 +1035,7 @@ class PhysicalSpriteInteractive(PhysicalSprite):
     holding down modifier(s) keys or triggering collective handlers defined 
     for a set of numerical keyboard keys.
     
-    Instance METHODS (in addition to those inherited):
+    Instance METHODS
     --add_keymod_handler()-- Define keyboard event and corresponding handlers.
         See Subclass Interface section.
     --freeze()--  Stop object and prevent further user interaction.
@@ -1217,7 +1221,7 @@ class PhysicalSpriteInteractive(PhysicalSprite):
                 So, to define modifiers as CTRL + SHIFT pass modifiers=3.
         
                 pyglet.window.key documentation:
-                https://pyglet.readthedocs.io/en/latest/modules/window_key.html#module-pyglet.window.key
+                https://pyglet.readthedocs.io/en/latest/modules/window_key.html
                 
         To handle any numerical key:
             +key+ 'num'.
