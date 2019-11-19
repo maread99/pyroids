@@ -932,6 +932,10 @@ class Game(pyglet.window.Window):
         self._unfreeze_ships()
         self._resume_all_sound()
         
+    # Window on_close handler
+    def on_close(self):
+        self._end_app()
+
     def _end_app(self):
         self._stop_all_sound()
         self.close()
