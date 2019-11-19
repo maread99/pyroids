@@ -1351,9 +1351,6 @@ class Ship(PhysicalSpriteInteractive):
     def stop(self):
         super().stop()
         self.stop_sound()
-
-    def freeze(self):
-        super().freeze()
         self.flame.visible = False
 
     def collided_with(self, other_obj: PhysicalSprite):

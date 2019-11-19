@@ -247,8 +247,9 @@ class Player(object):
         Ship given random rotation and random position, albeit avoiding 
         any rectangular areas defined in +avoid+.
         """
+        at_boundary = AT_BOUNDARY if AT_BOUNDARY == 'wrap' else 'stop'
         self.ship = self.control_sys.new_ship(initial_speed=0,
-                                              at_boundary=AT_BOUNDARY,
+                                              at_boundary=at_boundary,
                                               batch=game_batch, 
                                               group=game_group,
                                               on_kill=self._lose_life, 

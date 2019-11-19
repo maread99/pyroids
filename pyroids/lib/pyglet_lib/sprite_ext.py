@@ -574,12 +574,13 @@ class PhysicalSprite(SpriteAdv):
             see Subclass Interface).
     
     BOUNDARY RESPONSE
-    A physical sprite's s reponse to colliding with a window boundary can 
+    A physical sprite's reponse to colliding with a window boundary can 
         be defined as one of the following options:
-        'wrap' - reappearing at other side of the window
-        'bounce' - bouncing bounce back into the window
-        'die' - deceasing sprite
-        'kill' - killing sprite
+        'wrap' - reappearing at other side of the window.
+        'bounce' - bouncing bounce back into the window.
+        'stop' - stops at last position within bounds.
+        'die' - deceasing sprite.
+        'kill' - killing sprite.
     The default option can be set at a class level via 
     ---setup(+at_boundary+)--- (See Subclass Interface section). In turn 
     the class default option can be overriden by any particular instance 
@@ -675,8 +676,8 @@ class PhysicalSprite(SpriteAdv):
 
     @staticmethod
     def chk_atboundary_opt(at_boundary):
-        assert at_boundary in ['wrap', 'bounce', 'die', 'kill']
-
+        assert at_boundary in ['wrap', 'bounce', 'stop', 'die', 'kill']
+        
     @classmethod
     def setup(cls, window: pyglet.window.BaseWindow,
               at_boundary='wrap',
@@ -685,7 +686,7 @@ class PhysicalSprite(SpriteAdv):
         """Class setup. Define bounds and default treatment on reaching.
         
         +at_boundary+  Default response to sprite colliding with boundary, 
-            either 'wrap', 'bounce', 'die' or 'kill'.
+            either 'wrap', 'bounce', 'stop', 'die', 'kill'.
         +window+  Game window to which sprite will be drawn
         
         Bounds determined as +window+ extent less width of any corresponding
@@ -737,7 +738,7 @@ class PhysicalSprite(SpriteAdv):
                 
         ++at_boundary++ will override, for this instance, any default 
             value passed to ---setup()---. Takes either 'wrap', 'bounce', 
-            'die' or 'kill'.
+            'stop', 'die' or 'kill'.
         """
         assert self._setup_complete, ('PhysicalSprite class must be setup'
                                      ' before instantiating instances')
@@ -825,8 +826,8 @@ class PhysicalSprite(SpriteAdv):
         self.rotate(180)
 
     def _bounce_randomly(self):
-        """Rotate sprite between 110 and 250 degrees."""
-        d = random.randint(110, 250)
+        """Rotate sprite between 130 and 230 degrees."""
+        d = random.randint(130, 230)
         if 180 <= self.rotation <= 359:
             self.rotate(-d)
         else:
@@ -987,6 +988,8 @@ class PhysicalSprite(SpriteAdv):
         y_inbounds = self._y_inbounds(y)
         if x_inbounds and y_inbounds:
             return self._move_to(x, y)
+        elif self._at_boundary == 'stop':
+            return self.stop()
         elif self._at_boundary == 'die':
             return self.die()
         elif self._at_boundary == 'kill':

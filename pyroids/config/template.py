@@ -72,7 +72,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 ## Max seconds between supply drops.
 #PICKUP_INTERVAL_MAX = 30
 
-## Should bullets and pyroids 'bounce' or 'wrap' at the boundary?
+## Should pyroids 'bounce' or 'wrap' at the boundary?
 #AT_BOUNDARY = 'bounce'
 
 ## Shield duration, in seconds.
