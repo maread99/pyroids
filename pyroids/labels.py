@@ -1,5 +1,22 @@
 #! /usr/bin/env python
 
+"""Classes that create and maintain text to be displayed in the game window.
+
+CLASSES
+
+WindowLabels()  Base class to create a window display comprising labels
+StartLabels(WindowLabels)  Introduction window.
+NextLevelLabel(WindowLabels)  Next Level label.
+LevelLabel(WindowLabels)  Current Level label.
+EndLabels(WindowLabels)  Game over / Game completed window.
+InstructionLabels(WindowLabels)  Instructions including key controls.
+
+StockLabel(TextLayout)  image/text layout describing ammunition stock level.
+
+InfoRow()  Row of player information including lives, score, ammunition stocks 
+    and radiation gauge.
+"""
+
 from copy import copy
 from typing import Optional, Tuple, Union, Iterable
 
@@ -15,139 +32,221 @@ BLUE = (72, 190, 229, 255)
 GREEN = (71, 245, 71, 255)
 WHITE = (255, 255, 255, 255)
 
-class ScreenLabels(object):
-    """Base class to create a text screen comprising one or more labels all 
-    of which will be included to ++batch++ and any passed ++group++.
+class WindowLabels(object):
+    """Base class to create a window display comprising one or more vertically 
+    arranged labels.
     
-    --_add_labels-- can be implemented on subclass to create one or more 
-    labels using the following methods:
-    --add_label-- to add a label
-    --add_title-- to add a label formatted as the screen's main title
-    
-    --add_enter_for_inst_label-- to add a label towards the foot of the 
-      screen advising user to press enter for instructions
-    --add_escape_to_exit_label-- to add a label towards the foot of the 
-      screen (and below and enter for inst label) advising user to press 
-      escape to exit.
+    By default, labels are centered horiztonally and spaced vertically. The 
+    first added label is positioned towards the top of the screen with each 
+    subsequent label positioned under the one added immediately before.
 
-    Internals.
-    By default the x-coordinate of each label is placed in the center of the 
-    screen and the y-coordinate at --_y--'less' any +vert_spacing+ passed to 
-    the --add_label--, with --_y-- upadated after each label is inserted to sit 
-    at the bottom of the inseted label. NB this behaviour relies on 
-    --add_label--'s setting the y_anchor of each added label to 'top'.
-    
-    To enter a label at the same height as the previous hold the --_y-- value 
-    with _hold_y(move_on) before adding the first label to be displayed at 
-    the same height. Can later release the --_y-- value with --_release_y--.
+    INSTANCE ATTRIBUTES
+    --win--  Window in which labels are to be displayed (++window++)
+    --batch--  Default label batch (++batch++)
+    --group--  Default label group (++group++)
+    --labels--  List of added labels.
 
-    --_display(label, bool)-- can be employed by subclasses to display, or not, 
-    the passed +label+.
+    METHODS
+    --add_label()--  Add a label.
+    
+    Convenience Methods to Add Labels:
+    --add_title()--  Add a label formatted and positioned as the main title.
+    --add_enter_for_inst_label()--  Add label 'Enter for instructions'
+    --add_escape_to_exit_label()--  Add label 'ESCAPE to exit'
+
+    Label management:
+    --display()--  Display or hide a specific label.
+    
+    SUBCLASS INTERFACE
+    Subclass should implement --add_lables()-- to create the required labels 
+    via successive calls to --add_label()-- or a convenience method that 
+    extends --add_label()--.
+
+    The following methods can be used to customise behaviour for the vertical 
+    vertical position of levels:
+    --advance_y()--  Advance the current y position.
+    --hold_y()--  Hold the current y position.
+    --release_y()--  Release the current y position.
     """
     
     def __init__(self, window: pyglet.window.Window,
                  batch: pyglet.graphics.Batch,
                  group: Optional[pyglet.graphics.Group] = None):
-        """Each label will be included to ++batch++ and ++group++"""
+        """
+        ++window++ Window in which label to be displayed.
+        ++batch++ Default batch to which labels to be included.
+        ++group++ Default group to which labels to be included.
+        """
         self.win = window
         self.labels = []
         self.batch = batch
         self.group = group
 
-        self._y = self.win.height
-        self._x = self.win.width//2
-        self._x_held = True
+        self._y = self.win.height  # Current position of y
+        self._x = self.win.width//2  # Current position of x
+        #self._x_held = True ## DELETE IF NOT DOING ANYTHING!!
         self._y_held = False
         
-        self._add_labels()
+        self.add_labels()
 
-    def add_label(self, *args, vert_spacing=0, **kwargs) -> Label:
-        kwargs['anchor_y'] = 'top'
+    def add_labels(self):
+        """Not implemented. Implement on subclass"""
+        pass
+
+    def add_label(self, *args, vert_spacing=0, 
+                  anchor_x='center', bold=False, font_size=25, 
+                  **kwargs) -> Label:
+        """Add a pyglet text label.
+        
+        Label will be created from +*args+ and +kwargs+ passed (as 
+        parameters of pyglet.text.Label) together with defined parameters 
+        +anchor_x+, +bold+ and +font_size+.
+        
+        If not passed within +kwargs+ then 'x' is defined to position the 
+        label in the center of the screen.
+
+        If not passed within +kwargs+ then 'y' is defined to position the
+        label +vert_spacing+ pixels under the prior label, or under the 
+        top of the window if this is the first label being added.
+        """
+        kwargs['anchor_y'] = 'top'  # To manage vertical separation
+        kwargs['anchor_x'] = anchor_x
+        kwargs['bold'] = bold
+        kwargs['font_size'] = font_size
         kwargs.setdefault('batch', self.batch)
         kwargs.setdefault('group', self.group)
-        kwargs.setdefault('anchor_x', 'center')
-        kwargs.setdefault('bold', False)
-        kwargs.setdefault('font_size', 25)
         kwargs.setdefault('y', self._y - vert_spacing)
         kwargs.setdefault('x', self._x)
+        
         lbl = Label(*args, **kwargs)
         self.labels.append(lbl)
+        
+        # Set self._y to bottom of added label.
         if not self._y_held:
             height = lbl.content_height if lbl.height is None else lbl.height
             self._y = lbl.y - height
+        
         return lbl
 
-    def add_title(self, *args, **kwargs):
+    def add_title(self, *args, font_size=100, bold=True, **kwargs) -> Label:
+        """Add a Label formatted as the main title.
+        
+        Extends --add_label()-- by defining default values for a title label.
+
+        If not passed within +kwargs+ then 'y' is defined to position the
+        top of the label at 0.79 of the window height.
+        """
+        kwargs['bold'] = bold
+        kwargs['font_size'] = font_size
         kwargs.setdefault('y', int(self.win.height*0.79))
-        kwargs.setdefault('font_size', 100)
-        kwargs.setdefault('bold', True)
         return self.add_label(*args, **kwargs)
     
     def add_enter_for_inst_label(self):
+        """Add label advising user to press enter for instructions."""
         return self.add_label('Enter for instructions', y=100, font_size=20)
         
     def add_escape_to_exit_label(self, alt_text: Optional[str] = None):
+        """Add label advising user to press escape to exit."""
         text = alt_text if alt_text is not None else 'ESCAPE to exit'
         self._esc_lbl = self.add_label(text, y=55, font_size=15)
         return self._esc_lbl
 
-    def _display(self, label: Label, show: bool = True):
+    def display(self, label: Label, show: bool = True):
+        """Display or hide a label.
+        
+        +label+ Label to be hidden or displayed.
+        +show+ True to display, False to hide.
+        """
         if show:
             label.batch = self.batch
         else:
             label.batch = None
             
-    def _add_labels(self):
-        """Implement on subclass to add any pre-defined labels"""
-        pass
+    def advance_y(advance: int):
+        """Advance the current y position.
+        
+        +advance+ Number of pixels to advance the current y position. NB 
+        pass a negative value to move the current y position 'back up' the 
+        window.
+        """
+        self._y -= advance
 
-    def _hold_y(self, move_on):
+    def hold_y(self, move_on: int = 0):
+        """Hold current position of y.
+        
+        Next label added will be positioned at the same vertical level as 
+        the previous added label.
+        """
         self._y_held = True
-        self._y -= move_on
-
-    def _release_y(self):
+        
+    def release_y(self):
+        """Release the current y position.
+        
+        If y level held, revert to default behaviour of positioning the next 
+        added label under the previously added label.
+        """
         self._y_held = False
 
-class StartLabels(ScreenLabels):
-    """Creates labels for an introduction screen.
-    Title reads 'Asteroids' with subtitle underneath 'Press 1 or 2 to 
-    start with 1 or 2 players'"""
-    def _add_labels(self):
+class StartLabels(WindowLabels):
+    """Labels for an introduction window.
+
+    Text:
+    'PYROIDS'
+    'Press 1 or 2 to start with 1 or 2 players'
+    'Enter for instructions'
+    'ESCAPE to exit'
+    """
+    def add_labels(self):
         self.add_title('PYROIDS')
         self.add_label('Press 1 or 2 to start with 1 or 2 players')
         self.add_enter_for_inst_label()
         self.add_escape_to_exit_label()
         
-class NextLevelLabel(ScreenLabels):
-    """Creates a single label that reads 'NEXT LEVEL' with around 70% 
-    transparency
+class NextLevelLabel(WindowLabels):
+    """Single semi-transparent Label to introduce next level.
+
+    Text:
+    'NEXT LEVEL'
     """
-    def _add_labels(self):
+    def add_labels(self):
         self.add_title('NEXT ZONE', color=(255, 255, 255, 188))
 
-class LevelLabel(ScreenLabels):
-    """Creates a single label to display the level
-    --update(new_level)-- to update the level label for a new level
+class LevelLabel(WindowLabels):
+    """Single label to display the current level.
+
+    Text:
+    "Zone 'xx'" where xx is a number. For numbers < 10 the first 'x' takes a 
+        space.
+
+    METHODS
+    --update()-- to update label for a new level.
     """
-    def _add_labels(self):
+    def add_labels(self):
         self.label = self.add_label(text="Zone  1", font_size=18, 
                                     y = self.win.height - 8, bold=False, 
                                     anchor_y='top')
 
     def update(self, new_level: Optional[int] = None):
+        """Update label to reflect +new_level+."""
         extra_space = ' ' if new_level < 10 else ''
         self.label.text = "Zone " + extra_space + str(new_level)
 
-class EndLabels(ScreenLabels):
-    """Creates labels for an Game Over screen.
-    Title reads 'Game Over' with subtitle underneath 'Press 1 or 2 to start 
-    again'. Provides for a further label indicating the winner.
-    --display_winner_label(bool)-- to dispay the 'winner' label, or not, 
-    at any particular time.
-    --set_winner_label(text, color)-- to dynamically set the text and/or 
-    color of the winner label.
+class EndLabels(WindowLabels):
+    """Labels for Game Over screen.
+
+    Text:
+    'Draw!' or 'BLUE wins!' or 'RED wins!' [Optional]
+    'GAME OVER' or 'WELL DONE'
+    'ALL ASTEROIDS DESTROYED' or 'Press 1 or 2 to start again'
+    'Press 1 or 2 to start again' or ''
+    'Enter for instructions'
+    'ESCAPE to exit'
+        
+    METHODS
+    --display_winner_label()--  Display or hide the 'winner' label
+    --set_labels()--  Set labels according to who won and if game completed.
     """
-    def _add_labels(self):
+    def add_labels(self):
         self._start_again_text = 'Press 1 or 2 to start again'
         
         self._title = self.add_title('placeholder', y = self.win.height - 200)
@@ -161,12 +260,13 @@ class EndLabels(ScreenLabels):
                                           bold=True)
             
     def display_winner_label(self, show: bool = True):
-        super()._display(self._winner_lbl, show)
+        """Display or Hide 'winner' label.
+        
+        +show+ True to display, False to hide.
+        """
+        super().display(self._winner_lbl, show)
       
     def _set_winner_label(self, winner: Union['red', 'blue', bool, None]):
-        """Will show a winner label unless +winner+ False.
-        Text 'Draw!' if +winner+ is None, otherwise Red wins! or 'Blue wins!'.
-        """
         if winner is False:
             text = ""
             color = (0, 0, 0, 255)
@@ -194,18 +294,34 @@ class EndLabels(ScreenLabels):
 
     def set_labels(self, winner: Union['red', 'blue', bool, None],
                    completed=False):
+        """Set labels according to who won and whether game completed.
+        
+        +winner+ False to not define a result, None to define game as draw, 
+        'red' or 'blue' to define winner a 'red' or 'blue' player.
+        +completed+ True if player(s) completed the game.
+        """
         self._set_title(completed)
         self._set_sub1(completed)
         self._set_sub2(completed)
         self._set_winner_label(winner)
 
-class InstructionLabels(ScreenLabels):
-    """Creates labels for an instructions screen which includes 
-    key controls.
+class InstructionLabels(WindowLabels):
+    """Labels that collectively offer instructions including key controls.
 
-    --set_labels(paused: bool = False)-- will set the labels so as to 
-    be appropriate for a pause screen, if +paused+ True, or a main 
-    menu screen otherwise
+    General arrangement:
+    Label offering instructions or ''
+    Table of color coded labels describing Ship controls
+    Table of labels offering Game Control keys.
+    'Press F12 to return' or 'Press any key to return'
+    'Press ESCAPE to end game' or ''
+
+    Two modes, 'paused' or 'main menu'. Main menu will show labels over 
+    an opaque black background whilst 'paused' shows labels over a 
+    semi-transparent background such that existing window contents are 
+    visible behind the labels.
+
+    METHODS
+    --set_labels()-- Set label for either paused or main menu mode.
     """
     
     class BGGroup(pyglet.graphics.OrderedGroup):
@@ -220,6 +336,11 @@ class InstructionLabels(ScreenLabels):
 
     def __init__(self, blue_controls: dict, red_controls: dict, 
                  *args, **kwargs):
+        """+blue_controls+ Dictionary describing ship key controls for 
+        blue player, for example as Ship.controls.
+        +red_controls+ Dictionary describing ship key controls for red 
+        player, for example as ShipRed.controls.
+        """
         self._blue_controls = blue_controls
         self._red_controls = red_controls
         kwargs['group'] = self._fg_group
@@ -235,12 +356,12 @@ class InstructionLabels(ScreenLabels):
             "highest in the field around the edge of each zone. GOOD LUCK!"
             )
         
-        self._opaque_bg = self._add_screen_rect(color=(0, 0, 0, 255))
-        self._trans_bg = self._add_screen_rect(color=(40, 40, 40, 125))
+        self._opaque_bg = self._add_window_rect(color=(0, 0, 0, 255))
+        self._trans_bg = self._add_window_rect(color=(40, 40, 40, 125))
         self._trans_bg.remove_from_batch()
         self._opaque = True
         
-    def _add_screen_rect(self, color: Tuple[int, int, int, int]):
+    def _add_window_rect(self, color: Tuple[int, int, int, int]):
         return Rectangle(0, self.win.width, 0, self.win.height,
                          fill_color=color, 
                          batch=self.batch, group=self._bg_group)
@@ -259,7 +380,10 @@ class InstructionLabels(ScreenLabels):
         self._opaque_bg.return_to_batch()
         self._opaque = True
 
-    def _field(self, keys: Iterable):
+    def _field(self, keys: Iterable) -> str:
+        """+keys+ Iterable of integers employed by pyglet to represent 
+        the keyboard key(s) that serve(s) to action a specific ship control.
+        """
         text = ''
         for i, key in enumerate(keys):
             sep = '' if i is 0 else ', '
@@ -267,17 +391,25 @@ class InstructionLabels(ScreenLabels):
             text = sep.join([text, key_text])
         return text
 
-    def _row(self, first_col: str, control_key: str):
+    def _row(self, first_col: str, control_key: str) -> Tuple[str, str, str]:
+        """Return tuple of strings representing a table row that describes
+        the keyboard keys to enact a specific ship control.
+
+        +first_col+ String describing the specific control. Appears in the 
+        row's first column.
+        +control_key+ Internal key used to describe the specific control, i.e. 
+        a key of ++blue_controls++.
+        """
         blue_keys = self._blue_controls[control_key]
         red_keys = self._red_controls[control_key]
         return (first_col, self._field(blue_keys), self._field(red_keys))
         
-    def _add_labels(self):
+    def add_labels(self):
         self._inst_lbl = self.add_label("placeholder", vert_spacing=30,
                                         font_size=16, multiline=True,
                                         width=int(self.win.width*0.8),
                                         align='center', 
-                                        color=(200, 200, 200, 255)) #GREEN
+                                        color=(200, 200, 200, 255)) # Green
         
         self.add_label("CONTROLS", font_size=20, vert_spacing=105)
 
@@ -348,51 +480,45 @@ class InstructionLabels(ScreenLabels):
         self._set_opaque_bg()
 
     def set_labels(self, paused: bool = False):
+        """Set labels for paused or main menu mode.
+        
+        +paused+ True to set labels for paused mode, otherwise False.
+        """
         if paused:
             self._set_for_pause()
         else:
             self._set_for_main_menu()
 
-class StockLabel(pyglet.text.layout.TextLayout):
-    """Layout comprising an inline ++image++, of an ammunition stock, 
-    followed by text that can be initialised (initial_stock) and 
-    updated to reflect stock levels. Red X appears over the image if stock 
-    level is 0.
-    
-    Internals.
-      Defines StockLabelElement within the class to provide for an 
-    InlineElement that horizontally aligns the centre of the image with the 
-    centre of the subseqeunt text. Does this by the StockLabel constructor 
-    setting the layout's content_valign to 'center' (such that the text sits 
-    in the vertical centre) and anchor_y to 'bottom'. The in line element is 
-    then simply placed so that it's own vertical centre is situated at the 
-    layout's vertical centre.
-      The cross through the image (when stock level is 0) draw to the same 
-    batch as self albeit with a group that's one higher (so that cross drawn 
-    on top). By default the drawing data is calculated on the first occasion 
-    that a cross is drawn, with that same data then used for furture 
-    drawings. Rather than evaluate the data when require the cross (likely 
-    to be in game) the client can call --positioned()-- to evalute the data 
-    at any earlier occasion, albeit only after the stocklabel's y and x 
-    coordinates have been set as required.
 
-    --set-- provides for styling the whole --document-- and setting layout 
-    attributes
-    --positioned-- can be optionally executed by client after stocklabel has 
-    been positioned. If called then (minimally) reduces overhead on first 
-    occasion that the ammunition image is crossed out.
-    --update(stock)-- updates text to reflect +stock+
+class StockLabel(pyglet.text.layout.TextLayout):
+    """image/text layout describing stock level for an ammunition type.
+
+    Layout comprises:
+        First character as an inline elelment containing an image that 
+            represents a specific ammunition type
+        Text to reflect stock level.
+       
+    Red 'X' appears over ammunition type image if stock level is 0.
+    
+    METHODS
+    --set()--  Set document style and layout properties.
+    --update()--  Update stock label text.
+    --positioned--  Advise that client has positioned object (optional).
     """
     
     class StockLabelElement(pyglet.text.document.InlineElement):
-        """Extends InlineElemnent to provide for an image of an 
-        ammunition stock to appear as an inline element that's the 
-        first character of a StockLabel
-        Doesn't define ascent or descent values (leaves as 0) simply 
-        because the best way I've come up with to later manipulate the 
-        resulting StockLabel as required"""
+        """Ammunition image representing first character of a StockLabel.
+
+        Center of ammunition image will be vertically alligned with center 
+        of the StockLabel's text that follows it.
+        """
         
-        def __init__(self, image, separation=2):
+        def __init__(self, image: pyglet.image.Texture, separation=2):
+            """
+            ++image++ Image representing ammunition type.
+            ++separation++ distance between edge of image and subsequent 
+                text, in pixels.
+            """
             image = copy(image)
             image.anchor_x = 0
             image.anchor_y = 0
@@ -402,27 +528,26 @@ class StockLabel(pyglet.text.layout.TextLayout):
             super().__init__(ascent=0, descent=0, 
                              advance = image.width + separation)
 
-        def place(self, layout, x, y):
-            """Places sprite of --image-- in the element box in such a way 
-            that the center of the image will line up with the mid-line of 
-            the text that follows it.
-            +layout+ receives the StockLabel layout object to which the 
-            element was inserted.
-            +x+ passed as left edge of element.
-            +y+ passed as baseline level (on which text of the first line sits)
-            NB Found the x useful, y representing the baseline is of no use 
-            when require the image to be centered through the text mid-line, 
-            which in turn *can be determined via +layout.y+ and 
-            +layout.content_height+.   *assuming layout is y anchored at the 
-            bottom and content_valign is 'center', both as provided for by the 
-            StockLabel constructor.
+        def place(self, layout, x: int, y: int):
+            """Position ammunition image.
+            
+            +layout+ StockLabel object to which this StockLabelElement was 
+                inserted. Layout should have anchor_y set to 'bottom' and 
+                'content_valign' set to 'center'.
+            +x+ Left edge of box reserved for in-line element and in which 
+                ammunition image is to be positioned.
+            +y+ Baseline level, on which layout text sits.
             """
+            # Defines y at level so center of in-line image alligns vertically
+            # with center of subsequent text, for which requires:
+            # layout.anchor_y is'bottom' and layout_content_valign is 'center'
             y = layout.y + (layout.content_height//2) - ( self.image.anchor_y + (self.height//2) )
             self._sprite = Sprite(self.image, x, y, batch=layout.batch,
                                   group=layout.top_group)
             self._sprite.draw()
         
         def remove(self, layout):
+            """Remove image from in-line element."""
             self._sprite.delete()
 
     class CrossOutGroup(pyglet.graphics.OrderedGroup):
@@ -434,17 +559,22 @@ class StockLabel(pyglet.text.layout.TextLayout):
             super().__init__(0)
 
     def __init__(self, image: pyglet.image.Texture, 
-                 group: Optional[pyglet.graphics.OrderedGroup] = None,
                  initial_stock: int = 0, 
-                 style_attrs = None, **kwargs):
-        """++image++ image that represents the ammunition stock and will be 
-        placed at the start of the StockLabel.
-        ++style_attrs++ sytle attributes to apply to whole document.
-        ++kwargs++ passed on to inherited construtor.
+                 group: Optional[pyglet.graphics.OrderedGroup] = None,
+                 style_attrs: dict = None, **kwargs):
+        """
+        ++image++ image representing ammunition type.
+        ++initial_stock++ Number of rounds of ammunition stock to appear 
+            next to ammunition type image.
+        ++group++ OrderedGroup to which StockLabel is to be included, or None 
+            if to be added to default BackgroundGroup.
+        ++style_attrs++ Any style attributes to apply to whole layout 
+            document, as passed to pyglet FormattedDoument().set_style().
         """
         assert group is None or isinstance(group, 
                                            pyglet.graphics.OrderedGroup)
         group = group if group is not None else self.BackgroundGroup()
+        
         text = self._label_text(initial_stock)
         doc = pyglet.text.document.FormattedDocument(text)
         doc.set_style(0, len(doc.text), style_attrs)
@@ -452,25 +582,30 @@ class StockLabel(pyglet.text.layout.TextLayout):
         doc.insert_element(0, self.img_element)
         super().__init__(doc, **kwargs)
         self.top_group = group
-        self.content_valign = 'center'
-        self.anchor_y='bottom'
+
+        # Center text vertically
+        self.content_valign = 'center'  
+        # Allows StockLabelElement to locate vertical center.
+        self.anchor_y='bottom'  
         
         self._cross_out_data: Optional[List] = None
         self._cross_out_vertex_list: pyglet.graphics.vertexdomain.VertexList
         self._crossed_out = False
 
     def set(self, style_attrs: Optional[dict] = None, **kwargs):
-        """Sets --document-- to reflect any passed style_attrs 
-        and self to reflect layout properties passed as ++**kwargs++, 
-        for example 'x', 'y', 'anchor_x', 'batch' etc.
-        Attribute error unfortunately necessary to catch non-fatal error 
-        which seems to occur when passing the 'color' attribute. Could 
-        well be a pyglet but.
+        """Set layout document.
+
+        +style_attrs+ Any style attributes to apply to whole layout document, 
+            as passed to pyglet FormattedDoument().set_style().
+        +kwargs+ Layout properites to be set. For example, ''x', 'y', 
+            'anchor_x', 'batch' etc.
         """
         if style_attrs is not None:
             end = len(self.document.text)
             try:
                 self.document.set_style(0, end, style_attrs)
+            # Ignore non-fatal error that occurs when pass 'color' attribute.
+            # Suspect pyglet bug
             except AttributeError:
                 pass
         if not kwargs:
@@ -480,9 +615,6 @@ class StockLabel(pyglet.text.layout.TextLayout):
             setattr(self, kwarg, val)
         self.end_update()
         
-    def positioned(self):
-        self._setup_cross_out_data()
-
     def _label_text(self, stock: int) -> str:
         text = 'x' + str(stock)
         return text
@@ -516,13 +648,24 @@ class StockLabel(pyglet.text.layout.TextLayout):
         self._cross_out_vertex_list.delete()
         self._crossed_out = False
 
+    def positioned(self):
+        """Advise that client has positioned object.
+
+        Optional. Execution will minimally reduce overhead on first 
+        occasion the ammunition image is crossed out.
+        """
+        self._setup_cross_out_data()
+
     def delete(self):
         if self._crossed_out:
             self._delete_cross_out()
         super().delete()
 
     def update(self, stock: int):
-        """Updates stock label to reflect current +stock+"""
+        """Update stock label text.
+        
+        +stock+ Updated stock level to display.
+        """
         end = len(self.document.text)
         self.document.delete_text(1, end)
         self.document.insert_text(1, self._label_text(stock))
@@ -531,85 +674,74 @@ class StockLabel(pyglet.text.layout.TextLayout):
         elif self._crossed_out:
             self._delete_cross_out()
 
+
 class InfoRow(object):
-    """Creates and/or positions objects along a row at the top of the 
-    screen, with those objects collectively providing a player with 
-    information on remaining lives, ammunition stock levels, 
-    radiation level and score. All items added to ++batch++.
+    """Row of Labels collectively providing player information.
 
-    Places objects from right-to-left if ++control_sys++.color is blue, 
-    or from left-to-right if red.
+    Provides information on:
+        Lives, as images of player ship, one image per life remaining.
+        Ammunition stock levels, as series of StockLabels associated with 
+            each of player's weapons.
+        Radiation level, as RadiationMonitor.gauge associated with player
+        Score, as created score label.
 
-    Public Methods:
-    --remove_a_life-- to remove one life sprite, will be removed from the 
-      end furthest from the screen edge
-    --update_score_label--
-    --delete-- removes all inserted objects from the batch
+    Information positioned right-to-left if player is blue, or from 
+    left-to-right if red.
 
-    Internals.
-    Player's ammunition stocks provided by StockLabels that are an 
-    attribute of a weapon of the ++control_sys++. This class does not 
-    create the StockLabels but rather is responsible only for their 
-    positioning and assigning to ++batch++.
-
-    Similarly, the class is not repsonsible for creating the radiation 
-    gauge but rather positions the gauge associated with the ++control_sys++ 
-    and adds this to ++batch++. Additionally places a ---radiation_symbol--- 
-    alongside the gauge.
-    
-    All objects are allocated a y value as defined in the consturctor as 
-    --_info_row_base-- such that objects sit above this level.
-
-    Each object's position and batch is set by --_set_object-- which in turn 
-    relies on --_advance_x-- and --_get_object_x--. Collectively works by 
-    positioning the objects to the row one by one, working from the screen 
-    edge towards the centre and updating --_x-- to reflect the current 
-    position. NB requires all images and labels are anchored to origin, i.e. 
-    left bottom.
-    NB the Score Label isn't positioned according to the above but rather 
-    is positioned relative to the ++game++'s level label.
+    METHODS
+    --remove_a_life()--  Remove the life furthest from the screen edge.
+    --update_score_label()--  Update score label
+    --delete()--  Delete all objects that comprise InfoRow
     """
     
-    text_colors = {'blue': BLUE,
+    _text_colors = {'blue': BLUE,
                    'red': RED}
     
-    radiation_symbol = load_image('radiation_20.png', anchor='origin')
+    _radiation_symbol = load_image('radiation_20.png', anchor='origin')
 
     def __init__(self, window: pyglet.window.Window, 
                  batch: pyglet.graphics.Batch, 
                  control_sys,
                  num_lives: int, 
                  level_label: Label):
-        """++batch++ takes batch to which all info row objects will be added.
-        ++control_sys++ takes an instance of .game_objects.ControlSystem"""
+        """
+        ++window++ Window to which InfoRow to be displayed.
+        ++batch++ Batch to which InfoRow objects to be added.
+        ++control_sys++ .game_objects.ControlSystem of player for whom 
+            providing information.
+        ++num_lives++ Number of lives player starts with.
+        ++level_label++ Label that expresses current level.
+        """
         self._win = window
         self._info_row_base = self._win.height - 30
         self._batch = batch
         self._control_sys = control_sys
         self._color = self._control_sys.color
-        self.text_color = self.text_colors[self._color]
+        self._text_color = self._text_colors[self._color]
         self._num_lives = num_lives
         self._lives = []
         self._level_label = level_label
 
+        # Current position of _x, updated --_advance_x()-- as set objects
         self._x = self._win.width if self._color == 'blue' else 0
+        
         self._set_lives()
         self._set_stocks_labels()
         self._set_radiation_gauge()
         self._create_score_label()
-
+        
     def _advance_x(self, pixels: int):
-        """Moves _x by +pixels+ pixels in the direction that labels are being 
-        sequentially placed
+        """Move _x by +pixels+ pixels in the direction that labels are being 
+        sequentially placed.
         """
         pixels *= -1 if self._color == 'blue' else 1
         self._x += pixels
         
     def _get_object_x(self, obj: Union[Sprite, StockLabel]):
-        """Return 'x' coordinate for obj which will place object at the 
-        required separation on from the last object placed ASSUMING that 
-        +obj+ is anchored to bottom left and --_x-- currently positioned 
-        at the required spacing on from the last object placed.
+        """Return 'x' coordinate to place object at required separation on 
+        from last object placed ASSUMING +obj+ is anchored to bottom left 
+        and --_x-- positioned at the required spacing on from the last 
+        object placed.
         """
         if self._color == 'blue':
             width = obj.content_width if isinstance(obj, StockLabel) \
@@ -622,8 +754,11 @@ class InfoRow(object):
                    x: Optional[int] = None, y: Optional[int] = None,
                    batch: Optional[pyglet.graphics.Batch] = None, 
                    sep: int = 0):
-        """NB ASSUMES obj anchored to bottom left corner.
-        Sets passed obj to any attributes passed or defaults otherwise
+        """Position and batch +obj+.
+        
+        Position and batch according to passed parameters, or according 
+        to default behaviour otherwise. NB Default behaviour ASSUMES +obj+ 
+        anchored to bottom left corner.
         """
         if sep is not 0:
             self._advance_x(sep)
@@ -632,16 +767,9 @@ class InfoRow(object):
         obj.x = self._get_object_x(obj) if x is None else x
         width = obj.content_width if isinstance(obj, StockLabel)\
             else obj.width
-        self._advance_x(width)
+        self._advance_x(width) # Leave _x at end of info row
 
     def _set_lives(self):
-        """Creates sprites (using the image of the Ship class associated with 
-        ++control_sys++) to represent player's lives. Postions to the top 
-        corner of the screen.
-        Internals. Appends each to --_lives-- in reverse order, such that 
-        first element to pop (by --remove_a_life-- is always that furthest 
-        from the edge of the window
-        """
         for i in range(self._num_lives):
             img = copy(self._control_sys.ShipCls[self._color].img)
             img.anchor_x = 0
@@ -652,23 +780,24 @@ class InfoRow(object):
             self._set_object(life, sep=3)
              
     def remove_a_life(self):
+        """Remove the life image furthest from the screen edge."""
         self._lives.pop()
         
     def _set_stocks_labels(self):
         for weapon in self._control_sys.weapons:
             label = weapon.stock_label
-            label.set(style_attrs={'color': self.text_color, 'bold': True})
+            label.set(style_attrs={'color': self._text_color, 'bold': True})
             self._set_object(label, sep=10)
             label.positioned()
                         
     def _set_radiation_gauge(self):
         self._set_object(self._control_sys.radiation_monitor.gauge, sep=15)
-        self._rad_symbol = Sprite(self.radiation_symbol)
+        self._rad_symbol = Sprite(self._radiation_symbol)
         self._set_object(self._rad_symbol, sep=5)
 
     def _score_label_x_coordinate(self) -> int:
-        """Returns x coordinate for score label based on 
-        score label lying to one side of the games's level label.
+        """Returns x coordinate for score label to position to side of level 
+        label.
         """
         direction = 1 if self._color == 'blue' else -1
         dist = (self._level_label.content_width//2) + 34
@@ -676,19 +805,18 @@ class InfoRow(object):
         return x
         
     def _create_score_label(self):
-        """Creates a score lable to the side of the game's level label.
-        Internals - Does not consider --_x--"""
         self._score_label = Label('0', x=self._score_label_x_coordinate(), 
                                  y=self._win.height,font_size=30, bold=True, 
                                  batch=self._batch,
                                  anchor_x='center', anchor_y='top')
-        self._score_label.set_style('color', self.text_color)
+        self._score_label.set_style('color', self._text_color)
     
     def update_score_label(self, score: int):
-        """Updates score label to reflect +score+"""
+        """Update score label to +score+."""
         self._score_label.text = str(score)
 
     def delete(self):
+        """Delete all objects that comprise InfoRow."""
         for life in self._lives:
             life.delete()
         for weapon in self._control_sys.weapons:

@@ -4,7 +4,7 @@
 
 Sets pyglet resource directory.
 
-Functions:
+FUNCTIONS
 config_import() - override default settings with config file settings.
 
 pyroids package comprises:
@@ -32,7 +32,7 @@ from typing import List
 
 import pyglet
 
-# True ONLY WHEN DEVELOPING, OTHERWISE False!
+# True only if developing, otherwise False.
 pyglet.options['debug_gl'] = False 
 
 # dir_path is path to directory in which this file is located using seperator

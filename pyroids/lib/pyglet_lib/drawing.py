@@ -1,7 +1,12 @@
 #! /usr/bin/env python
 
-"""Modules offers class to draw shapes and patterns from primative 
-forms"""
+"""Draw shapes and patterns from primative forms.
+
+CLASSES
+DrawingBase()  Base class to define drawable shapes and pattern.
+AngledGrid(DrawingBase)  Grid of parallel lines angled to the vertical.
+Rectangle(DrawingBase)  Filled Rectangle
+"""
 
 import math
 from typing import Tuple, List, Optional
@@ -11,39 +16,35 @@ import pyglet
 class DrawingBase(object):
     """Base class for defining drawable shapes and patterns.
     
-    Requires that subclass implement following properties and 
-    methods (see method__doc__):
-    --mode()--
-    --_coords()--
+    PROPERTIES
+    --vertex_list--  VertexList that defines drawing.
+    --count--  Number of vertices
+    --mode--  Primative Open_GL mode, as represented by pyglet constant.
+    --vertices_data--  Tuple of vertices data as passed to *data arguments
+        of a VertexList.
+    --color_data--  Tuple of color data as passed to *data arguments of a 
+        VertexList.
+
+    METHODS
+    Class offers two modes of operation which determine methods available.
+
+    Direct Drawing. In this mode ++batch++ should not be passed/
+        --draw()--  Draw drawing directly to the current window
+
+    Add to batch. In this mode drawing will be immediately added to ++batch++.
+        --remove_from_batch()--  Remove drawing from batch.
+        --return_to_batch--  Return drawing to batch.
     
-    Provides for two modes of operation.
-    If pass ++batch++ (and optionally ++group++) the the drawing will be 
-        immediately added to ++batch++. In this case the drawing can be 
-        removed from the batch with --remove_from_batch-- and subseqeuntly 
-        returned to the batch with --return_to_batch--.
-    If ++batch++ is not passed then drawing can be drawn directly to the 
-        current window via --draw--.
-    NB in either case all data is calcualted on instance instantiation such 
-    that the actual drawing, via batch.draw or .draw(), does not carry this 
-    overhead.
+    SUBCLASS INTERFACE
+    Subclasses must implement the following methods:
+        
+    --mode()--  Should return the pyglet.gl constant that describes the 
+        GL_Open primative mode employed by the drawing, for example the 
+        primative mode for a rectangle would be pyglet.gl.GL_QUADS.
 
-    Provides following properties:
-    --vertex_list-- VertexList that defines drawing
-    --count-- number of vertices
-    --mode-- pyglet constant representing drawing's primative Open_GL mode
-    --vertices_data-- tuple of vertices data as required by *data argumnents 
-      of a VertexList
-    --color_data-- tuple of color data as required by *data argumnents 
-      of a VertexList
-
-    Internals.
-    Pyglet does not (seem to) provide for a way to simply remove a vertex 
-    list from a batch! (the documentation claims VertexList.delete() does the 
-    job but it eludes me). This class provides for such functionality, via 
-    --remove_from_batch()-- by migrating the vertex_list from the passed 
-    batch to a 'storeage batch' assigned to class attribute 
-    ---_shelf_batch---. --return_to_batch()-- then simply migrates it back in 
-    the other direction.
+    --_coords()--  Should return a tuple of vertices co-ordinates. For 
+        example, to describe a 100x100 rectangle:
+        (100, 100, 100, 200, 200, 200, 200, 100)
     """
 
     _shelf_batch = pyglet.graphics.Batch()
@@ -51,12 +52,16 @@ class DrawingBase(object):
     def __init__(self, color = (255, 255, 255, 255), 
                  batch: Optional[pyglet.graphics.Batch] = None, 
                  group: Optional[pyglet.graphics.Group] = None):
-        """++color++ defines drawing colour and, if applicable, 
-        fill, passed as a Tuple[int, int, int] where int's determine 
-        GB components respectively. Can pass a further int to define 
-        Alpha channel if required. By default White and fully opaque.
-        ++batch++ any batch that the drawing is to be added to
-        ++group++ any group that the batched drawing is to be added to
+        """
+        ++color++  Drawing colour and, if applicable, fill. 3-tuple or 
+            4-tuple. First three elements integers that represent color's 
+            RGB components. Optional fourth element can take a further 
+            integer to define Alpha channel (255 fully opaque). If not 
+            passed defaults to White and fully opaque.
+        ++batch++ Batch to which drawing is to be added. If not passed 
+            drawing can draw direct to window with --draw()--.
+        ++group++ Any group that the batched drawing is to be added to. 
+            Only relevant if also pass ++batch++. Always optional.
         """
         self._color = color if len(color) == 4 else color + (255,)
         self._batch = batch
@@ -75,32 +80,37 @@ class DrawingBase(object):
             self._set_vertex_list()
     
     @property
-    def vertex_list(self):
+    def vertex_list(self) -> pyglet.graphics.vertexdomain.VertexList:
+        """VertexList that defines drawing."""
         return self._vertex_list
 
     @property
     def count(self) -> int:
+        """Number of vertices."""
         return self._count
 
     @property
     def vertices_data(self) -> Tuple[str, tuple]:
+        """Tuple of vertices data as passed to *data arguments of 
+        VertexList."""
         return self._vertices_data
 
     @property
     def color_data(self) -> Tuple[str, tuple]:
+        """Tuple of color data as passed to *data arguments of VertexList."""
         return self._color_data
 
     @property
     def mode(self):
-        """Define on subclass to return pyglet.gl constant which 
-        describes the GL_Open primative mode, for example for 
-        a rectangle pyglet.gl.GL_QUADS"""
+        """Not implemented. Implement on subclass.
+        
+        Return pyglet.gl constant that describes the GL_Open primative mode 
+        used by the drawing.
+        """
         raise NotImplementedError('abstract')
 
     def _coords(self) -> tuple:
-        """Define on subclass to return a tuple of vertices co-ordinates.
-        For example, to describe a 100x100 rectangle:
-            (100, 100, 100, 200, 200, 200, 200, 100)"""
+        """Not implemented. Implement on subclass"""
         raise NotImplementedError('abstract')
         
     def _set_vertices_data(self):
@@ -132,40 +142,60 @@ class DrawingBase(object):
         self._current_batch = new_batch
 
     def remove_from_batch(self):
+        """Remove vertex_list from batch.
+        
+        Move vertex_list to storage batch."""
+        # Pyglet does not (seem to) provide for a way to simply remove a 
+        # vertex list from a batch. Documentation suggests VertexList.delete()
+        # does the job although I can't get it to work in the way I would 
+        # expect.
+        # Functionality provided for here by by migrating the vertex_list 
+        # to a 'shelf batch' where it sits in storage and from where can be 
+        # retrieved by --return_to_batch()--.
         assert self._batch is not None, "Can only employ batch operations"\
             " when ++batch++ is passed to constructor"
         self._migrate(self._shelf_batch)
 
     def return_to_batch(self):
+        """Return drawing to batch."""
         assert self._current_batch is self._shelf_batch, "Can only return to"\
             " batch after having previously removed from batch with"\
             " --remove_from_batch()--"
         self._migrate(self._batch)
 
     def draw(self):
+        """Draw to current window."""
         self.vertex_list.draw(self.mode)
 
-    
-
-
 class AngledGrid(DrawingBase):
-    """--draw-- to a specified rectangular area a grid of lines angled 
-    to the vertical. Lines drawn both left-to-right and right-to-left. 
-    At limit, with ++angle++ = 90, will draw horizontal lines which are 
-    not accompanied with vertical lines
+    """Grid of parallel lines angled to the vertical.
     
-    DrawingBase.__doc__ for further documentation"""
+    Grid lines drawn both upwards and downwards over a rectangular area.
+
+    Instance ATTRIBUTES
+    --width--  Width of rectangular area being gridded.
+    --height--  Height of rectangular area being gridded.
+    --X_MIN--  Rectangular area left bound (++x_min++)
+    --X_MAX--  Rectangular area right bound (++x_max++)
+    --Y_MIN--  Rectangular area lower bound (++y_min++)
+    --Y_MAX--  Rectangular area upper bound (++y_max++)
+        
+    METHODS
+    --draw()--  Draw angled grid (inherited method).
+    """
     
     def __init__(self, x_min: int, x_max: int, y_min: int, y_max: int,
                  angle: int,  vertical_spacing: int, 
                  color = (255, 255, 255, 255), **kwargs):
-        """++x_min++, ++x_max++, ++y_min++, ++y_max++ define the borders 
-        of the rectangular area to be gridded.
-        ++angle++ describes the angle, in degrees, of the grid lines, from the 
-        horizontal.
-        ++vertical_spacing++ determines the vertical distance between 
-        parallel grid lines (NB horizonal spacing determined so as to keep 
-        lines parallel based on  ++vertical_spacing++
+        """
+        ++x_min++, ++x_max++, ++y_min++, ++y_max++ Bounds of rectangular area 
+            to be gridded.
+        ++angle++ Angle of grid lines, in degrees from the horizontal. Limit 
+            90 which will draw horizontal lines that are NOT accompanied 
+            with vertical lines.
+        ++vertical_spacing++ Vertical distance between parallel grid lines 
+            (horizonal spacing determined to keep lines parallel for given 
+            vertical spacing).
         """
         self.width = x_max - x_min
         self.X_MIN = x_min
@@ -174,9 +204,9 @@ class AngledGrid(DrawingBase):
         self.Y_MIN = y_min
         self.Y_MAX = y_max
         
-        self.vertical_spacing = vertical_spacing
+        self._vertical_spacing = vertical_spacing
         angle = math.radians(angle)
-        self.tan_angle = math.tan(angle)
+        self._tan_angle = math.tan(angle)
         
         super().__init__(color=color, **kwargs)
 
@@ -185,35 +215,47 @@ class AngledGrid(DrawingBase):
         return pyglet.gl.GL_LINES
         
     def _left_to_right_coords(self) -> List[int]:
-        spacing = self.vertical_spacing
+        """Return verticies for angled lines running downwards from left to 
+        right. Verticies returned as list of integers with each successive 
+        four integers describing a line:
+        [line1_x1, line1_y1, line1_x2, line1_y2, line2_x1, line2_y1, 
+        line2_x2, line2_y2, line3_x1, line3_y1, line3_x2, line3_y2...].
+        """
+        spacing = self._vertical_spacing
         x1 = self.X_MIN
         y1 = self.Y_MAX
         vertices = []
 
+        # Add vertices for lines running from left bound to earlier of right 
+        # bound or lower bound.
         while y1 > self.Y_MIN:
             vertices.extend([x1, y1])
             x2 = min(self.X_MAX, 
-                     self.X_MIN + round((y1 - self.Y_MIN) * self.tan_angle))
+                     self.X_MIN + round((y1 - self.Y_MIN) * self._tan_angle))
             y2 = self.Y_MIN if x2 != self.X_MAX \
-                else y1 - round(self.width / self.tan_angle)
+                else y1 - round(self.width / self._tan_angle)
             vertices.extend([x2, y2]) 
             y1 -= spacing
 
-        spacing = round(spacing * self.tan_angle)
+        # Add vertices for lines running from upper bound to earlier of right 
+        # bound or lower bound.
+        spacing = round(spacing * self._tan_angle)
         y1 = self.Y_MAX
         x1 = self.X_MIN + spacing
         while x1 < self.X_MAX:
             vertices.extend([x1, y1])
             y2 = max(self.Y_MIN, 
-                     self.Y_MAX - round((self.X_MAX - x1)/self.tan_angle))
+                     self.Y_MAX - round((self.X_MAX - x1)/self._tan_angle))
             x2 = self.X_MAX if y2 != self.Y_MIN else \
-                x1 + round(self.height * self.tan_angle)
+                x1 + round(self.height * self._tan_angle)
             vertices.extend([x2, y2])
             x1 += spacing
 
         return vertices
 
     def _horizontal_flip(self, coords: List[int]) -> List[int]:
+        """Return mirrored ++coords++ if mirror were placed vertically 
+        down the middle of the rectangular area being gridded."""
         flipped_coords = []
         x_mid = self.X_MIN + self.width//2
         x_mid_por_dos = x_mid*2
@@ -229,13 +271,27 @@ class AngledGrid(DrawingBase):
 
 
 class Rectangle(DrawingBase):
-    """--draw()-- draws a filled Rectangle"""
+    """Filled Rectangle.
+    
+    Instance ATTRIBUTES
+    --X_MIN--  Left bound (++x_min++)
+    --X_MAX--  Right bound (++x_max++)
+    --Y_MIN--  Lower bound (++y_min++)
+    --Y_MAX--  Upper bound (++y_max++)
+
+    METHODS
+    --draw()--  Draw filled Rectangle (inherited method).
+    """
     
     def __init__(self, x_min: int, x_max: int, y_min: int, y_max: int,
                  fill_color = (255, 255, 255, 255), **kwargs):
-        """++x_min++, ++x_max++, ++y_min++, ++y_max++ define the 
-        rectangle's border.
-        ++fill_color++ as defined on base class
+        """
+        ++x_min++, ++x_max++, ++y_min++, ++y_max++ Rectangle's bounds.
+        ++fill_color++  Fill color. 3-tuple or 4-tuple. First three elements 
+            as integers that represent color's RGB components. Optional 
+            fourth element can take a further integer to define Alpha channel 
+            (255 fully opaque). If not passed defaults to White and fully 
+            opaque.
         """
         self.X_MIN = x_min
         self.X_MAX = x_max

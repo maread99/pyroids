@@ -81,19 +81,20 @@ alt_controls.py
 Code Documentation
 
 Function/Method documention:
-	does not list optional and keyword arguments, for which signature 
-	  should be inspected.
+	does not by default list all optional and keyword arguments, for which 
+		signature should be inspected.
 	does not state argument types or return values, for which signature 
-	  annotation should be inspected.
+		annotation should be inspected.
 
-Following symbols employed to identify nature of variables:
-+parameter_name+  parameter of the documented function or method
-++parameter_name++  parameter of the class constructor method
--variable_name-  variable local to function or method
---attribute_name--  instance attribute
---method_name()--  instance method
+When a variable is referenced in documentation, the name is enclosed with 
+the following symbols to identify the variable's nature:
++parameter_name+   Parameter of documented function or method.
+++parameter_name++   Parameter of class constructor method.
+-variable_name-   Variable local to code being documented.
+--attribute_name--   Instance attribute.
+--method_name()--  Instance method.
 	--method_name(args, kwargs)--  only args / kwargs referred to in the 
-		documentation that immediately follows are included in parenthesis.
-		Signature should be inspected for full parameters.
----classmethod_name()---  class method or static method
-----global_constant_name---- global constant
+		subseqeunt documentation are noted. Signature should be inspected for 
+		full parameters.
+---classmethod_name()---   Class method or static method.
+----global_constant_name----  Global constant.
