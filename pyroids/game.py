@@ -104,7 +104,7 @@ ASTEROID_SPEED = lambda: factor_last([200],
                                      factor=LEVEL_AUGMENTATION, 
                                      round_values=True
                                      )
-SPAWN_LIMIT = lambda: it.repeat(2)
+SPAWN_LIMIT = lambda: it.repeat(1)
 NUM_PER_SPAWN = lambda: it.repeat(3)
 SHIP_SPEED = lambda: factor_last([200],
                                  factor=LEVEL_AUGMENTATION, 
@@ -125,7 +125,8 @@ NAT_EXPOSURE_LIMIT = lambda: it.repeat(68)
 HIGH_EXPOSURE_LIMIT = lambda: it.repeat(20)
 NUM_PICKUPS = lambda: repeat_last([1]*2 + [2]*2 + [3])
 
-# Override globals with any corresponding setting defined on any 
+# Override global
+# s with any corresponding setting defined on any 
 # declared configuration file.
 settings = ['BLUE_CONTROLS', 'RED_CONTROLS',
             'WIN_X', 'WIN_Y', 'LIVES', 'LAST_LEVEL', 

@@ -1488,7 +1488,7 @@ class Asteroid(PhysicalSprite):
         
     def _spawn(self):
         """Spawn new asteroids if spawn level below spawn limit."""
-        if self._spawn_level < self._spawn_limit - 1:
+        if self._spawn_level < self._spawn_limit:
             for i in range (self._num_per_spawn):
                 ast = Asteroid(x=self.x, y=self.y,
                                spawn_level = self._spawn_level + 1,
@@ -1684,7 +1684,7 @@ class PickUpRed(PickUp):
 
 #GLOBAL default values
 SHIELD_DURATION = 8
-HIGH_VELOCITY_BULLET_FACTOR = 3
+HIGH_VELOCITY_BULLET_FACTOR = 5
 
 INITIAL_AMMO_STOCKS = {Cannon: 9,
                        HighVelocityCannon: 7,

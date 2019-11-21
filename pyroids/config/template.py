@@ -55,7 +55,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 ##                              **GLOBAL CONSTANTS**
 
 ## application window width in pixels.
-#WIN_X = 1800
+#WIN_X = 1200
 
 ## application window height in pixels.
 #WIN_Y = 800 
@@ -82,7 +82,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 #SHIELD_DURATION = 8
 
 ## Speed of high velocity bullet as multiple of standard bullet speed.
-#HIGH_VELOCITY_BULLET_FACTOR = 3
+#HIGH_VELOCITY_BULLET_FACTOR = 5
 
 ## Initial rounds of ammunition for each weapon. Maximum 9, Minimum 0.
 ## Uncomment ALL lines if changing any value.
@@ -210,11 +210,11 @@ LEVEL_AUGMENTATION = 1.05
 #                                     )
 
 ## How many times each large asteroid will end up spawning into smaller 
-## asteroids. By default WHAT WHAT?
-#SPAWN_LIMIT = lambda: it.repeat(2)
+## asteroids. By default, just once.
+#SPAWN_LIMIT = lambda: it.repeat(1)
 
 ## Number of smaller asteroids that are spawed each time a larger asteroid 
-## is destroyed
+## is destroyed.
 #NUM_PER_SPAWN = lambda: it.repeat(3)
 
 ## By default starts at 200 pixels per second and increases by 5% each level.
@@ -222,6 +222,7 @@ LEVEL_AUGMENTATION = 1.05
 #                                 factor=LEVEL_AUGMENTATION, 
 #                                 round_values=True
 #                                 )
+
 ## By default starts at 200 pixels per second and increases by 5% each level.
 #SHIP_ROTATION_SPEED = lambda: factor_last([200],
 #                                          factor=LEVEL_AUGMENTATION, 
@@ -237,23 +238,23 @@ LEVEL_AUGMENTATION = 1.05
 
 ## Seconds to reload one round of ammunition. By default, 2 seconds for each 
 ## of the first 5 levels, 1.5 seconds for levels 6 through 8 and 1 second 
-## thereafter
+## thereafter.
 #CANNON_RELOAD_RATE = lambda: repeat_last([2]*5 + [1.5]*3 + [1])
 
 ## Percent of window height (or width if window higher than wider) to comprise 
 ## high level radiation zone. Expressed as float from 0 to 1 inclusive. If any 
 ## value < 0 or > 1 then will be forced to take 0 and 1 respectively.
 ## By default 0.15 for level 1 then increases by 0.025 each level until 
-## reaching 0.5 on level 14 then remains at 0.5 thereafter
+## reaching 0.5 on level 14 after which remains at 0.5.
 #RAD_BORDER = lambda: it.chain(it.islice(it.count(0.15, 0.025), 14),
 #                              it.repeat(0.5))
 
 ## Limit of ship's exposure to continuous background radiation, in seconds.
-## By default, 68 seconds for every level
+## By default, 68 seconds for every level.
 #NAT_EXPOSURE_LIMIT = lambda: it.repeat(68)
 
 ## Limit of ship's exposure to continuous high level radiation, in seconds
-## By default, 20 seconds for every level
+## By default, 20 seconds for every level.
 #HIGH_EXPOSURE_LIMIT = lambda: it.repeat(20)
 
 ## Maximum number of pickups that can be made available on each level.
