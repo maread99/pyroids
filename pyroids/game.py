@@ -1048,9 +1048,11 @@ class Game(pyglet.window.Window):
 
 
     def _setup_next_level(self):
-        """Assign level settings for next level"""
+        """Assign level settings for next level and reload cannon."""
         for setter_method, iterator in self._settings_map.items():
             setter_method(next(iterator))
+        for player in self.players_alive:
+            player.control_sys.cannon_full_reload()
 
 
     def _play_level(self, first_level=False):

@@ -568,6 +568,7 @@ class Weapon(object):
 
     Instance METHODS:
     --set_stock(num)--  Set stock to +num+ rounds.
+    --set_max_stock()--  Set stock to maximum permissible.
     --add_to_stock(num)--  Add +num+ rounds to stock.
     --subtract_from_stock(num)--  Subtract +num+ rounds from stock.
     --fire()--  Handle request to fire a single instance of ammunition.
@@ -648,6 +649,10 @@ class Weapon(object):
         """Change stock to +num+"""
         self._update_stock(num)
 
+    def set_max_stock(self):
+        """Set stock level to maximum."""
+        self.set_stock(self.max_stock)
+
     def _change_stock(self, num: int):
         """Change stock level.
 
@@ -714,6 +719,7 @@ class Cannon(Weapon):
     
     METHODS
     --set_reload_rate()--  Set time to reload a round of ammunition.
+    --full_reload()--  Reload to maximum stock level.
     """
     
     def __init__(self, *args, reload_rate: Union[float, int] = 2, **kwargs):
@@ -725,6 +731,10 @@ class Cannon(Weapon):
         """++reload_rate++ Seconds to reload one round of ammunition."""
         pyglet.clock.unschedule(self._auto_reload)
         pyglet.clock.schedule_interval(self._auto_reload, reload_rate)
+
+    def full_reload(self):
+        """Reload to maximum stock level."""
+        self.set_max_stock()
 
     def _ammo_kwargs(self):
         # Relies on control system to evaluate bullet kwargs
@@ -1742,7 +1752,9 @@ class ControlSystem(object):
     --new_ship()--  Create new ship.
     --fire(weapon)--  Attempt to fire one round of ammunition from +weapon+.
     --process_pickup(pickup)--  Add ammunition from +pickup+.
-    
+    --set_cannon_reload_rate()--  Set seconds to reload one ammunition round.
+    --cannon_full_reload()-- Fully reload cannon.
+
     Methods available to aid Weapon classes instantiating ammunition objects:
     --bullet_initial_speed()-- Speed a bullet should have if fired now.
     --ammo_base_kwargs()--  Options for ammunition class.
@@ -1836,8 +1848,12 @@ class ControlSystem(object):
         self._bullet_discharge_speed = max(value, self.ship._speed_cruise)
 
     def set_cannon_reload_rate(self, reload_rate: Union[float, int]):
-        """+reload_rate+ Seconds to reload one round of ammunition."""
+        """+reload_rate+ seconds to reload one round of ammunition."""
         self._weapons[Cannon].set_reload_rate(reload_rate)
+
+    def cannon_full_reload(self):
+        """Fully reload cannon."""
+        self._weapons[Cannon].full_reload()
 
     def _add_weapon(self, Weapon: Weapon, **kwargs):
         self._weapons[Weapon] = Weapon(self, **kwargs)
