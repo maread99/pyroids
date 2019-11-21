@@ -1,47 +1,46 @@
 #! /usr/bin/env python
 
-"""Configuration file template for pyroids application.
+"""Configuration file template.
 
-The pyroids application can be customised by using a copy of this template 
-file to define a configuration file and then passing the configuration file's 
-name at the command line as the first argument, for example:
-python play_pyroids my_config_filename.py
+The pyroids application can be customised by creating a configuration file 
+from a copy of this template and passing the configuration file's name as 
+the first argument at the command line. Example:
+    python play_pyroids my_config_filename.py
 
-NB a configuration file is a .py file which will be imported when the 
-application is instantiated.
+A configuration file is a .py file that will be imported by pyroids.
 
-Configuration files must be saved to the ..\pyroids\config directory.
+Configuration files must be saved to the directory '..\pyroids\config'.
 
-The template notes all customisable global constants and level settings
-as commented out lines of code that if uncommented would simply result 
-in the default value being assigned. The value of any variable can be 
-customised by simply uncommenting the line and replacing the default 
-value with the desired value. All variables that remain commented will 
-take a default value as assigned by the application.
+This template includes all customisable game settings as commented out 
+lines of code. Simply uncommenting the lines associated with any setting 
+will result in pyroids assigning the default value for that setting. 
+The value for any setting can be customised by uncommenting the associated 
+lines of code and replacing the default value with the desired value.
 
-The application distinguishes between Global Constants and Level 
-Settings. A Global Constant is assigned a single value which is used for 
-the entirety of the application instance's life. A Level Setting is 
-assigned a function that returns an interator which in turn returns 
-values where each value is specific to a game level.
+Pyroids will assign default values to any setting that remains commented out.
 
-A level setting should be assigned a *function that returns an iterable 
-providing for a number of iterations no fewer than the global constant 
-LAST_LEVEL. The first value returned by a level setting should be that 
+Pyroids distinguishes between Global Settings and Level Settings.
+    A Global Setting is assigned a single value which is used for the 
+        entirety of the application instance's life.
+    A Level Setting is assigned a function that returns an iterable which 
+        in turn returns values where each value is specific to a game level.
+
+A Level Setting should be assigned a function that returns an iterable 
+providing for a number of iterations no fewer than the global setting
+LAST_LEVEL. The first value returned by a Level Setting should be that 
 setting's value for level 1. Each subsequent iteration should return the 
 setting's value for each subsequent level, such that the value 
 returned by the nth iteration will be the setting's value for level n.
-
-Before the Level Settings section this module imports intertools and 
-defines a number of helper functions that can be employed to create
-suitable customised iterators (these helper functions are also used to 
-define the default iterators).
-
-*NB A Level Setting is assigned a function that returns an iterator (as 
-opposed to being directly assigned an iterator). The default settings use 
-lambda to create the function although any function, including a 
-generator, can be assigned so long as its return value will in turn 
-return values when passed to next() no fewer than LAST_LEVEL times.
+    
+    NB A Level Setting is NOT directly assigned an iterator but rather a 
+    function that returns an iterator. The default settings use lambda 
+    to create the function although any function, including a generator, 
+    can be assigned so long as its return value will in turn return 
+    values when passed to next() LAST_LEVEL times.
+        
+This module imports intertools and defines a number of helper functions 
+that can be employed to create suitable customised iterators (these helper 
+functions are also used to define the default iterators).
 """
 ###WILL NEED TO REVISE at least the start of the ABOVE SEGUN HOW WILL ACTUALLY 
 ###WORK UNDER DISTRIBUTION - via a script? What's the name?
@@ -52,7 +51,7 @@ from collections import OrderedDict
 from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
                             SLD_Launcher, MineLayer, ShieldGenerator)
 
-##                              **GLOBAL CONSTANTS**
+##                              **GLOBAL SETTINGS**
 
 ## application window width in pixels.
 #WIN_X = 1200
