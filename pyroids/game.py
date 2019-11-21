@@ -15,7 +15,8 @@ and instructions on how to customise values):
     'SHIP_SPEED', 'SHIP_ROTATION_SPEED', 'BULLET_SPEED', 'CANNON_RELOAD_RATE',
     'RAD_BORDER', 'NAT_EXPOSURE_LIMIT', 'HIGH_EXPOSURE_LIMIT', 
     'PICKUP_INTERVAL_MIN', 'PICKUP_INTERVAL_MAX', 'NUM_PICKUPS',
-    'NUM_ASTEROIDS', 'ASTEROID_SPEED', 'NUM_PER_SPAWN', 'AT_BOUNDARY'
+    'NUM_ASTEROIDS', 'ASTEROID_SPEED', 'NUM_PER_SPAWN', 
+    'AT_BOUNDARY', 'SHIP_AT_BOUNDARY'
    
 CLASSES:
 Player()  Player representation.
@@ -92,6 +93,7 @@ LAST_LEVEL = 20
 PICKUP_INTERVAL_MIN = 15
 PICKUP_INTERVAL_MAX = 30
 AT_BOUNDARY = 'bounce'
+SHIP_AT_BOUNDARY = 'stop'
 
 # LEVEL SETTINGS.
 # Each level setting defined as a function that returns an iterator.
@@ -127,7 +129,8 @@ NUM_PICKUPS = lambda: repeat_last([1]*2 + [2]*2 + [3])
 # declared configuration file.
 settings = ['BLUE_CONTROLS', 'RED_CONTROLS',
             'WIN_X', 'WIN_Y', 'LIVES', 'LAST_LEVEL', 
-            'PICKUP_INTERVAL_MIN', 'PICKUP_INTERVAL_MAX', 'AT_BOUNDARY',
+            'PICKUP_INTERVAL_MIN', 'PICKUP_INTERVAL_MAX', 
+            'AT_BOUNDARY', 'SHIP_AT_BOUNDARY',
             'NUM_ASTEROIDS', 'ASTEROID_SPEED', 
             'SPAWN_LIMIT', 'NUM_PER_SPAWN', 'SHIP_SPEED', 
             'SHIP_ROTATION_SPEED', 'BULLET_SPEED', 'CANNON_RELOAD_RATE', 
@@ -247,9 +250,8 @@ class Player(object):
         Ship given random rotation and random position, albeit avoiding 
         any rectangular areas defined in +avoid+.
         """
-        at_boundary = AT_BOUNDARY if AT_BOUNDARY == 'wrap' else 'stop'
         self.ship = self.control_sys.new_ship(initial_speed=0,
-                                              at_boundary=at_boundary,
+                                              at_boundary=SHIP_AT_BOUNDARY,
                                               batch=game_batch, 
                                               group=game_group,
                                               on_kill=self._lose_life, 

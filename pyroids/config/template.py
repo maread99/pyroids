@@ -75,6 +75,9 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 ## Should pyroids 'bounce' or 'wrap' at the boundary?
 #AT_BOUNDARY = 'bounce'
 
+## Should ships 'bounce', 'wrap' or 'stop' at the boundary?
+#SHIP_AT_BOUNDARY = 'stop'
+
 ## Shield duration, in seconds.
 #SHIELD_DURATION = 8
 
