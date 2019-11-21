@@ -1518,13 +1518,13 @@ class Asteroid(PhysicalSprite):
 
 #GLOBALS
 COLLECTABLE_IN = 2
-COLLECTABLE_FOR = 8 
+COLLECTABLE_FOR = 10
 
 PICKUP_AMMO_STOCKS = {HighVelocityCannon: (5, 9),
-                      FireworkLauncher: (2, 5),
-                      MineLayer: (2, 5),
-                      ShieldGenerator: (2, 4),
-                      SLD_Launcher: (3, 5)
+                      FireworkLauncher: (3, 7),
+                      MineLayer: (3, 7),
+                      ShieldGenerator: (3, 5),
+                      SLD_Launcher: (3, 7)
                       }
 
 settings = ['COLLECTABLE_IN', 'COLLECTABLE_FOR', 'PICKUP_AMMO_STOCKS']
@@ -1688,9 +1688,9 @@ HIGH_VELOCITY_BULLET_FACTOR = 5
 
 INITIAL_AMMO_STOCKS = {Cannon: 9,
                        HighVelocityCannon: 7,
-                       FireworkLauncher: 2,
-                       SLD_Launcher: 2,
-                       MineLayer: 2,
+                       FireworkLauncher: 3,
+                       SLD_Launcher: 3,
+                       MineLayer: 3,
                        ShieldGenerator: 2}
 
 settings = ['SHIELD_DURATION', 'INITIAL_AMMO_STOCKS', 

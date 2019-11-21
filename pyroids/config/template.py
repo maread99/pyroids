@@ -52,6 +52,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
                             SLD_Launcher, MineLayer, ShieldGenerator)
 
 ##                              **GLOBAL SETTINGS**
+
 ## Application window width in pixels.
 #WIN_X = 1200
 
@@ -62,7 +63,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 #LIVES = 5
 
 ## Number of levels.
-#LAST_LEVEL = 20
+#LAST_LEVEL = 14
 
 ## Minimum seconds between supply drops.
 #PICKUP_INTERVAL_MIN = 15
@@ -86,9 +87,9 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 ## Uncomment ALL lines if changing any value.
 #INITIAL_AMMO_STOCKS = {Cannon: 9,
 #                       HighVelocityCannon: 7, 
-#                       FireworkLauncher: 2,
-#                       SLD_Launcher: 2,
-#                       MineLayer: 2, 
+#                       FireworkLauncher: 3,
+#                       SLD_Launcher: 3,
+#                       MineLayer: 3, 
 #                       ShieldGenerator: 2}
 
 ## Number of seconds before which a supply drop can NOT be collected. During 
@@ -96,17 +97,17 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 #COLLECTABLE_IN = 2
 
 ## Number of seconds during which pickup can be collected before disappearing.
-#COLLECTABLE_FOR = 8
+#COLLECTABLE_FOR = 10
 
 ## Minimum and Maximum number of rounds of ammunition contained in a supply 
 ## drop for each weapon. Actual number will be randomly choosen between, and 
 ## inclusive of, the defined values.
 ## Uncomment all 6 lines if changing any value.
 #PICKUP_AMMO_STOCKS = {HighVelocityCannon: (5, 9), 
-#                      FireworkLauncher: (2, 5),
-#                      MineLayer: (2, 5),
-#                      ShieldGenerator: (2, 4),
-#                      SLD_Launcher: (3, 5)
+#                      FireworkLauncher: (3, 7),
+#                      MineLayer: (3, 7),
+#                      ShieldGenerator: (3, 5),
+#                      SLD_Launcher: (3, 7)
 #                      }
 
 ##                              *Ship Controls*
