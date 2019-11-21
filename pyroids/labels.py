@@ -353,7 +353,7 @@ class InstructionLabels(WindowLabels):
             " time. Pick them up. And don't hang around in any zone for too "
             "long...the ship can only be exposed to so much radiation "
             "before it fries! Radiation's EVERYWHERE although levels are "
-            "highest in the field around the edge of each zone. GOOD LUCK!"
+            "highest in the area around the edge of each zone. GOOD LUCK!"
             )
         
         self._opaque_bg = self._add_window_rect(color=(0, 0, 0, 255))
