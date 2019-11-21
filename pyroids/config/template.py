@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-"""Configuration file template.
+"""Configuration file template..
 
 The pyroids application can be customised by creating a configuration file 
 from a copy of this template and passing the configuration file's name as 
