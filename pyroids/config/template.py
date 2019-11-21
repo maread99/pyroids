@@ -84,7 +84,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 #HIGH_VELOCITY_BULLET_FACTOR = 5
 
 ## Initial rounds of ammunition for each weapon. Maximum 9, Minimum 0.
-## Uncomment ALL lines if changing any value.
+## Uncomment ALL six lines if changing any value.
 #INITIAL_AMMO_STOCKS = {Cannon: 9,
 #                       HighVelocityCannon: 7, 
 #                       FireworkLauncher: 3,
