@@ -52,17 +52,16 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
                             SLD_Launcher, MineLayer, ShieldGenerator)
 
 ##                              **GLOBAL SETTINGS**
-
-## application window width in pixels.
+## Application window width in pixels.
 #WIN_X = 1200
 
-## application window height in pixels.
+## Application window height in pixels.
 #WIN_Y = 800 
 
-## lives per game. Limit is 5 for 'lives left' to 'fit in' with WIN_X = 1200.
+## Lives per game. Limit is 5 for 'lives left' to 'fit in' with WIN_X = 1200.
 #LIVES = 5
 
-## number of levels.
+## Number of levels.
 #LAST_LEVEL = 20
 
 ## Minimum seconds between supply drops.
@@ -116,8 +115,8 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 ## BLUE_CONTROLS / RED_CONTROLS respectively.
 ## Dictionary keys (in capital letters) should be left unchanged.
 ## Dictionary values take a List or Ordered Dictionary defining the key or 
-#  keys that will result in the corresponding control being executed. Keys 
-##   defined as constants of the pyglet.windows.key module:
+## keys that will result in the corresponding control being executed. Keys 
+## defined as constants of the pyglet.windows.key module:
 ##     https://pyglet.readthedocs.io/en/latest/modules/window_key.html
 ## FIREWORK_KEYS and MINE_KEYS are both assigned an Ordered Dictionary 
 ## that defines multiples keys by default although can be defined to take 
@@ -127,7 +126,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 ##   Values of MINE_KEYS ordrered dictionary represent the time, in seconds, 
 ##     before the mine will explode.
 
-##Uncomment ALL lines of this subsection if changing any value.
+## Uncomment ALL lines of this subsection if changing any value.
 #BLUE_CONTROLS = {'THRUST_KEY': [pyglet.window.key.I],
 #                 'ROTATE_LEFT_KEY': [pyglet.window.key.J],
 #                 'ROTATE_RIGHT_KEY': [pyglet.window.key.L],
@@ -143,7 +142,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 #                                           pyglet.window.key.PERIOD: 6})
 #                 }
 
-##Uncomment ALL lines of this subsection if changing any value.
+## Uncomment ALL lines of this subsection if changing any value.
 #RED_CONTROLS = {'THRUST_KEY': [pyglet.window.key.W],
 #                'ROTATE_LEFT_KEY': [pyglet.window.key.A],
 #                'ROTATE_RIGHT_KEY': [pyglet.window.key.D],
@@ -252,7 +251,7 @@ LEVEL_AUGMENTATION = 1.05
 ## By default, 68 seconds for every level.
 #NAT_EXPOSURE_LIMIT = lambda: it.repeat(68)
 
-## Limit of ship's exposure to continuous high level radiation, in seconds
+## Limit of ship's exposure to continuous high level radiation, in seconds.
 ## By default, 20 seconds for every level.
 #HIGH_EXPOSURE_LIMIT = lambda: it.repeat(20)
 
