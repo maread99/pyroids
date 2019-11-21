@@ -587,7 +587,7 @@ class Weapon(object):
         fired when shield raised.
 
     Subclass should implement the following methods if corresponding 
-    functionality requried.
+    functionality required.
     --_ammo_kwargs(**kwargs)--  Implement on subclass to return a dictionary 
         of kwargs to be passed to the ammunition class in order to fire a 
         single instance of ammunition. Should accommodate incorporating any 
@@ -595,8 +595,6 @@ class Weapon(object):
     --_shield_up()--  Handler. Will be called if weapon cannot be fired 
         when shield raised and receive request to fire weapon when shield 
         raised.
-    --_no_stock()--  Handler. Called if receive request to fire when out of 
-        ammunition.
     --die()--  Subclass should implement to perform any end-of-life tidy-up 
         operations, for example cancelling any scheduled calls. Called by 
         ++control_sys++ as part of control system's end-of-life. NB there are 
@@ -675,11 +673,6 @@ class Weapon(object):
         pass
 
     def _no_stock(self):
-        """Not implemented.
-        
-        Implement on subclass to handle requests to fire when no stock.
-        """
-        #REVISE DOC, inc class Doc, as applic
         self._AmmoCls.play_no_stock()
         
     def _ammo_kwargs(self, **kwargs) -> dict:
