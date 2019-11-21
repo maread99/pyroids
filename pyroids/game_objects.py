@@ -107,21 +107,39 @@ from .lib.pyglet_lib.sprite_ext import (PhysicalSprite,
                                         load_image, load_image_sequence,
                                         anim, vector_anchor_to_rotated_point, 
                                         InRect)
-from .lib.pyglet_lib.audio_ext import StaticSourceMixin, load_static_sound
+from .lib.pyglet_lib.audio_ext import (StaticSourceMixin, 
+                                       StaticSourceClassMixin, 
+                                       load_static_sound)
 
-class Ammunition(object):
+class Ammunition(StaticSourceClassMixin):
     """Mixin.
 
     Class ATTRIUBTES
     ---img_pickup---  Ammo pick-up image.
     ---img_stock---  Ammo stocks image.
+    ---snd_no_stock---  Out of ammunition audio.
     
-    Subclass Interface
+    Class METHODS
+    ---play_no_stock()---  Play out of ammunition audio.
+
+    SUBCLASS INTERFACE
     Inheriting classes should define the Class Attributes.
+
+    ---snd_no_stock--- should be assigned a StaticSource returned by 
+        helper function load_static_sound(). For example:
+            snd_boom = load_static_sound('boom.wav')
     """
-    
+
     img_pickup: Union[Texture, Animation]
     img_stock: Union[Texture, Animation]
+
+    snd_no_stock: StaticSource
+
+    @classmethod
+    def play_no_stock(cls):
+        """Play out of ammunition audio"""
+        cls.cls_sound(cls.snd_no_stock, interupt=False)
+
 
 class Bullet(Ammunition, PhysicalSprite):
     """PhysicalSprite with bullet image and firing bullet sound.
@@ -134,6 +152,8 @@ class Bullet(Ammunition, PhysicalSprite):
 
     img_pickup = img
     img_stock = img
+
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
     
     def __init__(self, control_sys, *args, **kwargs):
         """
@@ -153,7 +173,9 @@ class Bullet(Ammunition, PhysicalSprite):
 
 class BulletRed(Bullet):
     snd = load_static_sound('mr_bullet.wav')
-        
+    
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+       
     
 class BulletHighVelocity(Bullet):
     """PhysicalSprite with high velocity bullet image and firing 
@@ -165,6 +187,8 @@ class BulletHighVelocity(Bullet):
     img = load_image('bullet_high_velocity.png', anchor='center')
     img_pickup = img
     img_stock = load_image('bullet_high_velocity.png', anchor='origin')
+    
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
 
 class BulletHighVelocityRed(Bullet):
     """PhysicalSprite with high velocity bullet image and firing 
@@ -176,6 +200,8 @@ class BulletHighVelocityRed(Bullet):
     img = load_image('bullet_high_velocity_red.png', anchor='center')
     img_pickup = img
     img_stock = load_image('bullet_high_velocity_red.png', anchor='origin')
+    
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
 
 class Starburst(StaticSourceMixin):
     """Explosion from which bullets fire out at regular intervals.
@@ -281,8 +307,12 @@ class SuperLaserDefence(Ammunition, Starburst):
     img_pickup = load_image('sld_stock.png', anchor='center')
     snd = load_static_sound('nn_superlaserdefence.wav')
 
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+
 class SuperLaserDefenceRed(SuperLaserDefence):
     snd = load_static_sound('mr_superdefence.wav')
+
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
 
 class Firework(Bullet):
     """Large Bullet explodes into Starburst.
@@ -295,6 +325,8 @@ class Firework(Bullet):
     snd = load_static_sound('nn_firework.wav')
     img_pickup = img
     img_stock = img
+
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
 
     def __init__(self, explosion_distance: int, 
                  num_starburst_bullets=12, 
@@ -341,6 +373,8 @@ class Firework(Bullet):
 class FireworkRed(Firework):
     snd = load_static_sound('mr_firework.wav')
 
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+
 class Mine(Ammunition, PhysicalSprite):
     """Mine explodes into Starburst after specified time.
 
@@ -357,6 +391,8 @@ class Mine(Ammunition, PhysicalSprite):
     img_pickup = img.frames[-1].image
     img_stock = img_pickup
     snd = load_static_sound('nn_minelaid.wav')
+
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
 
     _visible_secs: Optional[int]
     _mines_setup = False
@@ -448,6 +484,8 @@ class Mine(Ammunition, PhysicalSprite):
 class MineRed(Mine):
     snd = load_static_sound('mr_minelaid_ext.wav')
 
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+
 class Shield(Ammunition, PhysicalSprite):
     """Ship Shield.
     
@@ -463,6 +501,8 @@ class Shield(Ammunition, PhysicalSprite):
     snd = load_static_sound('nn_shieldsup.wav')
     img_stock = load_image('shield_blue_20.png', anchor='origin')
     img_pickup = load_image('shield_pickup_inset_blue.png', anchor='center')
+
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
 
     def __init__(self, ship, duration: int = 10, **kwargs):
         """
@@ -506,6 +546,8 @@ class ShieldRed(Shield):
     img_stock = load_image('shield_red_20.png', anchor='origin')
     img_pickup = load_image('shield_pickup_inset_red.png', anchor='center')
     
+    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+
 class Weapon(object):
     """Base class to create weapons that will be appended to a 
     ControlSystem class.
@@ -564,7 +606,7 @@ class Weapon(object):
     
     ammo_cls = {'blue': Bullet,
                 'red': BulletRed}
-
+    
     fire_when_shield_up = False
 
     def __init__(self, control_sys, initial_stock: int = 0,
@@ -582,7 +624,7 @@ class Weapon(object):
         self._stock_label = StockLabel(image = self._AmmoCls.img_stock,
                                        initial_stock=self._stock,
                                        style_attrs = {'color': (255, 255, 255, 255)})
-        
+                
     @property
     def stock(self) -> int:
         """Current number of ammunition rounds in stock."""
@@ -637,8 +679,9 @@ class Weapon(object):
         
         Implement on subclass to handle requests to fire when no stock.
         """
-        pass
-
+        #REVISE DOC, inc class Doc, as applic
+        self._AmmoCls.play_no_stock()
+        
     def _ammo_kwargs(self, **kwargs) -> dict:
         """Implement on subclass to return dictionary of kwargs to 
         instantiate one instance of associated ammunition class."""
