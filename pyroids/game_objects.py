@@ -511,8 +511,8 @@ class Shield(Ammunition, PhysicalSprite):
         """
         self._ship = ship
         super().__init__(**kwargs)
-        self.powerdown_duration = duration//4
-        self.powerdown_phase2_duration = duration//8
+        self.powerdown_duration = duration/4
+        self.powerdown_phase2_duration = duration/8
         solid_shield_duration = duration - self.powerdown_duration
         self.schedule_once(self._powerdown_initial, solid_shield_duration)
         
@@ -528,11 +528,11 @@ class Shield(Ammunition, PhysicalSprite):
         self.die()
         
     def _powerdown_final(self, dt: Optional[float] = None):
-        self.flash_start(4)
+        self.flash_start(frequency=4)
         self.schedule_once(self.shield_down, self.powerdown_phase2_duration)
 
     def _powerdown_initial(self, dt: Optional[float] = None):
-        self.flash_start(2)
+        self.flash_start(frequency=2)
         duration = self.powerdown_duration - self.powerdown_phase2_duration
         self.schedule_once(self._powerdown_final, duration)
         
@@ -692,12 +692,17 @@ class Weapon(object):
         kwargs = self._ammo_kwargs(**kwargs)
         return self._AmmoCls(**kwargs)
 
-    def fire(self, **kwargs):
-        """Fire one instance of stock or handle if unable to fire."""
+    def fire(self, **kwargs) -> Union[Ammunition, bool]:
+        """Fire one instance of stock or handle if unable to fire.
+        
+        Returns Ammunition object fired or False if nothing fired.
+        """
         if not self.fire_when_shield_up and self.control_sys.shield_up:
-            return self._shield_up()
+            self._shield_up()
+            return False
         if not self._stock:
-            return self._no_stock()
+            self._no_stock()
+            return False
         else:
             self.subtract_from_stock(1)
             return self._fire(**kwargs)
@@ -958,7 +963,9 @@ class ShieldGenerator(Weapon):
         if 'on_die' in kwargs:
             funcs.append(copy(kwargs['on_die']))
         kwargs['on_die'] = lambda: [ f() for f in funcs ]
-        self._current_shield = super().fire(**kwargs)
+        shield = super().fire(**kwargs)
+        if shield:
+            self._current_shield = shield
 
     @property
     def shield_raised(self) -> bool:
@@ -974,7 +981,7 @@ class ShieldGenerator(Weapon):
     def lower_shield(self):
         """Lower any raised shield."""
         if self._current_shield is not None:
-            self._current_shield.die()
+            self._current_shield.shield_down()
 
 
 class RadiationGauge(Sprite):
