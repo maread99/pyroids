@@ -54,28 +54,22 @@ include:
 	
 ####REVIEW / REVISE...
 Game can be customised by defining a configuration file and passing the 
-filename as the first and only argument at the command line.
+filename as the first and only argument at the command line, for example:
+###REVIEW FOR ACTUAL IMPLEMENTATION
+	python play_pyroids novice.py
 
 A configuration file can be created by making a copy of the template at
 ..\pyroids\config\template.py. The copy should be named appropriately and saved 
-as a .py file to the same config folder, for example:
+as a .py file to this same config folder, for example:
 	..\pyroids\config\easy_peasy.py
 
 The template includes instructions on how to customise game settings.
 
-Only the name of the configuration file needs to be passed at the command 
-line, for example:
-###REVIEW FOR ACTUAL IMPLEMENTATION
-python play_pyroids easy_peasy.py
-
 As many configuration files can be saved to the config directory as required. 
-The pyroids package includes the following configuration files:
-##REVISE FOR ACTUAL IMPLEMENTATION
-easy_peasy.py
-bit_hard.py
-wtf.py
-wrap.py
-alt_controls.py
+
+The following example configuration files are included as part of the pyroids package:
+novice.py
+expert.py
 
 
 Code Documentation
