@@ -1,49 +1,6 @@
 #! /usr/bin/env python
 
-"""Configuration file template.
-
-The pyroids application can be customised by creating a configuration file 
-from a copy of this template and passing the configuration file's name as 
-the first argument at the command line. Example:
-    python play_pyroids my_config_filename.py
-
-A configuration file is a .py file that will be imported by pyroids.
-
-Configuration files must be saved to the directory '..\pyroids\config'.
-
-This template includes all customisable game settings as commented out 
-lines of code. Simply uncommenting the lines associated with any setting 
-will result in pyroids assigning the default value for that setting. 
-The value for any setting can be customised by uncommenting the associated 
-lines of code and replacing the default value with the desired value.
-
-Pyroids will assign default values to any setting that remains commented out.
-
-Pyroids distinguishes between Global Settings and Level Settings.
-    A Global Setting is assigned a single value which is used for the 
-        entirety of the application instance's life.
-    A Level Setting is assigned a function that returns an iterator which 
-        in turn returns values where each value is specific to a game level.
-
-A Level Setting should be assigned a function that returns an iterator 
-providing for a number of iterations no fewer than the global setting
-LAST_LEVEL. The first value returned by a Level Setting should be that 
-setting's value for level 1. Each subsequent iteration should return the 
-setting's value for each subsequent level, such that the value 
-returned by the nth iteration will be the setting's value for level n.
-    
-    NB A Level Setting is NOT directly assigned an iterator but rather a 
-    function that returns an iterator. The default settings use lambda 
-    to create the function although any function, including a generator, 
-    can be assigned so long as its return value will in turn return 
-    values when passed to next() LAST_LEVEL times.
-        
-This module imports intertools and defines a number of helper functions 
-that can be employed to create suitable customised iterators (these helper 
-functions are also used to define the default iterators).
-"""
-###WILL NEED TO REVISE at least the start of the ABOVE SEGUN HOW WILL ACTUALLY 
-###WORK UNDER DISTRIBUTION - via a script? What's the name?
+"""Configuration file with settings defined for 'expert'."""
 
 import pyglet
 from collections import OrderedDict
@@ -63,7 +20,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 #LIVES = 5
 
 ## Number of levels.
-#LAST_LEVEL = 14
+LAST_LEVEL = 8
 
 ## Minimum seconds between supply drops.
 #PICKUP_INTERVAL_MIN = 15
@@ -78,7 +35,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 #SHIP_AT_BOUNDARY = 'stop'
 
 ## Shield duration, in seconds.
-#SHIELD_DURATION = 8
+SHIELD_DURATION = 5
 
 ## Speed of high velocity bullet as multiple of standard bullet speed.
 #HIGH_VELOCITY_BULLET_FACTOR = 5
@@ -96,8 +53,8 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 ## this period the pickup flashes.
 #COLLECTABLE_IN = 2
 
-## Number of seconds during which pickup can be collected before disappearing.
-#COLLECTABLE_FOR = 10
+# Number of seconds during which pickup can be collected before disappearing.
+COLLECTABLE_FOR = 8
 
 ## Minimum and Maximum number of rounds of ammunition contained in a supply 
 ## drop for each weapon. Actual number will be randomly choosen between, and 
@@ -208,13 +165,13 @@ LEVEL_AUGMENTATION = 1.05
 #                                     round_values=True
 #                                     )
 
-## How many times each large asteroid will end up spawning into smaller 
-## asteroids. By default, just once.
-#SPAWN_LIMIT = lambda: it.repeat(1)
+# How many times each large asteroid will end up spawning into smaller 
+# asteroids.
+SPAWN_LIMIT = lambda: it.repeat(2)
 
-## Number of smaller asteroids that are spawed each time a larger asteroid 
-## is destroyed.
-#NUM_PER_SPAWN = lambda: it.repeat(3)
+# Number of smaller asteroids that are spawed each time a larger asteroid 
+# is destroyed.
+NUM_PER_SPAWN = lambda: it.repeat(3)
 
 ## By default starts at 200 pixels per second and increases by 5% each level.
 #SHIP_SPEED = lambda: factor_last([200],
@@ -235,10 +192,8 @@ LEVEL_AUGMENTATION = 1.05
 #                                   round_values=True
 #                                   )
 
-## Seconds to reload one round of ammunition. By default, 2 seconds for each 
-## of the first 5 levels, 1.5 seconds for levels 6 through 8 and 1 second 
-## thereafter.
-#CANNON_RELOAD_RATE = lambda: repeat_last([2]*5 + [1.5]*3 + [1])
+# Seconds to reload one round of ammunition.
+CANNON_RELOAD_RATE = lambda: repeat_last([1]*2 + [0.5]*2)
 
 ## Percent of window height (or width if window higher than wider) to comprise 
 ## high level radiation zone. Expressed as float from 0 to 1 inclusive. If any 

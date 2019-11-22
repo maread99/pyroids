@@ -20,7 +20,7 @@ from ..game_objects import (Cannon, HighVelocityCannon, FireworkLauncher,
 #LIVES = 5
 
 ## Number of levels.
-#LAST_LEVEL = 14
+LAST_LEVEL = 10
 
 # Minimum seconds between supply drops.
 PICKUP_INTERVAL_MIN = 12
@@ -172,21 +172,22 @@ LEVEL_AUGMENTATION = 1.05
 NUM_PER_SPAWN = lambda: it.repeat(2)
 
 # Ship speed.
-SHIP_SPEED = lambda: factor_last([260],
+SHIP_SPEED = lambda: factor_last([230],
                                  factor=LEVEL_AUGMENTATION, 
                                  round_values=True
                                  )
 
 # Ship rotation speed.
-SHIP_ROTATION_SPEED = lambda: factor_last([260],
+SHIP_ROTATION_SPEED = lambda: factor_last([230],
                                           factor=LEVEL_AUGMENTATION, 
                                           round_values=True
                                           )
 
-## bullet discharge speed.
-#bullet_speed = lambda: factor_last([260],
-#                                   factor=level_augmentation, 
-#                                   round_values=true
+## Bullet discharge speed. By default starts at 200 pixels per second and 
+## increases by 5% each level.
+#BULLET_SPEED = lambda: factor_last([200],
+#                                   factor=LEVEL_AUGMENTATION, 
+#                                   round_values=True
 #                                   )
 
 # Seconds to reload one round of ammunition.
