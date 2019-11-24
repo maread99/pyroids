@@ -2,20 +2,19 @@
 
 """Configuration file template.
 
-The pyroids application can be customised by creating a configuration file 
-from a copy of this template and passing the configuration file's name as 
-the first argument at the command line. Example:
-    python play_pyroids my_config_filename.py
+A copy of this template can be used to create a configuration file that 
+defines custom settings for the pyroids application.
 
-A configuration file is a .py file that will be imported by pyroids.
+Configuration files should:
+    Be based on this template.
+    Be saved to the directory pyroids\config.
+    Have extension .py (a configuration file is imported by pyroids)
 
-Configuration files must be saved to the directory '..\pyroids\config'.
-
-This template includes all customisable game settings as commented out 
-lines of code. Simply uncommenting the lines associated with any setting 
+This template includes all customisable application settings as commented out 
+lines of code. Simply uncommenting the line(s) associated with any setting 
 will result in pyroids assigning the default value for that setting. 
 The value for any setting can be customised by uncommenting the associated 
-lines of code and replacing the default value with the desired value.
+line(s) of code and replacing the default value with the desired value.
 
 Pyroids will assign default values to any setting that remains commented out.
 
@@ -35,8 +34,8 @@ returned by the nth iteration will be the setting's value for level n.
     NB A Level Setting is NOT directly assigned an iterator but rather a 
     function that returns an iterator. The default settings use lambda 
     to create the function although any function, including a generator, 
-    can be assigned so long as its return value will in turn return 
-    values when passed to next() LAST_LEVEL times.
+    can be assigned so long as its return value can in turn be passed to 
+    next().
         
 This module imports intertools and defines a number of helper functions 
 that can be employed to create suitable customised iterators (these helper 
@@ -44,6 +43,8 @@ functions are also used to define the default iterators).
 """
 ###WILL NEED TO REVISE at least the start of the ABOVE SEGUN HOW WILL ACTUALLY 
 ###WORK UNDER DISTRIBUTION - via a script? What's the name?
+###NEED TO COVER HOW TO SET AND USE!!!
+### README.md THEN TO EITHER REFERENCE TO HERE OR REPEAT AS APPLIC.
 
 import pyglet
 from collections import OrderedDict
