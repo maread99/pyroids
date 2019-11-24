@@ -46,7 +46,8 @@ from .lib.pyglet_lib.sprite_ext import (PhysicalSprite, SpriteAdv,
                                         AvoidRect, InRect, load_image)
 from .lib.pyglet_lib.drawing import AngledGrid, Rectangle, DrawingBase
 from .game_objects import (Ship, ShipRed, ControlSystem, Asteroid, 
-                           Bullet, Mine, Starburst, PickUp, PickUpRed)
+                           AmmoClasses, Bullet, Mine, Starburst, 
+                           PickUp, PickUpRed)
 from .labels import (StartLabels, NextLevelLabel, LevelLabel, EndLabels,
                      InstructionLabels, StockLabel, InfoRow)
 from .lib.iter_util import (increment_last, factor_last, 
@@ -137,7 +138,7 @@ settings = ['BLUE_CONTROLS', 'RED_CONTROLS',
             'SHIP_ROTATION_SPEED', 'BULLET_SPEED', 'CANNON_RELOAD_RATE', 
             'RAD_BORDER', 'NAT_EXPOSURE_LIMIT', 'HIGH_EXPOSURE_LIMIT',
             'NUM_PICKUPS']
-pyroids.config_import(vars(), settings)
+pyroids._config_import(vars(), settings)
 assert PICKUP_INTERVAL_MAX >= PICKUP_INTERVAL_MIN
 
 Ship.set_controls(controls=BLUE_CONTROLS)
@@ -298,6 +299,7 @@ class Player(object):
 
     def _unschedule_calls(self):
         pyglet.clock.unschedule(self._drop_pickup)
+        pyglet.clock.unschedule(self._resurrect)
 
     def _resurrect(self, dt: Optional[float] = None):
         """Resurrect player.
@@ -353,10 +355,11 @@ class RadiationField(object):
     define field.
 
     Class ATTRIBUTES
-    ---nuclear_img---  radition symbol image as pyglet TextureRegion.
+    ---nuclear_img---  Radition symbol image as pyglet TextureRegion.
 
     METHODS
-    --set_field(width)-- set/reset radiation field to width +width+.
+    --set_field(width)--  Set/reset radiation field to width +width+.
+    --delete()--  Delete radiation field.
     """
         
     nuclear_img = load_image('radiation.png', anchor='center')
@@ -364,6 +367,8 @@ class RadiationField(object):
     def __init__(self):
         self.batch = game_batch
         self.group = rad_group
+        
+        self._grid: AngledGrid  # Set by --_add_grid--
         self._add_grid()
 
         self._field_width: int
@@ -372,9 +377,10 @@ class RadiationField(object):
                 
     def _add_grid(self):
         # Add grid lines to ---game_batch--- as a VectorList
-        AngledGrid(x_min=0, x_max=WIN_X, y_min=0, y_max=WIN_Y,
-                   vertical_spacing=50, angle=45, color=(80, 80, 80),
-                   batch=self.batch, group=self.group)
+        self._grid = AngledGrid(x_min=0, x_max=WIN_X, y_min=0, y_max=WIN_Y,
+                                vertical_spacing=50, angle=45, 
+                                color=(80, 80, 80),
+                                batch=self.batch, group=self.group)
     
     def _set_blackout_rect(self):
         if self._rect is not None:
@@ -455,6 +461,12 @@ class RadiationField(object):
         self._field_width = width
         self._set_blackout_rect()
         self._set_nuclear_sprites()
+
+    def delete(self):
+        """Delete radiation field."""
+        self._grid.delete()
+        self._delete_nuclear_sprites()
+
 
             
 class Game(pyglet.window.Window):
@@ -562,6 +574,11 @@ class Game(pyglet.window.Window):
         self.instructions_labels = InstructionLabels(BLUE_CONTROLS, 
                                                      RED_CONTROLS, 
                                                      self, inst_batch)
+        self._labels = [self.start_labels,
+                        self.next_level_label,
+                        self.level_label,
+                        self.end_labels,
+                        self.instructions_labels]
 
     @property
     def app_state(self):
@@ -897,12 +914,16 @@ class Game(pyglet.window.Window):
     def _stop_all_sound(self):
         SpriteAdv.stop_all_sound()
         Starburst.stop_all_sound()
+        for AmmoCls in AmmoClasses:
+            AmmoCls.stop_cls_sound()
         for ship in self.players_ships:
             ship.control_sys.radiation_monitor.stop_sound()
 
     def _resume_all_sound(self):
         SpriteAdv.resume_all_sound()
         Starburst.resume_all_sound()
+        for AmmoCls in AmmoClasses:
+            AmmoCls.resume_cls_sound()
         for ship in self.players_ships:
             ship.control_sys.radiation_monitor.resume_sound()
 
@@ -939,8 +960,16 @@ class Game(pyglet.window.Window):
     def on_close(self):
         self._end_app()
 
+    def _clean_window(self):
+        """Clear window of all remaining objects after a game has ended."""
+        self._delete_all_players()
+        self._rad_field.delete()
+        for labels in self._labels:
+            labels.delete()
+
     def _end_app(self):
         self._stop_all_sound()
+        self._clean_window()
         self.close()
         self.delete()
     
@@ -1123,6 +1152,3 @@ class Game(pyglet.window.Window):
         self.clear()
         for batch in self._state_batches[self.app_state]:
             batch.draw()
-        
-game_window = Game()  # Create appliation instance
-pyglet.app.run()  # Initiate main event loop

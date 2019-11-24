@@ -1544,7 +1544,7 @@ PICKUP_AMMO_STOCKS = {HighVelocityCannon: (5, 9),
                       }
 
 settings = ['COLLECTABLE_IN', 'COLLECTABLE_FOR', 'PICKUP_AMMO_STOCKS']
-pyroids.config_import(vars(), settings)
+pyroids._config_import(vars(), settings)
 
 class PickUp(PhysicalSprite):
     """Ammunition pickup for friendly ship (blue).
@@ -1711,7 +1711,7 @@ INITIAL_AMMO_STOCKS = {Cannon: 9,
 
 settings = ['SHIELD_DURATION', 'INITIAL_AMMO_STOCKS', 
             'HIGH_VELOCITY_BULLET_FACTOR']
-pyroids.config_import(vars(), settings)
+pyroids._config_import(vars(), settings)
 
 class ControlSystem(object):
     """Control system for a player.
