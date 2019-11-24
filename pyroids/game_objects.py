@@ -23,6 +23,8 @@ and instructions on how to customise values):
     'COLLECTABLE_IN', 'COLLECTABLE_FOR', 'PICKUP_AMMO_STOCKS'    
     'SHIELD_DURATION', 'INITIAL_AMMO_STOCKS', HIGH_VELOCITY_BULLET_FACTOR, 
    
+----AmmoClasses----  List of Ammunition classes
+
 CLASSES:
     Explosion(OneShotAnimatedSprite)  Explosion animation with sound.
 
@@ -153,7 +155,7 @@ class Bullet(Ammunition, PhysicalSprite):
     img_pickup = img
     img_stock = img
 
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('nn_no_stock_cannon.wav')
     
     def __init__(self, control_sys, *args, **kwargs):
         """
@@ -174,7 +176,7 @@ class Bullet(Ammunition, PhysicalSprite):
 class BulletRed(Bullet):
     snd = load_static_sound('mr_bullet.wav')
     
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('mr_no_stock_cannon.wav')
        
     
 class BulletHighVelocity(Bullet):
@@ -188,7 +190,7 @@ class BulletHighVelocity(Bullet):
     img_pickup = img
     img_stock = load_image('bullet_high_velocity.png', anchor='origin')
     
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('nn_no_stock_hvc.wav')
 
 class BulletHighVelocityRed(Bullet):
     """PhysicalSprite with high velocity bullet image and firing 
@@ -201,7 +203,7 @@ class BulletHighVelocityRed(Bullet):
     img_pickup = img
     img_stock = load_image('bullet_high_velocity_red.png', anchor='origin')
     
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('mr_no_stock_hvc.wav')
 
 class Starburst(StaticSourceMixin):
     """Explosion from which bullets fire out at regular intervals.
@@ -307,12 +309,12 @@ class SuperLaserDefence(Ammunition, Starburst):
     img_pickup = load_image('sld_stock.png', anchor='center')
     snd = load_static_sound('nn_superlaserdefence.wav')
 
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('nn_no_stock_sld.wav')
 
 class SuperLaserDefenceRed(SuperLaserDefence):
     snd = load_static_sound('mr_superdefence.wav')
 
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('mr_no_stock_sld.wav')
 
 class Firework(Bullet):
     """Large Bullet explodes into Starburst.
@@ -326,7 +328,7 @@ class Firework(Bullet):
     img_pickup = img
     img_stock = img
 
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('nn_no_stock_fireworks.wav')
 
     def __init__(self, explosion_distance: int, 
                  num_starburst_bullets=12, 
@@ -373,7 +375,7 @@ class Firework(Bullet):
 class FireworkRed(Firework):
     snd = load_static_sound('mr_firework.wav')
 
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('mr_no_stock_fireworks.wav')
 
 class Mine(Ammunition, PhysicalSprite):
     """Mine explodes into Starburst after specified time.
@@ -392,7 +394,7 @@ class Mine(Ammunition, PhysicalSprite):
     img_stock = img_pickup
     snd = load_static_sound('nn_minelaid.wav')
 
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('nn_no_stock_mines.wav')
 
     _visible_secs: Optional[int]
     _mines_setup = False
@@ -484,7 +486,7 @@ class Mine(Ammunition, PhysicalSprite):
 class MineRed(Mine):
     snd = load_static_sound('mr_minelaid_ext.wav')
 
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('mr_no_stock_mines.wav')
 
 class Shield(Ammunition, PhysicalSprite):
     """Ship Shield.
@@ -502,7 +504,7 @@ class Shield(Ammunition, PhysicalSprite):
     img_stock = load_image('shield_blue_20.png', anchor='origin')
     img_pickup = load_image('shield_pickup_inset_blue.png', anchor='center')
 
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('nn_no_stock_shields.wav')
 
     def __init__(self, ship, duration: int = 10, **kwargs):
         """
@@ -546,7 +548,11 @@ class ShieldRed(Shield):
     img_stock = load_image('shield_red_20.png', anchor='origin')
     img_pickup = load_image('shield_pickup_inset_red.png', anchor='center')
     
-    snd_no_stock = load_static_sound('placeholder.wav') # TODO CHANGE
+    snd_no_stock = load_static_sound('mr_no_stock_shields.wav')
+
+AmmoClasses = [Bullet, BulletRed, BulletHighVelocity, BulletHighVelocityRed,
+               Mine, MineRed, Firework, FireworkRed, 
+               SuperLaserDefence, SuperLaserDefenceRed, Shield, ShieldRed]
 
 class Weapon(object):
     """Base class to create weapons that will be appended to a 
