@@ -48,7 +48,8 @@ class WindowLabels(object):
 
     METHODS
     --add_label()--  Add a label.
-    
+    --delete()--  Delete all labels.
+
     Convenience Methods to Add Labels:
     --add_title()--  Add a label formatted and positioned as the main title.
     --add_enter_for_inst_label()--  Add label 'Enter for instructions'
@@ -186,6 +187,11 @@ class WindowLabels(object):
         added label under the previously added label.
         """
         self._y_held = False
+
+    def delete(self):
+        """Delete all labels."""
+        for label in self.labels:
+            label.delete()
 
 class StartLabels(WindowLabels):
     """Labels for an introduction window.
@@ -489,6 +495,11 @@ class InstructionLabels(WindowLabels):
         else:
             self._set_for_main_menu()
 
+    def delete(self):
+        """Delete labels and background rectangles."""
+        self._opaque_bg.delete()
+        self._trans_bg.delete()
+        super().delete()
 
 class StockLabel(pyglet.text.layout.TextLayout):
     """image/text layout describing stock level for an ammunition type.
