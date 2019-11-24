@@ -29,7 +29,10 @@ setup(name='pyroids',
                     },
       packages=find_packages(),
       install_requires=['pyglet>=1.4'],
-      package_data={'pyroids': ['config/*.py'],
-                    'pyroids': ['resources/*.png', 'resources/*.wav'],
-                    }
+      package_data={'pyroids': ['resources/*.png',
+                                'resources/*.wav', 
+                                'config/*.py'
+                                ],
+                    },
+      entry_points={'console_scripts': ['pyroids=pyroids:launch']}
       )
