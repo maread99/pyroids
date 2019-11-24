@@ -35,6 +35,9 @@ class DrawingBase(object):
         --remove_from_batch()--  Remove drawing from batch.
         --return_to_batch--  Return drawing to batch.
     
+
+    --delete()--  Delete drawing.
+
     SUBCLASS INTERFACE
     Subclasses must implement the following methods:
         
@@ -162,6 +165,13 @@ class DrawingBase(object):
             " batch after having previously removed from batch with"\
             " --remove_from_batch()--"
         self._migrate(self._batch)
+
+    def delete(self):
+        """Delete drawing."""
+        try:
+            self._vertex_list.delete()
+        except AttributeError:
+            pass
 
     def draw(self):
         """Draw to current window."""
