@@ -3,6 +3,7 @@ Asteroids game with various weapons, expendable ammunition, supply drops and
 radiation exposure. 1 or 2 player. Highly customisable via configuration file...you 
 make the game!
 
+
 TODO
 	Reference instructions. NB how to pause game...or in game instructions sufficient?
 	
@@ -88,6 +89,11 @@ The following example configuration files are included as part of the pyroids
 package:
 	novice.py
 	expert.py
+
+Licensing
+
+Code. As LICENSE.txt  (LINK TO github page holding LICENSE.txt)
+Media. As \resources\README.md  (LINK TO github page holding resources README.md file!)
 
 Code Documentation
 

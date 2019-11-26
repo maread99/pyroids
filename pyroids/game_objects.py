@@ -222,7 +222,7 @@ class Starburst(StaticSourceMixin):
         that had been previously stopped.
     """
     
-    snd = load_static_sound('gun_shot_shortened.wav')
+    snd = load_static_sound('starburst.wav')
     live_starbursts = []
 
     @classmethod
@@ -1224,12 +1224,12 @@ class RadiationMonitorRed(RadiationMonitor):
 class Explosion(OneShotAnimatedSprite):
     """One off animated explosion with sound."""
 
-    img = anim('explosion.png', 2, 8)
+    img = anim('explosion.png', 1, 20, 0.1)
     snd = load_static_sound('nn_explosion.wav')
         
 class Smoke(Explosion):
     """One off animated smoke cloud, with explosion sound."""
-    img = anim('smoke.png', 1, 8)
+    img = anim('smoke.png', 1, 10, 0.2)
  
 class Ship(PhysicalSpriteInteractive):
     """Blue Player's Ship.
