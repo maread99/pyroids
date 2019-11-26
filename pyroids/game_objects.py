@@ -1485,7 +1485,7 @@ class Asteroid(PhysicalSprite):
     .die() if deceasing object out-of-game
     """
     
-    img = load_image('pyrrhoid.png', anchor='center')
+    img = load_image('pyroid.png', anchor='center')
 
     def __init__(self, spawn_level=0, spawn_limit=5, num_per_spawn=3, 
                  at_boundary='bounce', **kwargs):
