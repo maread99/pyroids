@@ -8,8 +8,8 @@ Copyright 2019, Marcus Read
 
 **Except:**
 
-	 [explosion.png](explosion.png), [smoke.png](https://github.com/maread99/pyroids/blob/master/pyroids/resources/smoke.png)
-		 Modified versions of an [animation sequence](https://opengameart.org/content/fire-and-smoke-static-and-trail) kindly made available under [Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) by [samoliver](https://opengameart.org/users/samoliver)
+   [explosion.png](explosion.png), [smoke.png](https://github.com/maread99/pyroids/blob/master/pyroids/resources/smoke.png)
+	Modified versions of an [animation sequence](https://opengameart.org/content/fire-and-smoke-static-and-trail) kindly made available under [Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) by [samoliver](https://opengameart.org/users/samoliver)
 		
 ### Audio
 
@@ -17,7 +17,7 @@ Copyright 2019, Marcus Read
 
 **Except:**
 
-	[thrusters.wav](https://github.com/maread99/pyroids/blob/master/pyroids/resources/thrusters.wav)
+	+ [thrusters.wav](thrusters.wav)
 		Minimially modified version of [Rocket Thrusters](http://soundbible.com/1492-Rocket-Thrusters.html) kindly made available under [Creative Commons Sampling Plus 1.0] (https://creativecommons.org/licenses/sampling+/1.0/) by dobroride.
 
 	[mr_minelaid_ext.wav](https://github.com/maread99/pyroids/blob/master/pyroids/resources/mr_minelaid.wav), [nn_minelaid.wav](https://github.com/maread99/pyroids/blob/master/pyroids/resources/nn_minelaid.wav)
