@@ -8,7 +8,7 @@ Copyright 2019, Marcus Read
 
 **Except:**
 
-   [explosion.png](explosion.png), [smoke.png](https://github.com/maread99/pyroids/blob/master/pyroids/resources/smoke.png)
+&nbsp;&nbsp;&nbsp;&nbsp[explosion.png](explosion.png), [smoke.png](https://github.com/maread99/pyroids/blob/master/pyroids/resources/smoke.png)
 	Modified versions of an [animation sequence](https://opengameart.org/content/fire-and-smoke-static-and-trail) kindly made available under [Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) by [samoliver](https://opengameart.org/users/samoliver)
 		
 ### Audio
