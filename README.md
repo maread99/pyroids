@@ -28,11 +28,11 @@ Install from a source distribution stored locally:
 
 pyroids requires Python 3.6+ (employs annotation syntax).
 
-The only dependency is pyglet 1.4 which, if not otherwise available, will be installed as part of the pyroids installation process.
+The only dependency is pyglet 1.4 which, if not already installed, will be installed as part of the pyroids installation process.
 
 ## Play me!
 
-pyroids can be launched directly from the command line or by the package's launch() function.
+Once installed, pyroids can be launched directly from the command line or by via the launch() function.
 
 #### From the command line:
 
@@ -43,7 +43,7 @@ Customisation section), for example 'expert.py':
 
     $ python -m pyroids.play expert
 
-If pyroids was installed via pip then the application \*should also launch with default settings with:
+If pyroids was installed via pip then the application \*may also launch with default settings with:
 
 	$ pyroids
 
@@ -70,8 +70,7 @@ Settings that can be defined for each level include:
 * Radiation exposure limits
 * Number of supply drops
 
-Settings that can be defined for the duration of the application instance 
-include:
+Settings that can be defined for duration of the application instance include:
 * Ship Controls	
 * Asteroid behaviour on reaching window border	
 * Initial ammunition stocks per weapon
@@ -87,7 +86,7 @@ include:
 Application settings can be customised by passing the name of a configuration file (see Play me! section). If no configuration file is passed then the game will use default settings.
 
 Configuration files should:
-* be based on the template at pyroids\config.template.py
+* be based on the template at [pyroids\config\template.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/template.py)
 * be saved to the directory pyroids\config.
 * have extension .py
 
