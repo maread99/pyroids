@@ -7,7 +7,9 @@ defines custom settings for the pyroids application.
 
 Configuration files should:
     Be based on this template.
-    Be saved to the directory pyroids\config.
+    Be saved to the directory root\Lib\site_packages\pyroids\config where 
+        'root' is as returned by sys.prefix() when executed in the python 
+        environment to which pyroids is installed.
     Have extension .py (a configuration file is imported by pyroids)
 
 This template includes all customisable application settings as commented out 
