@@ -1,14 +1,12 @@
 # pyroids
 
-Asteroids game.
-
-Features include:
+Asteroids game with features including:
 * 1 or 2 player
 * Multiple weapons
 * Expendable ammunition
 * Supply drops
 * Radiation exposure
-* Highly customisable...you make the game!
+* Highly customisable. You make the game!
 
 ## Installation
 
@@ -16,7 +14,7 @@ The simplest way to install pyroids is directly from PyPI:
 
 	$ pip install --upgrade pyroids --user
 
-Alternatively:
+####Alternatively
 
 Install from the source distribution on github:
 
@@ -24,19 +22,19 @@ Install from the source distribution on github:
 
 Install from a source distribution stored locally:
 
-	python setup.py install --user
+	$ python setup.py install --user
 
 ## Requirements
 
-pyroids requires Python 3.6+ (source code employs annotation syntax).
+pyroids requires Python 3.6+ (employs annotation syntax).
 
-The only dependency is pyglet 1.4 which, if not otherwise available, will be installed by the pyroids installation process.
+The only dependency is pyglet 1.4 which, if not otherwise available, will be installed as part of the pyroids installation process.
 
 ## Play me!
 
 pyroids can be launched directly from the command line or by the package's launch() function.
 
-#### Command Line:
+#### From the command line:
 
     $ python -m pyroids.play
 
@@ -51,7 +49,7 @@ If pyroids was installed via pip then the application \*should also launch with 
 
 \* requires that the Scripts directory, of the python environment to which pyroids was installed, is included to the PATH environmental variable.
 
-#### Launch function:
+#### Using launch function:
 
     >>> import pyroids
     >>> pyroids.launch()
@@ -104,9 +102,11 @@ Aside from the configuration files, the ship and asteroid images can be changed 
 
 ## Licensing
 
-Code. See [LICENSE.txt](https://github.com/maread99/pyroids/blob/master/LICENSE.txt).
+####Code
+See [LICENSE.txt](https://github.com/maread99/pyroids/blob/master/LICENSE.txt).
 
-Media. See [pyroids\resources\README.md](https://github.com/maread99/pyroids/blob/master/pyroids/resources/README.md).
+####Media
+See [pyroids\resources\README.md](https://github.com/maread99/pyroids/blob/master/pyroids/resources/README.md).
 
 ## Code Documentation
 
