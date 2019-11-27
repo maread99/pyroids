@@ -18,11 +18,11 @@ Copyright 2019, Marcus Read
 
 **Except:**
 
-1 [thrusters.wav](thrusters.wav)
+1 [thrusters.wav](thrusters.wav)  return
   * Minimially modified version of [Rocket Thrusters](http://soundbible.com/1492-Rocket-Thrusters.html) kindly made available under [Creative Commons Sampling Plus 1.0] (https://creativecommons.org/licenses/sampling+/1.0/) by dobroride.
 
 
-2 [mr_minelaid.wav](mr_minelaid.wav), [nn_minelaid.wav](nn_minelaid.wav)
+2 [mr_minelaid.wav](mr_minelaid.wav), [nn_minelaid.wav](nn_minelaid.wav)  return
 Incorporate [Metronome](http://soundbible.com/914-Metronome.html) kindly made available under [Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/) by Mike Koenig.
 
 
