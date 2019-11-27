@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-"""Pyroids.
+"""pyroids.
 
 LAUNCHING THE APPLICATION
 
