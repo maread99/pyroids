@@ -53,7 +53,7 @@ If pyroids was installed via pip then the application \*might also launch with d
     >>> import pyroids
     >>> pyroids.launch()
 
-To launch with settings as defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'novice.py':
+To launch with settings as defined by a configuration file (see [Game Customisation](#game-customisation) section), for example 'novice.py':
 
     >>> pyroids.launch('novice')
 
@@ -82,7 +82,7 @@ Settings that can be defined for duration of an application instance include:
 * Number of Lives
 * Window dimensions
 
-Settings can be customised by passing the name of a configuration file when the application is run (see [Play me!](https://github.com/maread99/pyroids#play-me) section). If no configuration file is passed then the game will use default settings.
+Settings can be customised by passing the name of a configuration file when the application is run (see [Play me!](#play-me) section). If no configuration file is passed then the game will use default settings.
 
 See [pyroids\config\template.py](pyroids/config/template.py) documentation for instructions on setting up configuration files.
 
@@ -126,7 +126,7 @@ Name | Nature of assigned object
 
 ## Issues
 
-Please use the project's [issue page](https://github.com/maread99/pyroids/issues) to report any issues.
+Please use the project's [issue page](issues) to report any issues.
 
 ## Contact
 
