@@ -56,6 +56,9 @@ pyroids package comprises:
         resources  Directory containing image and sound files.
 """
 
+__author__ = 'Marcus Read'
+__email__ = 'marcusaread@gmail.com'
+
 import os, importlib
 from pathlib import Path
 from typing import List, Optional
