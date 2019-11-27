@@ -1,7 +1,8 @@
-#pyroids
+# pyroids
 
-Asteroids game. Features include:
-	
+Asteroids game.
+
+Features include:
 *1 or 2 player
 *Multiple weapons
 *Expendable ammunition
@@ -9,7 +10,7 @@ Asteroids game. Features include:
 *Radiation exposure
 *Highly customisable...you make the game!
 
-##Installation
+## Installation
 
 The simplest way to install pyroids is directly from PyPI:
 	$ pip install --upgrade pyroids --user
@@ -22,17 +23,17 @@ Install from the source distribution on github:
 Install from a source distribution stored locally:
 	python setup.py install --user
 
-##Requirements
+## Requirements
 
 pyroids requires Python 3.6+ (source code employs annotation syntax).
 
 The only dependency is pyglet 1.4 which, if not otherwise available, will be installed by the pyroids installation process.
 
-##Play me!
+## Play me!
 
 pyroids can be launched directly from the command line or by the package's launch() function.
 
-####Command Line:
+#### Command Line:
 
     $ python -m pyroids.play
 
@@ -47,7 +48,7 @@ If pyroids was installed via pip then the application should\* also launch with 
 
 \* requires that the Scripts directory, of the python environment to which pyroids was installed, is included to the PATH environmental variable.
 
-####Launch function:
+#### Launch function:
 
     >>> import pyroids
     >>> pyroids.launch()
@@ -56,7 +57,7 @@ To launch with settings as defined by a configuration file (see Game Customisati
 
     >>> pyroids.launch('novice')
 
-##Game Customisation
+## Game Customisation
 
 Settings that can be defined for each level include:
 *Number of Asteroids
@@ -98,12 +99,12 @@ package:
 
 Aside from the configuration files, the ship and asteroid images can be changed with a little investigation of the source code and some minimal hacks.
 
-##Licensing
+## Licensing
 
-Code. See [LICENSE.txt](https://github.com/maread99/pyroids/blob/master/LICENSE.txt)
-Media. See [\resources\README.md](https://github.com/maread99/pyroids/blob/master/pyroids/resources/README.md)
+Code. See [LICENSE.txt](https://github.com/maread99/pyroids/blob/master/LICENSE.txt).
+Media. See [\resources\README.md](https://github.com/maread99/pyroids/blob/master/pyroids/resources/README.md).
 
-##Code Documentation
+## Code Documentation
 
 Function/Method documentation:
 *does not by default list all optional and keyword arguments, for which signature should be inspected.
@@ -120,10 +121,10 @@ Name|Nature of assigned object
 ---classmethod_name()--- | Class method or static method
 ----global_constant_name---- | Global constant
 
-##Issues
+## Issues
 
-Please report any issues to the projects [issue page](https://github.com/maread99/pyroids/issues)
+Please report any issues to the projects [issue page](https://github.com/maread99/pyroids/issues).
 
-##Contact
+## Contact
 
 [Marcus Read](mailto:marcusaread@gmail.com)
