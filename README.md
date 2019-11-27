@@ -6,7 +6,7 @@ Asteroids game with features including:
 * Expendable ammunition
 * Supply drops
 * Radiation exposure
-* Highly customisable. You make the game!
+* Highly customisable - you make the game!
 
 ## Installation
 
@@ -32,29 +32,28 @@ The only dependency is pyglet 1.4 which, if not already installed, will be insta
 
 ## Play me!
 
-Once installed, pyroids can be launched directly from the command line or by via the launch() function.
+Once installed, pyroids can be launched directly from the command line or via the launch() function.
 
 #### From the command line:
 
     $ python -m pyroids.play
 
-To launch with settings as defined by a configuration file (see Game 
-Customisation section), for example 'expert.py':
+To launch with settings as defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'expert.py':
 
     $ python -m pyroids.play expert
 
-If pyroids was installed via pip then the application \*may also launch with default settings with:
+If pyroids was installed via pip then the application \*might also launch with default settings with a simple:
 
 	$ pyroids
 
-\* requires that the Scripts directory, of the python environment to which pyroids was installed, is included to the PATH environmental variable.
+\* requires that the *Scripts* directory, of the python environment to which pyroids was installed, is included to the PATH environmental variable.
 
 #### Using launch function:
 
     >>> import pyroids
     >>> pyroids.launch()
 
-To launch with settings as defined by a configuration file (see Game Customisation section), for example 'novice.py':
+To launch with settings as defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'novice.py':
 
     >>> pyroids.launch('novice')
 
@@ -70,7 +69,7 @@ Settings that can be defined for each level include:
 * Radiation exposure limits
 * Number of supply drops
 
-Settings that can be defined for duration of the application instance include:
+Settings that can be defined for duration of an application instance include:
 * Ship Controls	
 * Asteroid behaviour on reaching window border	
 * Initial ammunition stocks per weapon
@@ -83,17 +82,12 @@ Settings that can be defined for duration of the application instance include:
 * Number of Lives
 * Window dimensions
 
-Application settings can be customised by passing the name of a configuration file (see Play me! section). If no configuration file is passed then the game will use default settings.
-
-Configuration files should:
-* be based on the template at [pyroids\config\template.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/template.py)
-* be saved to the directory pyroids\config.
-* have extension .py
+Application settings can be customised by passing the name of a configuration file (see [Play me!](https://github.com/maread99/pyroids#play-me) section). If no configuration file is passed then the game will use default settings.
 
 See [pyroids\config\template.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/template.py) documentation for instructions on setting up configuration files.
 
 The following example configuration files are included as part of the pyroids 
-package:
+distribution:
 * [novice.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/novice.py)
 * [expert.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/expert.py)
 
@@ -109,25 +103,26 @@ See [pyroids\resources\README.md](https://github.com/maread99/pyroids/blob/maste
 
 ## Code Documentation
 
-Function and Method documentation:
-* does not by default list all optional and keyword arguments, for which signature should be inspected.
-* does not state argument types or return values, for which signature annotation should be inspected.
+Function and method documentation:
+* does not by default list all optional and keyword arguments, for which signatures should be inspected.
+* does not state argument types or return values, for which signatures' annotation should be inspected.
+
 
 Names referenced in documentation are surrounded by symbols to identify the nature of the assigned object:
 
 Name | Nature of assigned object
 ---- | -------------------------
-+parameter_name+ | Parameter of documented function or method
-++parameter_name++ | Parameter of class constructor method
--variable_name- | Variable local to code being documented
---attribute_name-- | Instance attribute
---method_name(args, kwargs)-- | Instance method. Only args / kwargs referred to in the 		subseqeunt documentation are noted. Signature should be inspected for full parameters
----classmethod_name()--- | Class method or static method
-----global_constant_name---- | Global constant
++parameter_name+ | Parameter of documented function or method.
+++parameter_name++ | Parameter of class constructor method.
+-variable_name- | Variable local to code being documented.
+--attribute_name-- | Instance attribute.
+--method_name(args, kwargs)-- | Instance method. Only args / kwargs referred to in the 		subseqeunt documentation are noted. Signature should be inspected for full parameters.
+---classmethod_name()--- | Class method or static method.
+----global_constant_name---- | Global constant.
 
 ## Issues
 
-Please report any issues to the projects [issue page](https://github.com/maread99/pyroids/issues).
+Please use the project's [issue page](https://github.com/maread99/pyroids/issues) to report any issues.
 
 ## Contact
 
