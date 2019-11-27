@@ -3,23 +3,22 @@ Asteroids game with various weapons, expendable ammunition, supply drops and
 radiation exposure. 1 or 2 player. Highly customisable via configuration file...you 
 make the game!
 
-
-TODO
-	Reference instructions. NB how to pause game...or in game instructions sufficient?
-	
-	Include note on ease to hack the images, particularly the ships and asteroid images.
-	INSTALLATION instructions...if including then  NB to Game Customisation section
-	
-	MarkUp as applic, using reStructuredText or MarkDown (probably former, and save 
-		README as .rst)
-
-
-#TODO include where to report bugs
-
 Installation
-#TODO how to install pyroids, i.e. pip or from src...
 
-Requires Python 3.6 or higher (source code employs annotation syntax).
+#TODO - REVIEW INSTALLATION SECTION
+
+pyroids can be installed from PyPI
+	pip install --upgrade pyroids --user
+
+or from a source distribution
+	python setup.py install --user
+
+Requirements
+
+pyroids requires Python 3.6+ (source code employs annotation syntax).
+
+The only dependency is pyglet 1.4 which, if not otherwise available, will be 
+installed by the pyroids installation process.
 
 Play me
 
@@ -90,6 +89,9 @@ package:
 	novice.py
 	expert.py
 
+Aside from the configuration files, the ship and asteroid images can be 
+changed with a little investigation of the source code and some minimal hacks.
+
 Licensing
 
 Code. As LICENSE.txt  (LINK TO github page holding LICENSE.txt)
@@ -115,3 +117,11 @@ the following symbols to identify the variable's nature:
 		full parameters.
 ---classmethod_name()---   Class method or static method.
 ----global_constant_name----  Global constant.
+
+Issues
+
+Please report any issues to the projects issue page LINK TO https://github.com/maread99/pyroids/issues
+
+Contact
+
+[Marcus Read](mailto:marcusaread@gmail.com)
