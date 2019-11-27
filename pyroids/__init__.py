@@ -117,12 +117,3 @@ def _config_import(mod_vars: dict, settings: List[str]):
             mod_vars[setting] = getattr(config_mod, setting)
         except AttributeError:
             pass
-
-# Launch application if module executed directly.
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) is 2:
-        config_file = sys.argv[1]
-    else:
-        config_file = None
-    launch(config_file)
