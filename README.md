@@ -13,15 +13,18 @@ Features include:
 ## Installation
 
 The simplest way to install pyroids is directly from PyPI:
+
 	$ pip install --upgrade pyroids --user
 
 Alternatively:
 
 Install from the source distribution on github:
-    $ pip install git+https//github.com/maread99/pyroids.git#egg=pyroids
+
+	$ pip install git+https//github.com/maread99/pyroids.git#egg=pyroids
 
 Install from a source distribution stored locally:
-    python setup.py install --user
+
+	python setup.py install --user
 
 ## Requirements
 
@@ -42,7 +45,7 @@ Customisation section), for example 'expert.py':
 
     $ python -m pyroids.play expert
 
-If pyroids was installed via pip then the application should\* also launch with default settings with:
+If pyroids was installed via pip then the application \*should also launch with default settings with:
 
 	$ pyroids
 
@@ -102,15 +105,16 @@ Aside from the configuration files, the ship and asteroid images can be changed 
 ## Licensing
 
 Code. See [LICENSE.txt](https://github.com/maread99/pyroids/blob/master/LICENSE.txt).
-Media. See [\resources\README.md](https://github.com/maread99/pyroids/blob/master/pyroids/resources/README.md).
+Media. See [pyroids\resources\README.md](https://github.com/maread99/pyroids/blob/master/pyroids/resources/README.md).
 
 ## Code Documentation
 
-Function/Method documentation:
+Function and Method documentation:
 * does not by default list all optional and keyword arguments, for which signature should be inspected.
 * does not state argument types or return values, for which signature annotation should be inspected.
 
 Names referenced in documentation are surrounded by symbols to identify the nature of the assigned object:
+
 Name | Nature of assigned object
 ---- | -------------------------
 +parameter_name+ | Parameter of documented function or method
