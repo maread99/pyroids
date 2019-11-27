@@ -82,9 +82,7 @@ Settings that can be defined for duration of an application instance include:
 * Number of Lives
 * Window dimensions
 
-Settings can be customised by passing the name of a configuration file when the application is run (see [Play me!](#play-me) section). If no configuration file is passed then the game will use default settings.
-
-See [pyroids\config\template.py](pyroids/config/template.py) documentation for instructions on setting up configuration files.
+Settings can be customised by creating a configuration file and passing the configuration file's name when the application is run (see [Play me!](#play-me) section). If no configuration file is passed then the game will use default settings. See [pyroids\config\template.py](pyroids/config/template.py) documentation for instructions on setting up configuration files.
 
 The following example configuration files are included as part of the pyroids'
 distribution:
