@@ -5,14 +5,16 @@ Image and audio files for pyroids application.
 ### Artwork
 
 Copyright 2019, Marcus Read
+
 **Except:**
 
-	[explosion.png](https://github.com/maread99/pyroids/blob/master/pyroids/resources/explosion.png), [smoke.png](https://github.com/maread99/pyroids/blob/master/pyroids/resources/smoke.png)
-		Modified versions of an [animation sequence](https://opengameart.org/content/fire-and-smoke-static-and-trail) kindly made available under [Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) by [samoliver](https://opengameart.org/users/samoliver)
+\	[explosion.png](explosion.png), [smoke.png](https://github.com/maread99/pyroids/blob/master/pyroids/resources/smoke.png)
+\		Modified versions of an [animation sequence](https://opengameart.org/content/fire-and-smoke-static-and-trail) kindly made available under [Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) by [samoliver](https://opengameart.org/users/samoliver)
 		
 ### Audio
 
 Copyright 2019, Marcus Read
+
 **Except:**
 
 	[thrusters.wav](https://github.com/maread99/pyroids/blob/master/pyroids/resources/thrusters.wav)
