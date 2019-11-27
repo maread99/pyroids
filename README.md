@@ -14,7 +14,7 @@ The simplest way to install pyroids is directly from PyPI:
 
 	$ pip install --upgrade pyroids --user
 
-####Alternatively
+#### Alternatively
 
 Install from the source distribution on github:
 
@@ -102,10 +102,10 @@ Aside from the configuration files, the ship and asteroid images can be changed 
 
 ## Licensing
 
-####Code
+#### Code
 See [LICENSE.txt](https://github.com/maread99/pyroids/blob/master/LICENSE.txt).
 
-####Media
+#### Media
 See [pyroids\resources\README.md](https://github.com/maread99/pyroids/blob/master/pyroids/resources/README.md).
 
 ## Code Documentation
