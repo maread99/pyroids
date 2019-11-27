@@ -82,16 +82,20 @@ Settings that can be defined for duration of an application instance include:
 * Number of Lives
 * Window dimensions
 
-Application settings can be customised by passing the name of a configuration file (see [Play me!](https://github.com/maread99/pyroids#play-me) section). If no configuration file is passed then the game will use default settings.
+Settings can be customised by passing the name of a configuration file when the application is run (see [Play me!](https://github.com/maread99/pyroids#play-me) section). If no configuration file is passed then the game will use default settings.
 
 See [pyroids\config\template.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/template.py) documentation for instructions on setting up configuration files.
 
-The following example configuration files are included as part of the pyroids 
+The following example configuration files are included as part of the pyroids'
 distribution:
 * [novice.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/novice.py)
 * [expert.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/expert.py)
 
 Aside from the configuration files, the ship and asteroid images can be changed with a little investigation of the source code and some minimal hacks.
+
+## Not feeling the love
+
+	$ pip uninstall pyroids
 
 ## Licensing
 
@@ -108,7 +112,7 @@ Function and method documentation:
 * does not state argument types or return values, for which signatures' annotation should be inspected.
 
 
-Names referenced in documentation are surrounded by symbols to identify the nature of the assigned object:
+Names referenced in documentation are surrounded by symbols that identify the nature of the assigned object:
 
 Name | Nature of assigned object
 ---- | -------------------------
