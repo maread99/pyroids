@@ -329,17 +329,18 @@ class SpriteAdv(Sprite, StaticSourceMixin):
     snd: StaticSource
 
     live_sprites = []
+    _dying_loudly = []
 
     @classmethod
     def stop_all_sound(cls):
         """Pause sound from all live sprites."""
-        for sprite in cls.live_sprites:
+        for sprite in cls.live_sprites + cls._dying_loudly:
             sprite.stop_sound()
 
     @classmethod
     def resume_all_sound(cls):
         """For all live sprites, resume any sound that was paused"""
-        for sprite in cls.live_sprites:
+        for sprite in cls.live_sprites + cls._dying_loudly:
             sprite.resume_sound()
 
     @classmethod
@@ -534,12 +535,26 @@ class SpriteAdv(Sprite, StaticSourceMixin):
         self._on_kill()
         self.die()
         
-    def die(self, stop_sound=True):
-        """Decease object at end-of-life."""
+    def _waiting_for_quiet(self, dt: float):
+        if not self.sound_playing:
+            self.unschedule(self._waiting_for_quiet)
+            self._dying_loudly.remove(self)
+
+    def _die_loudly(self):
+        self._dying_loudly.append(self)
+        self.schedule_interval(self._waiting_for_quiet, 0.1)
+
+    def die(self, die_loudly=False):
+        """Decease object at end-of-life.
+        
+        +die_loundly+ True to let any playing sound continue.
+        """
         # Extends inherited --delete()-- method to include additional 
         # end-of-life operations
         self.unschedule_all()
-        if stop_sound:
+        if die_loudly:
+            self._die_loudly()
+        else:
             self.stop_sound()
         self.live_sprites.remove(self)
         super().delete()

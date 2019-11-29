@@ -369,8 +369,8 @@ class Firework(Bullet):
         self.schedule_once(self._fused, fuse)
 
     def die(self):
-        # prevent sound being cut short when fuse short
-        super().die(stop_sound=False)
+        # Prevent sound being cut short when fuse short.
+        super().die(die_loudly=True) 
 
 class FireworkRed(Firework):
     snd = load_static_sound('mr_firework.wav')
@@ -1658,7 +1658,8 @@ class PickUp(PhysicalSprite):
         super().kill()
 
     def die(self, dt: Optional[float] = None):
-        super().die(stop_sound=False)
+        self.ammo_sprite.delete()
+        super().die(die_loudly=True)
 
     @property
     def _NotFriendlyShieldCls(self):

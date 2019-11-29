@@ -44,9 +44,12 @@ class StaticSourceMixin(object):
     the playing sound and play the new sound or let the playing sound 
     continue and not play the new sound.
 
+    PROPERTIES
+    --playing_sound--  True if sound currently playing.
+
     METHODS
-    --sound()--  Play a sound
-    --main_sound()--  Play main sound
+    --sound()--  Play a sound.
+    --main_sound()--  Play main sound.
     --stop_sound()--
     --resume_sound()--
 
@@ -82,6 +85,11 @@ class StaticSourceMixin(object):
         if sound:
             self.main_sound(loop)
 
+    @property
+    def sound_playing(self) -> bool:
+        """Return Boolean indicating if sound currently playing."""
+        return self._snd_player.playing
+
     def sound(self, source: StaticSource, loop: bool = False,
               interupt:  bool = True):
         """Play +source+.
@@ -92,7 +100,7 @@ class StaticSourceMixin(object):
         """
         if not interupt:
             try:
-                if self._snd_player.playing:
+                if self.sound_playing:
                     return
             except AttributeError:
                 pass
@@ -122,7 +130,7 @@ class StaticSourceMixin(object):
         playing.
         """
         try:
-            self._snd_was_playing = self._snd_player.playing
+            self._snd_was_playing = self.sound_playing
             self._snd_player.pause()
         except AttributeError:
             pass
@@ -158,11 +166,12 @@ class StaticSourceClassMixin(object):
     new sound or let the playing sound continue and not play the new sound.
 
     METHODS
-    --cls_sound()--  Play a sound
-    --main_cls_sound()--  Play main class sound
-    --stop_cls_sound()--
-    --resume_cls_sound()--
-
+    ---cls_sound()---  Play a sound.
+    ---main_cls_sound()---  Play main class sound.
+    ---stop_cls_sound()---
+    ---resume_cls_sound()---
+    ---cls_sound_playing()---  Return True if class sound currently playing.
+    
     SUBCLASS INTERFACE
     Inheriting class should define a class attribute ---cls_snd--- assigned a 
     StaticSource object which will serve as the class' main sound. To 
@@ -186,6 +195,11 @@ class StaticSourceClassMixin(object):
     _snd_was_playing: Optional[bool] = None
 
     @classmethod
+    def cls_sound_playing(cls) -> bool:
+        """Return Boolean indicating if class sound currently playing."""
+        return cls._snd_player.playing
+
+    @classmethod
     def cls_sound(cls, source: StaticSource, loop: bool = False,
                   interupt: bool = True):
         """Play +source+.
@@ -196,7 +210,7 @@ class StaticSourceClassMixin(object):
         """
         if not interupt:
             try:
-                if cls._snd_player.playing:
+                if cls.cls_sound_playing():
                     return
             except AttributeError:
                 pass
@@ -228,7 +242,7 @@ class StaticSourceClassMixin(object):
         playing.
         """
         try:
-            cls._snd_was_playing = cls._snd_player.playing
+            cls._snd_was_playing = cls.cls_sound_playing()
             cls._snd_player.pause()
         except AttributeError:
             pass
