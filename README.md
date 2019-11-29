@@ -1,6 +1,6 @@
 # pyroids
 
-![screenshot.png](screenshot.png)
+![screenshot.png](https://github.com/maread99/pyroids/blob/master/screenshot.png)
 
 Asteroids game with features including:
 * 1 or 2 player
@@ -40,7 +40,7 @@ Once installed, pyroids can be launched directly from the command line or via th
 
     $ python -m pyroids.play
 
-To launch with settings as defined by a configuration file (see [Game Customisation](#game-customisation) section), for example 'expert.py':
+To launch with settings as defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'expert.py':
 
     $ python -m pyroids.play expert
 
@@ -55,7 +55,7 @@ If pyroids was installed via pip then the application \*might also launch with d
     >>> import pyroids
     >>> pyroids.launch()
 
-To launch with settings as defined by a configuration file (see [Game Customisation](#game-customisation) section), for example 'novice.py':
+To launch with settings as defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'novice.py':
 
     >>> pyroids.launch('novice')
 
@@ -84,12 +84,12 @@ Settings that can be defined for the duration of an application instance include
 * Number of Lives
 * Window dimensions
 
-Settings can be customised by creating a configuration file and passing the configuration file's name when the application is run (see [Play me!](#play-me) section). If no configuration file is passed then the game will use default settings. See [pyroids\config\template.py](pyroids/config/template.py) documentation for instructions to set up configuration files.
+Settings can be customised by creating a configuration file and passing the configuration file's name when the application is run (see [Play me!](https://github.com/maread99/pyroids#play-me) section). If no configuration file is passed then the game will use default settings. See [pyroids\config\template.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/template.py) documentation for instructions to set up configuration files.
 
 The following example configuration files are included as part of the pyroids'
 distribution:
-* [novice.py](pyroids/config/novice.py)
-* [expert.py](pyroids/config/expert.py)
+* [novice.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/novice.py)
+* [expert.py](https://github.com/maread99/pyroids/blob/master/pyroids/config/expert.py)
 
 Aside from the configuration files, the ship and asteroid images can be changed with a little investigation of the source code and some minimal hacks.
 
@@ -100,10 +100,10 @@ Aside from the configuration files, the ship and asteroid images can be changed 
 ## Licensing
 
 #### Code
-See [LICENSE.txt](LICENSE.txt).
+See [LICENSE.txt](https://github.com/maread99/pyroids/blob/master/LICENSE.txt).
 
 #### Media
-See [pyroids\resources\README.md](pyroids/resources/README.md).
+See [pyroids\resources\README.md](https://github.com/maread99/pyroids/blob/master/pyroids/resources/README.md).
 
 ## Code Documentation
 
@@ -126,7 +126,7 @@ Name | Nature of assigned object
 
 ## Issues
 
-Please use the project's [issue page](issues) to report any issues.
+Please use the project's [issue page](https://github.com/maread99/pyroids/issues) to report any issues.
 
 ## Contact
 
