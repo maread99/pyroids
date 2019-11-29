@@ -40,7 +40,7 @@ Once installed, pyroids can be launched directly from the command line or via th
 
     $ python -m pyroids.play
 
-To launch with settings as defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'expert.py':
+To launch with settings defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'expert.py':
 
     $ python -m pyroids.play expert
 
