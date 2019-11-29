@@ -484,7 +484,7 @@ class Mine(Ammunition, PhysicalSprite):
         super().kill()
 
 class MineRed(Mine):
-    snd = load_static_sound('mr_minelaid_ext.wav')
+    snd = load_static_sound('mr_minelaid.wav')
 
     snd_no_stock = load_static_sound('mr_no_stock_mines.wav')
 
