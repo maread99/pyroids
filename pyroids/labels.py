@@ -475,7 +475,7 @@ class InstructionLabels(WindowLabels):
 
     def _set_for_pause(self):
         self._inst_lbl.text = ""
-        self._to_rtrn.text = 'Press F12 to return'
+        self._to_rtrn.text = 'Press F12 to return to game'
         self._esc_lbl.text = 'Press ESCAPE to end game'
         self._set_transparent_bg()
 
