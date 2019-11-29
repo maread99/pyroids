@@ -346,3 +346,4 @@ healthchecksdb
 /pyroids.egg-info
 /build/lib/pyroids
 /dist
+/social_preview.png
