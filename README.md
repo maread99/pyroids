@@ -1,6 +1,6 @@
 # pyroids
 
-![screenshot.png](screenshot.png)
+![screenshot.png](screenshot.png) ![screenshot.png](screenshot.png)
 
 Asteroids game with features including:
 * 1 or 2 player
