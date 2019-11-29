@@ -344,3 +344,5 @@ healthchecksdb
 /WORKING_NOTES.txt
 /pyroids/resources/placeholder.wav
 /pyroids.egg-info
+/build/lib/pyroids
+/dist
