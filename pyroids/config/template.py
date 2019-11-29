@@ -43,10 +43,6 @@ This module imports intertools and defines a number of helper functions
 that can be employed to create suitable customised iterators (these helper 
 functions are also used to define the default iterators).
 """
-###WILL NEED TO REVISE at least the start of the ABOVE SEGUN HOW WILL ACTUALLY 
-###WORK UNDER DISTRIBUTION - via a script? What's the name?
-###NEED TO COVER HOW TO SET AND USE!!!
-### README.md THEN TO EITHER REFERENCE TO HERE OR REPEAT AS APPLIC.
 
 import pyglet
 from collections import OrderedDict
@@ -260,7 +256,7 @@ LEVEL_AUGMENTATION = 1.05
 #HIGH_EXPOSURE_LIMIT = lambda: it.repeat(20)
 
 ## Maximum number of pickups that can be made available on each level.
-## However NB that any available pickups that are not 'dropped' will roll 
+## However note that any available pickups that are not 'dropped' will roll 
 ## forwards to the next level. For example, if levels 1 and 2 both have a 
 ## maximum of 3 pickups although only 2 are dropped in level 1 then up to 
 ## 4 will be dropped during level 2. If by the end of level 2 only a total 
