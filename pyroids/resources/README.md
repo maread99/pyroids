@@ -5,6 +5,7 @@ Image and audio files for pyroids application.
 ### Artwork
 
 Copyright 2019, Marcus Read
+
 License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 **Except:**
@@ -15,6 +16,7 @@ License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 ### Audio
 
 Copyright 2019, Marcus Read
+
 License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 **Except:**
