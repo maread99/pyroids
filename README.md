@@ -1,5 +1,9 @@
 # pyroids
 
+![screenshot.png](screenshot.png)
+
+<div style="text-align: right"> your-text-here </div>
+
 Asteroids game with features including:
 * 1 or 2 player
 * Multiple weapons
