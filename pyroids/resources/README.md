@@ -6,7 +6,7 @@ Image and audio files for pyroids application.
 
 Copyright 2019, Marcus Read
 
-License: [Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
+License: [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
 
 **Except:**
 
@@ -17,7 +17,7 @@ License: [Attribution 4.0 International](https://creativecommons.org/licenses/by
 
 Copyright 2019, Marcus Read
 
-License: [Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
+License: [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
 
 **Except:**
 * [thrusters.wav](thrusters.wav)
