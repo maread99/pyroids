@@ -22,13 +22,9 @@ Install from the source distribution on github:
 
 	$ pip install git+https//github.com/maread99/pyroids.git#egg=pyroids
 
-Install from a source distribution stored locally:
-
-	$ python setup.py install --user
-
 ## Requirements
 
-pyroids requires Python 3.6+ (employs annotation syntax).
+pyroids requires Python 3.6+.
 
 The only dependency is pyglet 1.4 which, if not already installed, will be installed as part of the pyroids installation process.
 
