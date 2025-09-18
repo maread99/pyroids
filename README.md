@@ -24,9 +24,9 @@ Install from the source distribution on github:
 
 ## Requirements
 
-pyroids requires Python 3.6+.
+pyroids requires Python 3.9+.
 
-The only dependency is pyglet 1.4 which, if not already installed, will be installed as part of the pyroids installation process.
+The only dependency is pyglet v1 which, if not already installed, will be installed as part of the pyroids installation process.
 
 ## Play me!
 

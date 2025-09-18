@@ -55,20 +55,19 @@ pyroids package comprises:
     Files:
         resources  Directory containing image and sound files.
 """
+# TODO REVISE DOC
 
-__author__ = 'Marcus Read'
-__email__ = 'marcusaread@gmail.com'
-
-import os, importlib
+import importlib
 from pathlib import Path
 from typing import List, Optional
 
 import pyglet
 
-pyglet.options['debug_gl'] = False  # True only if developing, otherwise False
+# TODO set to False for release...
+pyglet.options['debug_gl'] = True  # True only if developing, otherwise False
 
 dir_path = Path(__file__).parent.absolute() # Path to this file's directory..
-dir_path = '/'.join(str(dir_path).split('\\'))  # ..using pyglet separator '/'
+dir_path = '/'.join(str(dir_path).split('\\'))
 # Set pyglet resource directory.
 pyglet.resource.path = [dir_path + '/resources']
 pyglet.resource.reindex()
