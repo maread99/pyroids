@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyroids"
+version = "0.9.0"
+description = "Asteroids game"
+authors = [
+  {email = "marcusaread.prog@proton.me"},
+  {name = "Marcus Read"}
+]
+readme = "README.md"
+license = {text = "MIT License"}
+keywords = [
+    "game",
+    "arcade",
+    "asteroids",
+    "multiplayer",
+    "pyglet",
+]
+requires-python = ">3.9.0"
+
+classifiers = [
+	"Development Status :: 4 - Beta",
+    "Natural Language :: English",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.8",
+	"Programming Language :: Python :: Implementation :: CPython",
+    'Topic :: Games/Entertainment :: Arcade',
+]
+
+dependencies = ['pyglet~=1.5']
+
+
+[project.urls]
+homepage = "https://github.com/maread99/pyroids"
+documentation = "https://github.com/maread99/pyroids/blob/master/README.md"
+"Issue Tracker" = "https://github.com/maread99/pyroids/issues"
+"Source Code" = "https://github.com/maread99/pyroids"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+pyroids = [
+    'resources/*.png',
+    'resources/*.wav',
+    'config/*.py'
+]
+
+[project.scripts]
+pyroids = "pyroids:launch"
