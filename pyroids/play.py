@@ -4,12 +4,12 @@
 
     $ python -m pyroids.play
 
-Application settings can be optionally customised by passing the name of a 
+Application settings can be optionally customised by passing the name of a
 configuration file located in the pyroids.config directory. Example:
 
     $ python -m pyroids.play novice
 
-See pyroids\config\template.py for instructions on setting up configuration 
+See pyroids\config\template.py for instructions on setting up configuration
 files.
 """
 

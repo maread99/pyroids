@@ -9,6 +9,7 @@ distance()  Direct distance from point1 to point2
 import math
 from typing import Tuple
 
+
 def distance(point1: Tuple[int, int], point2: Tuple[int, int]) -> float:
     """Return direct distance from point1 to point2."""
     x_dist = abs(point1[0] - point2[0])
