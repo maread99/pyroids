@@ -6,21 +6,23 @@ ClockExt()  Extends standard pyglet clock to include pause functionality.
 """
 
 import pyglet
+
+
 class ClockExt(pyglet.clock.Clock):
     """Extends standard default Clock to include pause functionality.
-    
-    Pausing clock has effect of delaying all scheduled calls by the time 
+
+    Pausing clock has effect of delaying all scheduled calls by the time
     during which the clock is paused.
 
     CHANGING THE CLOCK
-    The standard pyglet clock can be changed to an instance of ClockExt with 
-    the following code which must be executed by the application BEFORE any 
+    The standard pyglet clock can be changed to an instance of ClockExt with
+    the following code which must be executed by the application BEFORE any
     other import from pyglet:
-    
-    from .lib.pyglet_lib_clockext import ClockExt  # path to this class
+
+    from .utils.pyglet_utils_clockext import ClockExt  # path to this class
     import pyglet
     pyglet.clock.set_default(ClockExt())
-    
+
     METHODS
     --pause--  Pause the clock
     --resume--  Resume the clock
@@ -30,13 +32,13 @@ class ClockExt(pyglet.clock.Clock):
         self._paused = False
         self._pause_ts: Optional[float] = None
         self._paused_cumulative = 0
-        
+
         super().__init__(*args, **kwargs)
         self._time_func = self.time  # stores original --time-- function
         self.time = self._time  # assigns --time-- to alternative function
 
     def _time(self):
-        # Alternative time function as original save for subtracting 
+        # Alternative time function as original save for subtracting
         # cumulative time over which clock has been paused.
         return self._time_func() - self._paused_cumulative
 
@@ -44,7 +46,6 @@ class ClockExt(pyglet.clock.Clock):
         """Pause the clock."""
         self._paused = True
         self._pause_ts = self._time_func()
-
 
     def resume(self):
         """Resume the clock."""
