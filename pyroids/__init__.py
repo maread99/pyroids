@@ -2,30 +2,38 @@ r"""pyroids.
 
 LAUNCHING THE APPLICATION
 
-pyroids can be launched either via the pyroids launch() function or from
-the command line via the play module.
+If installed via pip it should be possible to launch pyroids from the
+command line:
 
-Launch function:
+    $ pyroids
 
-    >>> import pyroids
-    >>> pyroids.launch()
+...or to launch with settings as defined by a configuration file, for
+example 'novice.py':
 
-To launch with settings as defined by a configuration file, for example
-'novice.py':
+    $ pyroids novice
 
-    >>> pyroids.launch('novice')
+Alternatively pyroids can be launched via the play module...
 
-From the Command Line:
+From the command line at the project root:
 
     $ python -m pyroids.play
 
-To launch with settings as defined by a configuration file, for example
-'expert.py':
+...with a configuration file:
 
     $ python -m pyroids.play expert
 
-See pyroids\config\template.py for instructions on setting up configuration
-files.
+Or from a python environment to which pyroids is installed:
+
+    >>> from pyroids import play
+    >>> play.launch()
+
+...with a configuration file:
+
+    >>> play.launch('novice')
+
+(See pyroids\config\template.py for instructions on setting up configuration
+files.)
+
 
 The pyroids package comprises:
     Modules:
@@ -52,22 +60,18 @@ The pyroids package comprises:
 
 from __future__ import annotations
 
-import importlib
 from enum import Enum
 from pathlib import Path
 
 import pyglet
 
-# TODO: set to False for release...
-pyglet.options["debug_gl"] = True  # True only if developing, otherwise False
+pyglet.options["debug_gl"] = False  # True only if developing, otherwise False
 
-dir_path = Path(__file__).parent.absolute()  # Path to this file's directory..
+dir_path: str | Path = Path(__file__).parent.absolute()  # Path to this file's dir..
 dir_path = "/".join(str(dir_path).split("\\"))
 # Set pyglet resource directory.
 pyglet.resource.path = [dir_path + "/resources"]
 pyglet.resource.reindex()
-
-CONFIG_PATH = None
 
 
 class PlayerColor(Enum):
@@ -75,61 +79,3 @@ class PlayerColor(Enum):
 
     BLUE = "blue"
     RED = "red"
-
-
-# TODO: look to split configuration off to separate module
-# TODO: look to split launch off to separate module, which may require changing the
-# location of the script on project.toml
-
-
-def _set_config_path(config_file: str | None) -> None:
-    global CONFIG_PATH
-    CONFIG_PATH = (
-        None if config_file is None else ".config." + config_file.replace(".py", "")
-    )
-
-
-def launch(config_file: str | None = None) -> None:
-    r"""Launch application.
-
-    Parameters
-    ----------
-    config_file
-        Name of configuration file to apply (configuration file should be
-        in the pyroids.config directory). If passed, application will
-        launch with settings as determined by the configuration file,
-        otherwise will launch with default settings. See
-        pyroids\config\template.py for instructions on setting up
-        configuration files.
-    """
-    _set_config_path(config_file)
-    from pyroids import game
-
-    game.Game()
-    pyglet.app.run()  # Initiate main event loop
-
-
-def _config_import(mod_vars: dict, settings: list[str]) -> None:
-    """Override default settings with configuration file settings.
-
-    Overrides a module's default settings with settings defined in any
-    configuration file. Makes no change to any setting not defined in the
-    configuration file.
-
-    Parameters
-    ----------
-    mod_vars
-        Module's variables dictionary as returned by vars() when called
-        from the module.
-
-    settings
-        List of attribute names that each define a default setting on the
-        module with variables dictionary passed as `mod_vars`.
-    """
-    if CONFIG_PATH is None:
-        return
-    config_mod = importlib.import_module(CONFIG_PATH, "pyroids")
-
-    for setting in settings:
-        if hasattr(config_mod, setting):
-            mod_vars[setting] = getattr(config_mod, setting)

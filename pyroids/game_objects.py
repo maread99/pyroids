@@ -115,7 +115,8 @@ from typing import TYPE_CHECKING, ClassVar, Literal
 import pyglet
 from pyglet.sprite import Sprite
 
-from . import PlayerColor, _config_import
+from . import PlayerColor
+from .configuration import Config
 from .labels import StockLabel
 from .utils.pyglet_utils.audio_ext import (
     StaticSourceClassMixin,
@@ -2028,7 +2029,7 @@ PICKUP_AMMO_STOCKS = {
 }
 
 settings = ["COLLECTABLE_IN", "COLLECTABLE_FOR", "PICKUP_AMMO_STOCKS"]
-_config_import(vars(), settings)
+Config.import_config(vars(), settings)
 
 
 class PickUp(PhysicalSprite):
@@ -2227,7 +2228,7 @@ INITIAL_AMMO_STOCKS = {
 }
 
 settings = ["SHIELD_DURATION", "INITIAL_AMMO_STOCKS", "HIGH_VELOCITY_BULLET_FACTOR"]
-_config_import(vars(), settings)
+Config.import_config(vars(), settings)
 
 
 class ControlSystem:

@@ -56,4 +56,4 @@ pyroids = [
 ]
 
 [project.scripts]
-pyroids = "pyroids:launch"
+pyroids = "pyroids.play:main"
