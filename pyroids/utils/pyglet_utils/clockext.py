@@ -1,9 +1,6 @@
-#! /usr/bin/env python
+"""Clock extension."""
 
-"""
-CLASSES
-ClockExt()  Extends standard pyglet clock to include pause functionality.
-"""
+from __future__ import annotations
 
 import pyglet
 
@@ -14,28 +11,35 @@ class ClockExt(pyglet.clock.Clock):
     Pausing clock has effect of delaying all scheduled calls by the time
     during which the clock is paused.
 
+    Notes
+    -----
     CHANGING THE CLOCK
-    The standard pyglet clock can be changed to an instance of ClockExt with
-    the following code which must be executed by the application BEFORE any
-    other import from pyglet:
+    Use the following code to cahnge the standard pyglet clock to an
+    instance of ClockExt. Note that This code must be executed by the
+    application BEFORE any other import from pyglet:
 
-    from .utils.pyglet_utils_clockext import ClockExt  # path to this class
+    ```python
+    from .utils.pyglet_utils_clockext import ClockExt
     import pyglet
     pyglet.clock.set_default(ClockExt())
+    ```
 
-    METHODS
-    --pause--  Pause the clock
-    --resume--  Resume the clock
+    Methods
+    -------
+    pause
+        Pause the clock
+    resume
+        Resume the clock
     """
 
     def __init__(self, *args, **kwargs):
         self._paused = False
-        self._pause_ts: Optional[float] = None
+        self._pause_ts: float | None = None
         self._paused_cumulative = 0
 
         super().__init__(*args, **kwargs)
-        self._time_func = self.time  # stores original --time-- function
-        self.time = self._time  # assigns --time-- to alternative function
+        self._time_func = self.time  # stores original `time` function
+        self.time = self._time  # assigns `time` to alternative function
 
     def _time(self):
         # Alternative time function as original save for subtracting
@@ -55,12 +59,14 @@ class ClockExt(pyglet.clock.Clock):
         self._paused = False
 
     def update_time(self, *args, **kwargs):
+        """Get the elapsed time since the last call to `update_time`."""
         # Extends inherited method to not update time when paused.
         if self._paused:
             return 0
         return super().update_time(*args, **kwargs)
 
     def tick(self, *args, **kwargs):
+        """Signify that one frame has passed."""
         # Extends inherited method to not tick when paused.
         if self._paused:
             return 0

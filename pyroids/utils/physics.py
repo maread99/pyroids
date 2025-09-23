@@ -1,18 +1,16 @@
-#! /usr/bin/env python
-
 """Physics Functions.
 
-FUNCTIONS
-distance()  Direct distance from point1 to point2
+Functions
+---------
+distance
+    Length of line from point1 to point2.
 """
 
 import math
-from typing import Tuple
 
 
-def distance(point1: Tuple[int, int], point2: Tuple[int, int]) -> float:
-    """Return direct distance from point1 to point2."""
+def distance(point1: tuple[int, int], point2: tuple[int, int]) -> float:
+    """Return length of line from point1 to point2."""
     x_dist = abs(point1[0] - point2[0])
     y_dist = abs(point1[1] - point2[1])
-    dist = math.sqrt(x_dist**2 + y_dist**2)
-    return dist
+    return math.sqrt(x_dist**2 + y_dist**2)
