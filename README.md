@@ -30,30 +30,32 @@ The only dependency is pyglet v1 which, if not already installed, will be instal
 
 ## Play me!
 
-Once installed, pyroids can be launched directly from the command line or via the launch() function.
-
-#### From the command line:
-
-    $ python -m pyroids.play
-
-To launch with settings defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'expert.py':
-
-    $ python -m pyroids.play expert
-
-If pyroids was installed via pip then the application \*might also launch with default settings with a simple:
+If pyroids was installed via pip then the application \*should launch with from the command line with a simple:
 
 	$ pyroids
 
-\* requires that the *Scripts* directory, of the python environment to which pyroids was installed, is included to the PATH environmental variable.
+...and to launch with settings defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'novice.py':
 
-#### Using launch function:
+    $ pyroids novice
 
-    >>> import pyroids
-    >>> pyroids.launch()
+\* the above requires that the *Scripts* directory, of the python environment to which pyroids was installed, is included to the PATH environmental variable.
 
-To launch with settings as defined by a configuration file (see [Game Customisation](https://github.com/maread99/pyroids#game-customisation) section), for example 'novice.py':
+Alternatively pyroids can be launched directly from the play module. Either **from the command line** as a script:
 
-    >>> pyroids.launch('novice')
+    $ python -m pyroids.play
+
+...or with a configuration file, for example 'expert.py':
+
+    $ python -m pyroids.play expert
+
+Or from **within a python environment** to which pyroids is installed:
+
+    >>> from pyroids import play
+    >>> play.launch()
+
+...with a configuration file:
+
+    >>> play.launch('expert')
 
 ## Game Customisation
 

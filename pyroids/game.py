@@ -40,7 +40,8 @@ from typing import Callable, ClassVar, Literal
 
 from pyglet.sprite import Sprite
 
-from . import PlayerColor, _config_import
+from . import PlayerColor
+from .configuration import Config
 from .game_objects import (
     AmmoClasses,
     Asteroid,
@@ -180,7 +181,7 @@ settings = [
     "HIGH_EXPOSURE_LIMIT",
     "NUM_PICKUPS",
 ]
-_config_import(vars(), settings)
+Config.import_config(vars(), settings)
 
 if PICKUP_INTERVAL_MAX < PICKUP_INTERVAL_MIN:
     raise ValueError("PICKUP_INTERVAL_MAX cannot be less than PICKUP_INTERVAL_MIN")  # noqa: TRY003 EM101
