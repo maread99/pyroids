@@ -1,11 +1,9 @@
-#! /usr/bin/env python
-
-"""pyroids.
+r"""pyroids.
 
 LAUNCHING THE APPLICATION
 
-The pyroids application can be launched either via the pyroids launch()
-function or from the command line via the play module.
+pyroids can be launched either via the pyroids launch() function or from
+the command line via the play module.
 
 Launch function:
 
@@ -29,41 +27,38 @@ To launch with settings as defined by a configuration file, for example
 See pyroids\config\template.py for instructions on setting up configuration
 files.
 
-
-FUNCTIONS
-launch([config_file])  Launch application.
-
-pyroids package comprises:
+The pyroids package comprises:
     Modules:
-        __init__  This package initialisation file.
-        play  Launcher.
-        game  Game engine.
-        game_objects  Ship, asteroid, weapon and ammunition classes.
-        labels  Collections of text objects and player info row classes.
-        utils.iter_util  Iterator-related utility functions.
-        utils.physics  Physics functions.
-        utils.pyglet_utils.audio_ext  Mixins offering convenience functions for
-            pyglet audio functionality.
-        utils.pyglet_utils.clockext  Extension to pause pyglet Clock
-        utils.pyglet_utils.drawing  Classes to draw shapes and patterns from
-            primative forms.
-        utils.pyglet_utils.sprite_ext  Extentions of pyglet Sprite class and
-            helper functions.
-        config.template  Configuration file template.
-        config.novice  Configuration file for novice player.
-        config.expert  Configuration file for expert player.
+        __init__:  This package initialisation file.
+        play:  Launcher.
+        game:  Game engine.
+        game_objects:  Ship, asteroid, weapon and ammunition classes.
+        labels:  Collections of text objects and player info row classes.
+        utils.iter_util:  Iterator-related utility functions.
+        utils.physics:  Physics functions.
+        utils.pyglet_utils.audio_ext:  Mixins offering convenience
+            functions for pyglet audio functionality.
+        utils.pyglet_utils.clockext: Extension to pause pyglet Clock
+        utils.pyglet_utils.drawing:  Classes to draw shapes and patterns
+            from primative forms.
+        utils.pyglet_utils.sprite_ext:  Extentions of pyglet Sprite class
+            and helper functions.
+        config.template:  Configuration file template.
+        config.novice:  Configuration file for novice player.
+        config.expert:  Configuration file for expert player.
     Files:
-        resources  Directory containing image and sound files.
+        resources:  Directory containing image and sound files.
 """
-# TODO REVISE DOC
+
+from __future__ import annotations
 
 import importlib
+from enum import Enum
 from pathlib import Path
-from typing import List, Optional
 
 import pyglet
 
-# TODO set to False for release...
+# TODO: set to False for release...
 pyglet.options["debug_gl"] = True  # True only if developing, otherwise False
 
 dir_path = Path(__file__).parent.absolute()  # Path to this file's directory..
@@ -75,49 +70,66 @@ pyglet.resource.reindex()
 CONFIG_PATH = None
 
 
-def _set_config_path(config_file: Optional[str]):
+class PlayerColor(Enum):
+    """All possible players colors."""
+
+    BLUE = "blue"
+    RED = "red"
+
+
+# TODO: look to split configuration off to separate module
+# TODO: look to split launch off to separate module, which may require changing the
+# location of the script on project.toml
+
+
+def _set_config_path(config_file: str | None) -> None:
     global CONFIG_PATH
     CONFIG_PATH = (
         None if config_file is None else ".config." + config_file.replace(".py", "")
     )
 
 
-def launch(config_file: Optional[str] = None):
-    """Launch application.
+def launch(config_file: str | None = None) -> None:
+    r"""Launch application.
 
-    +config_file+  Name of configuration file to apply (configuration file
-        should be in the pyroids.config directory). If passed, application
-        will launch with settings as determined by the configuration file,
-        otherwise will launch with default settings.
-
-    See pyroids\config\template.py for instructions on setting up configuration
-    files.
+    Parameters
+    ----------
+    config_file
+        Name of configuration file to apply (configuration file should be
+        in the pyroids.config directory). If passed, application will
+        launch with settings as determined by the configuration file,
+        otherwise will launch with default settings. See
+        pyroids\config\template.py for instructions on setting up
+        configuration files.
     """
     _set_config_path(config_file)
     from pyroids import game
 
-    game_window = game.Game()
-    return pyglet.app.run()  # Initiate main event loop
+    game.Game()
+    pyglet.app.run()  # Initiate main event loop
 
 
-def _config_import(mod_vars: dict, settings: List[str]):
+def _config_import(mod_vars: dict, settings: list[str]) -> None:
     """Override default settings with configuration file settings.
 
     Overrides a module's default settings with settings defined in any
-    configuration file. Makes no change for to any setting not defined in
-    the configuration file.
+    configuration file. Makes no change to any setting not defined in the
+    configuration file.
 
-    +settings+ List of attribute names that each define a default setting
-        on the module with variables dictionary passed as +mod_vars+.
-    +mod_vars+ Module's variables dictionary as returned by vars() when
-        called from the module.
+    Parameters
+    ----------
+    mod_vars
+        Module's variables dictionary as returned by vars() when called
+        from the module.
+
+    settings
+        List of attribute names that each define a default setting on the
+        module with variables dictionary passed as `mod_vars`.
     """
     if CONFIG_PATH is None:
         return
     config_mod = importlib.import_module(CONFIG_PATH, "pyroids")
 
     for setting in settings:
-        try:
+        if hasattr(config_mod, setting):
             mod_vars[setting] = getattr(config_mod, setting)
-        except AttributeError:
-            pass
