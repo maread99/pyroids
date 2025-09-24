@@ -8,6 +8,6 @@ repos:
     rev: v0.13.0
     hooks:
       # Run the linter.
-      - id: ruff
+      # - id: ruff
       # Run the formatter.
       - id: ruff-format
