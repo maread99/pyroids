@@ -14,7 +14,7 @@ Asteroids game with features including:
 
 The simplest way to install pyroids is directly from PyPI:
 
-	$ pip install --upgrade pyroids --user
+	$ pip install pyroids
 
 #### Alternatively
 
