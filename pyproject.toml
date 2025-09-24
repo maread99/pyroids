@@ -63,7 +63,7 @@ pyroids = [
 ]
 
 [tool.setuptools_scm]
-write_to = "_version.py"
+write_to = "pyroids/_version.py"
 
 [[tool.uv.index]]
 name = "testpypi"
