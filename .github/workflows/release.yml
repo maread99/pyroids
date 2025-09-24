@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: windows-latest  # ensures necessary libs included for build_test
+    runs-on: macos-latest  # ensures necessary libs included for build_test
     environment:
       name: pypi
     steps:
