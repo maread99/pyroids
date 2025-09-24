@@ -1,0 +1,37 @@
+# Workflow to upload a Python Package using Twine when a release is created
+name: Release to PyPI
+
+on:
+  release:
+    types: [released]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: windows-latest  # ensures necessary libs included for build_test
+    environment:
+      name: pypi
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+      - name: Install Python 3.13
+        run: uv python install 3.13
+      - name: Build
+        run: uv build
+        # Check can launch app as built...
+      - name: Smoke test (wheel)
+        run: uv run --isolated --no-project --with dist/*.whl tests/build_test.py
+      - name: Smoke test (source distribution)
+        run: uv run --isolated --no-project --with dist/*.tar.gz tests/build_test.py
+      - name: Publish
+        run: uv publish
+      - name: Wait for PyPI to publish
+        shell: bash
+        run: |
+          sleep 5  
+      - name: Check install and import
+        run: uv run --with pyroids --no-project -- python -c 'import pyroids;print(f"{pyroids.__version__=}")'
