@@ -36,4 +36,4 @@ jobs:
         run: |
           sleep 5  
       - name: Check install and import
-        run: uv run --with pyroids --no-project -- python -c 'import pyroids;print(f"{pyroids.__version__=}")'
+        run: uv run --refresh-package pyroids --with pyroids --no-project -- python -c 'import pyroids;print(f"{pyroids.__version__=}")'
