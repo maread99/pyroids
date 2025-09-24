@@ -60,6 +60,7 @@ The pyroids package comprises:
 
 from __future__ import annotations
 
+import contextlib
 from enum import Enum
 from pathlib import Path
 
@@ -79,3 +80,25 @@ class PlayerColor(Enum):
 
     BLUE = "blue"
     RED = "red"
+
+
+# Resolve version
+__version__ = None
+
+from importlib.metadata import version  # noqa: E402
+
+# get version from installed package
+with contextlib.suppress(ImportError):
+    __version__ = version("pyroids")
+
+if __version__ is None:
+    try:
+        # if package not installed, get version as set when package built
+        from ._version import version
+    except Exception:  # noqa: BLE001, S110
+        # If package not installed and not built, leave __version__ as None
+        pass
+    else:
+        __version__ = version
+
+del version
