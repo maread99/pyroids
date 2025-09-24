@@ -1,0 +1,54 @@
+name: Build and test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check-ruff:
+      # fail it if doesn't conform to ruff formatter
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v5
+        - uses: astral-sh/ruff-action@v3
+          with:
+            args: "format --check --diff"
+
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install uv and set the Python version
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Enable caching
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install OpenGL dependencies (Linux only)
+        if: runner.os == 'Linux'
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y libglu1-mesa libgl1-mesa-dev
+      - name: Install Xvfb (Linux only)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y xvfb
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+      - name: Run tests with virtual display (Linux only)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a .venv/bin/python -m pytest
+      - name: Run tests (non-Linux)
+        if: runner.os != 'Linux'
+        run: uv run pytest tests
