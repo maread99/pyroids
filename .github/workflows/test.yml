@@ -16,7 +16,7 @@ jobs:
           with:
             args: "format --check --diff"
 
-  build-and-test:
+  test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
