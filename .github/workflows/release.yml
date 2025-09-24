@@ -23,11 +23,13 @@ jobs:
       - name: Build
         run: uv build
         # Check can launch app as built...
-      - name: Smoke test (wheel)
-        run: uv run --isolated --no-project --with dist/*.whl tests/build_test.py
-      - name: Smoke test (source distribution)
-        run: uv run --isolated --no-project --with dist/*.tar.gz tests/build_test.py
-      - name: Publish
+      - name: Build test (wheel)
+        run: bash -c 'uv run --isolated --no-project --with dist/*.whl tests/build_test.py'
+      - name: Build test (source distribution)
+        run: bash -c 'uv run --isolated --no-project --with dist/*.tar.gz tests/build_test.py'
+      - name: Publish to Test PyPI
+        run: uv publish --index testpypi
+      - name: Publish to PyPI
         run: uv publish
       - name: Wait for PyPI to publish
         shell: bash
