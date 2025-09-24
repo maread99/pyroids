@@ -35,6 +35,10 @@ classifiers = [
 
 dependencies = ['pyglet~=1.5']
 
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]
 
 [project.urls]
 homepage = "https://github.com/maread99/pyroids"

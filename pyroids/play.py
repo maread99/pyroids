@@ -27,13 +27,43 @@ files.
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pyglet
 
+import pyroids
 from pyroids import configuration
 
+if TYPE_CHECKING:
+    from pyroids import game
 
-def launch(config_file: str | None = None) -> None:
+
+TESTING = False  # Set to True if testing app
+
+
+class Game:
+    """Game.
+
+    Holds current game instance. Class should not be instantiated directly.
+    """
+
+    game: game.Game
+
+    @classmethod
+    def instantiate_game(cls, *, hide: bool = False):
+        """Start a game.
+
+        Parameters
+        ----------
+        hide
+            Hide window.
+        """
+        from pyroids import game  # noqa: PLC0415
+
+        cls.game = game.Game(visible=not hide)
+
+
+def launch(config_file: str | None = None, *, _testing_script: bool = False) -> None:
     r"""Launch application.
 
     Parameters
@@ -45,18 +75,30 @@ def launch(config_file: str | None = None) -> None:
         otherwise will launch with default settings. See
         pyroids\config\template.py for instructions on setting up
         configuration files.
+
+    Notes
+    -----
+    Pass `_testing_script=True` if testing that launches as script. This
+    will hide the window and ensure that the app exits after 2 seconds.
     """
     configuration.Config.set_config_mod(config_file)
-    from pyroids import game  # noqa: PLC0415
-
-    game.Game()
+    Game.instantiate_game(hide=_testing_script or TESTING)
+    if TESTING:
+        return
+    if _testing_script:
+        pyglet.clock.schedule_once(lambda dt: pyglet.app.exit(), 2)  # noqa: ARG005
     pyglet.app.run()  # Initiate main event loop
 
 
-def main(config_file: str | None = None):
+def main():
     """Script interface."""
-    config_file = sys.argv[1] if len(sys.argv) == 2 else None  # noqa: PLR2004
-    launch(config_file)
+    testing = False
+    args = sys.argv.copy()
+    if "--testing" in args:
+        testing = True
+        args.remove("--testing")
+    config_file = args[1] if len(args) == 2 else None  # noqa: PLR2004
+    launch(config_file, _testing_script=testing)
 
 
 if __name__ == "__main__":
