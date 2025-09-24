@@ -7,6 +7,9 @@ from pyroids import play
 
 def build_tst():
     """Test application launches."""
+    # TODO: This test doesn't work. Errors can be raised within the app
+    # run although that won't prevent the window object being assigned here
+    # (i.e. the only thing that's actually checked for).
     play.launch("novice", _testing_script=True)
     win = play.Game.game
     if isinstance(win, pyglet.window.Window):
