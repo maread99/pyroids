@@ -140,7 +140,6 @@ wheels = [
 
 [[package]]
 name = "pyroids"
-version = "0.9.0"
 source = { editable = "." }
 dependencies = [
     { name = "pyglet" },
