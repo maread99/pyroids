@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0.0", "wheel"]
+requires = ["setuptools>=61.0.0", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyroids"
-version = "0.9.0"
+dynamic = ["version"]
 description = "Asteroids game"
 authors = [
   {email = "marcusaread.prog@proton.me"},
@@ -59,6 +59,9 @@ pyroids = [
     'resources/*.wav',
     'config/*.py'
 ]
+
+[tool.setuptools_scm]
+write_to = "_version.py"
 
 [project.scripts]
 pyroids = "pyroids.play:main"
