@@ -1,5 +1,7 @@
 # pyroids
 
+[![PyPI](https://img.shields.io/pypi/v/pyroids)](https://pypi.org/project/pyroids) ![Python Support](https://img.shields.io/pypi/pyversions/pyroids) [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-D7FF64.svg)](https://github.com/astral-sh/ruff)
+
 ![screenshot.png](https://github.com/maread99/pyroids/blob/master/screenshot.png)
 
 Asteroids game with features including:
