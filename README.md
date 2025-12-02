@@ -111,23 +111,10 @@ Function and method documentation:
 * does not by default list all optional and keyword arguments, for which signatures should be inspected.
 * does not state argument types or return values, for which signatures' annotation should be inspected.
 
-
-Names referenced in documentation are surrounded by symbols that identify the nature of the assigned object:
-
-Name | Nature of assigned object
----- | -------------------------
-+parameter_name+ | Parameter of documented function or method.
-++parameter_name++ | Parameter of class constructor method.
--variable_name- | Variable local to code being documented.
---attribute_name-- | Instance attribute.
---method_name(args, kwargs)-- | Instance method. Only args / kwargs referred to in the 		subseqeunt documentation are noted. Signature should be inspected for full parameters.
----classmethod_name()--- | Class method or static method.
-----global_constant_name---- | Global constant.
-
 ## Issues
 
 Please use the project's [issue page](https://github.com/maread99/pyroids/issues) to report any issues.
 
 ## Contact
 
-[Marcus Read](mailto:marcusaread@gmail.com)
+[Marcus Read](mailto:marcusaread.gh@proton.me)
